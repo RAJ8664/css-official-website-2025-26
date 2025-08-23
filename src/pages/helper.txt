@@ -1,0 +1,3 @@
+./pages -> this folder will contain all the pages that wil be there in the CSS website.
+
+--> Dont make the pages messy, if there is a huge block of code, make it in the components folder and import it in the page.

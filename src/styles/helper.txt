@@ -1,0 +1,3 @@
+styles -> this folder will contain all the custom styles, created via css i.e. complex animations which is difficult to create using tailwindcss. 
+
+Try to minimise using custom css as much as possible.

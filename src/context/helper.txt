@@ -1,0 +1,1 @@
+/context – This folder contains React Context providers and related logic (e.g., AuthContext, ThemeContext, UserContext) that manage and share global state across the application.

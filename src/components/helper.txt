@@ -1,0 +1,1 @@
+/components – This folder contains all reusable UI components (like Navbar, Footer, Buttons, Cards, Modals, etc.) that can be imported and used across multiple pages of the application.
