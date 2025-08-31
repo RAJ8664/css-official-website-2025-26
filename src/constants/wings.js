@@ -41,3 +41,5 @@ const wingsContent = {
     }
   ]
 }
+
+export default wingsContent;
