@@ -36,7 +36,7 @@ const eventsContent={
                     },
                     {
                         "name":"Open Source Marathon",
-                        "slug":"open source marathon",
+                        "slug":"open-source-marathon",
                         "status":"upcoming",
                         "date": "",
                         "venue": "",
