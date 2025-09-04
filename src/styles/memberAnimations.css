@@ -150,32 +150,3 @@
 .backface-hidden {
   backface-visibility: hidden;
 }
-
-/* Glitch effect for heading */
-.animate-glitch {
-  position: relative;
-}
-
-.animate-glitch::before,
-.animate-glitch::after {
-  content: 'Our Members';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.animate-glitch::before {
-  color: rgba(255, 0, 0, 0.5);
-  animation: glitch-effect 3s infinite;
-  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-  transform: translate(-2px, -2px);
-}
-
-.animate-glitch::after {
-  color: rgba(0, 255, 255, 0.5);
-  animation: glitch-effect 2s infinite;
-  clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
-  transform: translate(2px, 2px);
-}
