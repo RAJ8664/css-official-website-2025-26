@@ -6,6 +6,7 @@ import {
   FaArrowRight,
 } from 'react-icons/fa'
 import data from '../jsonData/members.json'
+import '../styles/memberAnimations.css'
 
 const Members = () => {
   const [selectedYear, setSelectedYear] = useState(data.years[0])
@@ -94,12 +95,13 @@ const Members = () => {
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1
-            className="text-6xl font-bold mb-4 text-white animate-glitch"
+            className="text-6xl font-bold mb-4 text-white "
             style={{ fontFamily: 'Goldman, sans-serif' }}
           >
             Our Members
           </h1>
         </div>
+
         {/* Top Section: Text + Image*/}
         <div className="flex flex-col lg:flex-row items-center gap-6 md:gap-10 mb-12 md:mb-16 p-6 md:p-8 bg-black/90 rounded-xl md:rounded-2xl backdrop-blur-lg border border-cyan-500/20 relative z-10 overflow-hidden">
           {/* Hexagon grid background */}
@@ -291,6 +293,7 @@ const Members = () => {
             <div className="absolute inset-0 bg-circuit-pattern opacity-10"></div>
             <div className="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-xl"></div>
             <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-purple-500/10 rounded-full blur-xl"></div>
+
             {/* Cyberpunk border corners */}
             <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-cyan-400"></div>
             <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-cyan-400"></div>
@@ -510,103 +513,6 @@ const Members = () => {
           </div>
         </div>
       </div>
-
-      {/* 🔹 Keyframes for animations */}
-      <style>{`
-        @keyframes slide {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        
-        @keyframes fall {
-          0% { transform: translateY(-20px); opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translateY(100vh); opacity: 0; }
-        }
-        
-        @keyframes grid-move {
-          0% { background-position: 0 0; }
-          100% { background-position: 50px 50px; }
-        }
-        
-        @keyframes scan {
-          0% { top: 0%; }
-          100% { top: 100%; }
-        }
-        
-        @keyframes float-1 {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
-        }
-        
-        @keyframes float-2 {
-          0%, 100% { transform: translateY(0) scale(1); }
-          50% { transform: translateY(-15px) scale(1.05); }
-        }
-        
-        @keyframes float-3 {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-25px) rotate(10deg); }
-        }
-        
-        .animate-float-1 {
-          animation: float-1 6s ease-in-out infinite;
-        }
-        
-        .animate-float-2 {
-          animation: float-2 8s ease-in-out infinite;
-          animation-delay: 1s;
-        }
-        
-        .animate-float-3 {
-          animation: float-3 7s ease-in-out infinite;
-          animation-delay: 2s;
-        }
-        
-        .animate-scan {
-          animation: scan 5s linear infinite;
-        }
-        
-        .animate-grid-move {
-          animation: grid-move 20s linear infinite;
-        }
-        
-        .bg-grid-pattern {
-          background-image: linear-gradient(to right, #2a2a72 1px, transparent 1px),
-                            linear-gradient(to bottom, #2a2a72 1px, transparent 1px);
-        }
-        
-        .bg-hexagon-pattern {
-          background-image: 
-            radial-gradient(circle at center, rgba(66, 153, 225, 0.1) 0, transparent 20%),
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M50,0 L100,25 L100,75 L50,100 L0,75 L0,25 Z' fill='none' stroke='%233a3a6a' stroke-width='0.5'/%3E%3C/svg%3E");
-        }
-        
-        .bg-tech-pattern {
-          background-image: 
-            radial-gradient(circle at 25% 25%, rgba(66, 153, 225, 0.1) 0, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(239, 68, 68, 0.1) 0, transparent 50%);
-        }
-        
-        /* 3D flip classes */
-        .perspective {
-          perspective: 1000px;
-          cursor: pointer;
-        }
-        
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
-        
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-        
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-      `}</style>
     </div>
   )
 }
