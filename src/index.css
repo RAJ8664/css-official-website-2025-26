@@ -1,1 +1,43 @@
 @import "tailwindcss";
+.perspective {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+@keyframes matrix-rain {
+  0% { 
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  2% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% { 
+    transform: translateY(500px);
+    opacity: 0;
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.bg-hexagon-pattern-black {
+  background-image: 
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M50,0 L100,25 L100,75 L50,100 L0,75 L0,25 Z' fill='none' stroke='%2300ccff' stroke-width='0.3' opacity='0.2'/%3E%3C/svg%3E");
+}
