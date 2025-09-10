@@ -93,7 +93,7 @@ const Members = () => {
 
       <div className="relative max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 mt-8">
           <h1
             className="text-6xl font-bold mb-4 text-white "
             style={{ fontFamily: 'Goldman, sans-serif' }}
@@ -514,6 +514,7 @@ const Members = () => {
         </div>
       </div>
     </div>
+
   )
 }
 
