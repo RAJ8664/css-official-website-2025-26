@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import LiquidEther from "../components/LiquidEther";
-import Carousel from "../components/Carousel";
+import LiquidEther from "../components/ui/LiquidEther";
+import Carousel from "../components/ui/Carousel";
 
 gsap.registerPlugin(ScrollTrigger);
 
 function Home() {
   const [showContent, setShowContent] = useState(false);
   const [input, setInput] = useState("");
+
+  
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -145,7 +147,7 @@ function Home() {
     </section>
 
     {/* Announcement Section */}
-    <section className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex flex-col items-center justify-center px-6 py-16 overflow-hidden">
+    <section className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex flex-col items-center justify-center px-5 py-16 overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
 
           <div className="absolute inset-0 opacity-40 mix-blend-screen">
@@ -186,7 +188,7 @@ function Home() {
       </div>
 
       {/* Foreground Terminal Box */}
-      <div className="relative z-10 w-full max-w-[1200px] bg-black/70 rounded-xl border border-cyan-500/20 p-6 md:p-10 backdrop-blur-md shadow-lg shadow-cyan-500/10">
+      <div className="relative z-10 w-full max-w-[1200px] bg-black/70 rounded-xl border border-cyan-500/20 p-3 md:p-10 backdrop-blur-md shadow-lg shadow-cyan-500/10">
         {/* Terminal Header */}
         <div className="flex items-center mb-4">
           <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
@@ -217,6 +219,11 @@ function Home() {
         </div>
       </div>
     </section>
+
+
+
+    {/* Pillars Section */}
+  
     </div>
   );
 }

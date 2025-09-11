@@ -80,8 +80,9 @@ export default function Carousel() {
           newContainerWidth = screenWidth * 0.9;
           setItemWidth(250);
         } else {
-          newContainerWidth = screenWidth * 0.95;
-          setItemWidth(260);
+          // Mobile-specific adjustments
+          newContainerWidth = screenWidth * 0.98; // Increased from 0.95 to 0.98
+          setItemWidth(screenWidth * 0.85); // Make items wider on mobile
         }
 
         setContainerWidth(newContainerWidth);
@@ -181,7 +182,7 @@ export default function Carousel() {
   };
 
   return (
-    <div className=" flex flex-col items-center justify-center bg-gradient-to-br from-black to-[#021547] p-4 relative overflow-hidden">
+    <div className=" flex flex-col items-center justify-center bg-gradient-to-br from-black to-[#021547] p-2 md:p-4 relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Binary rain */}
@@ -205,7 +206,7 @@ export default function Carousel() {
         <div className="absolute inset-0 bg-grid-pattern bg-[length:50px_50px] opacity-10 animate-grid-move"></div>
       </div>
 
-      <div className="w-full flex items-center justify-center relative z-10 px-4">
+      <div className="w-full flex items-center justify-center relative z-10 px-2 md:px-4">
         {/* Prev arrow */}
         <button
           onClick={goToPrev}
@@ -216,7 +217,7 @@ export default function Carousel() {
 
         <div
           ref={containerRef}
-          className="relative overflow-hidden p-3 md:p-6 rounded-2xl border border-cyan-500/30 backdrop-blur-lg bg-black/60"
+          className="relative overflow-hidden p-2 md:p-6 rounded-2xl border border-cyan-500/30 backdrop-blur-lg bg-black/60"
           style={{ width: containerWidth || "90%", maxWidth: "1200px" }}
         >
           <motion.div
@@ -236,15 +237,22 @@ export default function Carousel() {
             onAnimationComplete={handleAnimationComplete}
           >
             {carouselItems.map((item, index) => {
-              const range = [
-                -(index + 1) * trackItemOffset,
-                -index * trackItemOffset,
-                -(index - 1) * trackItemOffset,
-              ];
-              const outputRange = [30, 0, -30];
-              const rotateY = useTransform(x, range, outputRange, {
-                clamp: false,
-              });
+              // Calculate the position of each card relative to the center
+              const position = index - currentIndex;
+              const absPosition = Math.abs(position);
+              
+              // Only apply rotation to cards that are not in the center
+              const rotateY = position > 0 ? Math.min(position * 10, 30) : 
+                             position < 0 ? Math.max(position * 10, -30) : 0;
+              
+              // Scale down cards that are further from the center
+              const scale = absPosition > 0 ? Math.max(0.9, 1 - absPosition * 0.1) : 1;
+              
+              // Adjust opacity for cards that are further from the center
+              const opacity = absPosition > 1 ? Math.max(0.6, 1 - absPosition * 0.2) : 1;
+              
+              // Adjust z-index to ensure proper layering
+              const zIndex = carouselItems.length - absPosition;
 
               return (
                 <motion.div
@@ -253,10 +261,16 @@ export default function Carousel() {
                              bg-gradient-to-br from-[#0a0a0a] to-[#021547] 
                              border border-cyan-500/40 
                              rounded-xl overflow-hidden cursor-grab active:cursor-grabbing 
-                             group p-5 shadow-[0_0_15px_rgba(0,255,255,0.15)]"
+                             group p-4 md:p-5 shadow-[0_0_15px_rgba(0,255,255,0.15)]"
                   style={{
                     width: itemWidth,
-                    minHeight: "360px",
+                    minHeight: window.innerWidth < 768 ? "320px" : "360px", // Reduced height on mobile
+                    zIndex: zIndex,
+                    transformStyle: "preserve-3d",
+                    scale: scale,
+                    opacity: opacity,
+                  }}
+                  animate={{
                     rotateY: rotateY,
                   }}
                   transition={effectiveTransition}
@@ -265,11 +279,11 @@ export default function Carousel() {
                   <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500 opacity-60"></div>
 
                   {/* Image */}
-                  <div className="w-full mb-4 overflow-hidden rounded-lg border border-cyan-500/20">
+                  <div className="w-full mb-3 md:mb-4 overflow-hidden rounded-lg border border-cyan-500/20">
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-32 md:h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
 
@@ -280,18 +294,18 @@ export default function Carousel() {
                   <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-cyan-400/70 group-hover:border-purple-400 transition-all duration-300"></div>
 
                   {/* Icon + Text */}
-                  <div className="mb-4">
-                    <span className="flex h-[32px] w-[32px] items-center justify-center 
+                  <div className="mb-3 md:mb-4">
+                    <span className="flex h-[28px] w-[28px] md:h-[32px] md:w-[32px] items-center justify-center 
                                    rounded-full bg-cyan-900/60 border border-cyan-400/30 
                                    shadow-[0_0_10px_rgba(0,255,255,0.3)]">
                       {item.icon}
                     </span>
                   </div>
                   <div>
-                    <div className="mb-2 font-black text-lg text-cyan-300 group-hover:text-purple-300 transition-colors duration-300 tracking-wide">
+                    <div className="mb-1 md:mb-2 font-black text-base md:text-lg text-cyan-300 group-hover:text-purple-300 transition-colors duration-300 tracking-wide">
                       {item.title}
                     </div>
-                    <p className="text-sm text-gray-300 group-hover:text-gray-100 transition-colors duration-300 leading-relaxed">
+                    <p className="text-xs md:text-sm text-gray-300 group-hover:text-gray-100 transition-colors duration-300 leading-relaxed">
                       {item.description}
                     </p>
                   </div>
@@ -304,7 +318,7 @@ export default function Carousel() {
           </motion.div>
 
           {/* Dots */}
-          <div className="flex justify-center items-center mt-4 space-x-2">
+          <div className="flex justify-center items-center mt-3 md:mt-4 space-x-2">
             {DEFAULT_ITEMS.map((_, index) => (
               <button
                 key={index}
@@ -323,6 +337,22 @@ export default function Carousel() {
         <button
           onClick={goToNext}
           className="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-cyan-900/50 border border-cyan-500/40 text-cyan-300 ml-4 hover:shadow-[0_0_15px_rgba(0,255,255,0.6)] transition-all duration-300"
+        >
+          <FiArrowRight />
+        </button>
+      </div>
+
+      {/* Mobile arrows */}
+      <div className="md:hidden flex justify-center space-x-8 mt-4">
+        <button
+          onClick={goToPrev}
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-cyan-900/50 border border-cyan-500/40 text-cyan-300 hover:shadow-[0_0_15px_rgba(0,255,255,0.6)] transition-all duration-300"
+        >
+          <FiArrowLeft />
+        </button>
+        <button
+          onClick={goToNext}
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-cyan-900/50 border border-cyan-500/40 text-cyan-300 hover:shadow-[0_0_15px_rgba(0,255,255,0.6)] transition-all duration-300"
         >
           <FiArrowRight />
         </button>

@@ -1,0 +1,100 @@
+{
+  "categories": {
+    "leads": {
+      "name": "Project Leads & Architecture",
+      "members": [
+        {
+          "name": "John Smith",
+          "role": "Lead Developer",
+          "photo": "images/leads/john.jpg",
+          "skills": ["React", "Node.js", "System Architecture"],
+          "bio": "Oversees the technical architecture and development roadmap for all CSS digital projects.",
+          "social": {
+            "instagram": "https://instagram.com/john",
+            "facebook": "https://facebook.com/john",
+            "linkedin": "https://linkedin.com/in/john"
+          }
+        },
+        {
+          "name": "Sarah Johnson",
+          "role": "Technical Director",
+          "photo": "images/leads/sarah.jpg",
+          "skills": ["Project Management", "Backend", "DevOps"],
+          "bio": "Coordinates development efforts and ensures technical excellence across all projects.",
+          "social": {
+            "instagram": "https://instagram.com/sarah",
+            "linkedin": "https://linkedin.com/in/sarah"
+          }
+        }
+      ]
+    },
+    "developers": {
+      "name": "2nd Year Developers",
+      "members": [
+        {
+          "name": "Alex Chen",
+          "role": "Frontend Developer",
+          "year": "2nd Year",
+          "photo": "images/developers/alex.jpg",
+          "skills": ["React", "JavaScript", "CSS"],
+          "bio": "Specializes in creating responsive and interactive user interfaces.",
+          "social": {
+            "instagram": "https://instagram.com/alex",
+            "linkedin": "https://linkedin.com/in/alex"
+          }
+        },
+        {
+          "name": "Maya Patel",
+          "role": "Backend Developer",
+          "year": "2nd Year",
+          "photo": "images/developers/maya.jpg",
+          "skills": ["Node.js", "Python", "Databases"],
+          "bio": "Focuses on server-side logic, database design and API development.",
+          "social": {
+            "instagram": "https://instagram.com/maya",
+            "linkedin": "https://linkedin.com/in/maya"
+          }
+        },
+        {
+          "name": "David Kim",
+          "role": "Full Stack Developer",
+          "year": "2nd Year",
+          "photo": "images/developers/david.jpg",
+          "skills": ["React", "Express", "MongoDB"],
+          "bio": "Works on both frontend and backend components of web applications.",
+          "social": {
+            "instagram": "https://instagram.com/david",
+            "linkedin": "https://linkedin.com/in/david"
+          }
+        }
+      ]
+    },
+    "designers": {
+      "name": "UI/UX Designers",
+      "members": [
+        {
+          "name": "Emma Wilson",
+          "role": "UI/UX Designer",
+          "photo": "images/designers/emma.jpg",
+          "skills": ["Figma", "User Research", "Prototyping"],
+          "bio": "Creates intuitive and visually appealing user interfaces with a focus on user experience.",
+          "social": {
+            "instagram": "https://instagram.com/emma",
+            "linkedin": "https://linkedin.com/in/emma"
+          }
+        },
+        {
+          "name": "James Taylor",
+          "role": "Graphic Designer",
+          "photo": "images/designers/james.jpg",
+          "skills": ["Illustrator", "Photoshop", "Branding"],
+          "bio": "Develops visual identity and graphic assets for CSS digital properties.",
+          "social": {
+            "instagram": "https://instagram.com/james",
+            "linkedin": "https://linkedin.com/in/james"
+          }
+        }
+      ]
+    }
+  }
+}
