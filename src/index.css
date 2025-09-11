@@ -41,3 +41,27 @@
   background-image: 
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M50,0 L100,25 L100,75 L50,100 L0,75 L0,25 Z' fill='none' stroke='%2300ccff' stroke-width='0.3' opacity='0.2'/%3E%3C/svg%3E");
 }
+
+.highlight {
+  position: relative;
+  font-weight: 600;
+  padding: 0 3px;
+}
+
+.highlight::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 2px;
+  width: 100%;
+  height: 30%;
+  background: rgba(16, 185, 129, 0.25); /* soft emerald green */
+  border-radius: 2px;
+  z-index: -1;
+  transition: background 0.3s ease;
+}
+
+.highlight:hover::after {
+  background: rgba(16, 185, 129, 0.45); /* slightly richer on hover */
+}
+
