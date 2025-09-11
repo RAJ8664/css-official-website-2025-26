@@ -38,6 +38,9 @@ importers:
       react-router-dom:
         specifier: ^7.8.2
         version: 7.8.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react-tilt:
+        specifier: ^1.0.2
+        version: 1.0.2(@types/react-dom@19.1.7(@types/react@19.1.11))(@types/react@19.1.11)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
     devDependencies:
       '@eslint/js':
         specifier: ^9.33.0
@@ -1620,6 +1623,14 @@ packages:
     peerDependenciesMeta:
       react-dom:
         optional: true
+
+  react-tilt@1.0.2:
+    resolution: {integrity: sha512-21tUUsmuw5id/6NDtKqwYTG4taVnw+BoUwIG6YsgPC9GI6cx4BnBuSqgriQYAYcv3bdGNzecaBL+rvQRAm28bg==}
+    peerDependencies:
+      '@types/react': ^18.0.29
+      '@types/react-dom': ^18.0.11
+      react: ^18.2.0
+      react-dom: ^18.2.0
 
   react@19.1.1:
     resolution: {integrity: sha512-w8nqGImo45dmMIfljjMwOGtbmC/mk4CMYhWIicdSflH91J9TyCyczcPFXJzrZ/ZXcgGRFeP6BU0BEJTw6tZdfQ==}
@@ -3438,6 +3449,13 @@ snapshots:
       react: 19.1.1
       set-cookie-parser: 2.7.1
     optionalDependencies:
+      react-dom: 19.1.1(react@19.1.1)
+
+  react-tilt@1.0.2(@types/react-dom@19.1.7(@types/react@19.1.11))(@types/react@19.1.11)(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      '@types/react': 19.1.11
+      '@types/react-dom': 19.1.7(@types/react@19.1.11)
+      react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
 
   react@19.1.1: {}

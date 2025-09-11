@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fa'
 import data from '../jsonData/members.json'
 import '../styles/memberAnimations.css'
+import MemberCard from '../components/MemberCard';
 
 const Members = () => {
   const [selectedYear, setSelectedYear] = useState(data.years[0])
@@ -375,131 +376,14 @@ const Members = () => {
                   {wing.members[selectedYear]?.map((member, i) => {
                     const cardId = `${key}-${selectedYear}-${i}`
                     return (
-                      <div
-                        key={i}
-                        className="group perspective h-96 w-full"
-                        onClick={() => handleCardFlip(cardId)}
-                      >
-                        <div
-                          className={`relative w-full h-full transition-transform duration-700 preserve-3d ${flippedCards[cardId] ? 'rotate-y-180' : ''}`}
-                        >
-                          {/* Front of Card - Enhanced */}
-                          <div className="absolute inset-0 backface-hidden bg-gray-700 rounded-xl overflow-hidden border border-cyan-500/20 shadow-2xl shadow-cyan-500/10 group-hover:border-cyan-400/60 group-hover:shadow-cyan-400/20 transition-all duration-500">
-                            {/* Animated grid background */}
-                            <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
-
-                            {/* Tech corner elements with glow*/}
-                            <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 group-hover:opacity-100 transition-all duration-500"></div>
-                            <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 group-hover:opacity-100 transition-all duration-500"></div>
-                            <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 group-hover:opacity-100 transition-all duration-500"></div>
-                            <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 group-hover:opacity-100 transition-all duration-500"></div>
-
-                            {/* Central content */}
-                            <div className="flex flex-col items-center justify-center h-full p-6">
-                              {/* Profile image */}
-                              <div className="relative mb-6">
-                                <div className="relative w-42 h-42 rounded-full">
-                                  <img
-                                    src={member.photo}
-                                    alt={member.name}
-                                    className="w-full h-full rounded-full object-cover border-2 border-gray-700 group-hover:border-cyan-400 transition-all duration-500 z-10"
-                                  />
-                                </div>
-                                {/* Subtle glow effect*/}
-                                <div className="absolute -inset-3 rounded-full bg-cyan-500/0 group-hover:bg-cyan-500/10 transition-all duration-500"></div>
-                              </div>
-
-                              {/* Name and role*/}
-                              <div className="text-center px-2">
-                                <h3 className="text-2xl font-bold mb-2 text-white group-hover:text-cyan-300 transition-colors duration-300">
-                                  {member.name}
-                                </h3>
-                                <p className="text-xl text-gray-400 group-hover:text-cyan-200 transition-colors duration-300">
-                                  {member.role}
-                                </p>
-                              </div>
-
-                              {/* Flip hint*/}
-                              <div className="absolute bottom-5 left-0 right-0 flex justify-center opacity-60 group-hover:opacity-100 transition-opacity duration-500">
-                                <div className="flex items-center text-xs bg-black/70 px-3 py-1.5 rounded-full border border-cyan-500/40 group-hover:border-cyan-400/60 transition-all duration-500">
-                                  <span className="mr-2 text-cyan-300">
-                                    View details
-                                  </span>
-                                  <FaArrowRight className="text-cyan-400" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Back of Card*/}
-                          <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-xl overflow-hidden border border-cyan-500/50 shadow-2xl shadow-cyan-500/30">
-                            {/* Circuit pattern background */}
-                            <div className="absolute inset-0 bg-circuit-pattern opacity-15"></div>
-
-                            {/* Glowing border effect */}
-                            <div className="absolute inset-0 rounded-xl border-2 border-cyan-500/20 group-hover:border-cyan-400/40 transition-all duration-500"></div>
-
-                            {/* Content */}
-                            <div className="relative h-full flex flex-col items-center justify-center p-6">
-                              {/* Header section */}
-                              <div className="text-center mb-6">
-                                <h3 className="text-xl font-bold mb-1 bg-gradient-to-r from-cyan-300 to-cyan-100 bg-clip-text text-transparent">
-                                  {member.name}
-                                </h3>
-                                <p className="text-sm text-cyan-300 font-mono">
-                                  {member.role}
-                                </p>
-                              </div>
-                              <div className="flex gap-4 text-2xl mb-8">
-                                <a
-                                  href={member.social.instagram}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full hover:bg-gradient-to-r hover:from-pink-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-pink-500/30 border border-gray-700 hover:border-pink-500"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <FaInstagram className="text-white" />
-                                </a>
-                                <a
-                                  href={member.social.facebook}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full hover:bg-blue-600 transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-blue-500/30 border border-gray-700 hover:border-blue-500"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <FaFacebook className="text-white" />
-                                </a>
-                                <a
-                                  href={member.social.linkedin}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full hover:bg-blue-700 transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-blue-500/30 border border-gray-700 hover:border-blue-400"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <FaLinkedin className="text-white" />
-                                </a>
-                              </div>
-
-                              {/* Flip back hint */}
-                              <div className="absolute bottom-5 left-0 right-0 flex justify-center">
-                                <div className="flex items-center text-xs bg-black/50 px-3 py-1 rounded-full border border-cyan-500/30">
-                                  <span className="mr-2 text-cyan-300">
-                                    View profile
-                                  </span>
-                                  <FaArrowRight className="rotate-180 text-cyan-400" />
-                                </div>
-                              </div>
-
-                              {/* Animated dots */}
-                              <div className="absolute top-4 flex space-x-1">
-                                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow shadow-red-500/50"></div>
-                                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse delay-300 shadow shadow-yellow-500/50"></div>
-                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse delay-700 shadow shadow-green-500/50"></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <MemberCard
+                        key={cardId}
+                        member={member}
+                        flipped={flippedCards[cardId]}
+                        onFlip={() => handleCardFlip(cardId)
+                        }
+                        index = {i}
+                      />
                     )
                   })}
                 </div>
