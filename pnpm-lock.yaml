@@ -66,6 +66,9 @@ importers:
       react-tilt:
         specifier: ^1.0.2
         version: 1.0.2(@types/react-dom@19.1.7(@types/react@19.1.11))(@types/react@19.1.11)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      three:
+        specifier: ^0.180.0
+        version: 0.180.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.33.0
@@ -1732,6 +1735,9 @@ packages:
       '@types/react-dom': ^18.0.11
       react: ^18.2.0
       react-dom: ^18.2.0
+
+  react-timer-mixin@0.13.4:
+    resolution: {integrity: sha512-4+ow23tp/Tv7hBM5Az5/Be/eKKF7DIvJ09voz5LyHGQaqqz9WV8YMs31eFvcYQs7d451LSg7kDJV70XYN/Ug/Q==}
 
   react@19.1.1:
     resolution: {integrity: sha512-w8nqGImo45dmMIfljjMwOGtbmC/mk4CMYhWIicdSflH91J9TyCyczcPFXJzrZ/ZXcgGRFeP6BU0BEJTw6tZdfQ==}
