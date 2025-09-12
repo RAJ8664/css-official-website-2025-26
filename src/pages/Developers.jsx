@@ -10,6 +10,41 @@ import {
   FaChevronRight,
   FaArrowRight
 } from 'react-icons/fa';
+import { Tilt } from 'react-tilt';
+import { motion } from 'framer-motion';
+
+// Default options for Tilt component
+const defaultTiltOptions = {
+  reverse: true,
+  max: 35,
+  perspective: 1000,
+  scale: 1.05,
+  speed: 1000,
+  transition: true,
+  axis: null,
+  reset: true,
+  easing: 'cubic-bezier(.03,.98,.52,.99)',
+};
+
+// FadeIn animation variant
+const fadeIn = (direction, type, delay, duration) => ({
+  hidden: {
+    x: direction === 'left' ? 100 : direction === 'right' ? -100 : 0,
+    y: direction === 'up' ? 100 : direction === 'down' ? -100 : 0,
+    opacity: 0,
+  },
+  show: {
+    x: 0,
+    y: 0,
+    opacity: 1,
+    transition: {
+      type,
+      delay,
+      duration,
+      ease: 'easeOut',
+    },
+  },
+});
 
 const Carousel = ({ children, className }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -58,123 +93,392 @@ const Carousel = ({ children, className }) => {
   );
 };
 
+// MemberCard component with flip animation
+const MemberCard = ({ member, index }) => {
+  const [flipped, setFlipped] = useState(false);
+
+  const handleFlip = () => {
+    setFlipped(!flipped);
+  };
+
+  return (
+    <Tilt options={defaultTiltOptions}>
+      <motion.div
+        variants={fadeIn('right', 'spring', index * 0.5, 0.75)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
+      >
+        <div className="group perspective h-96 w-full" onClick={handleFlip}>
+          <div
+            className={`relative w-full h-full transition-transform duration-700 preserve-3d ${
+              flipped ? 'rotate-y-180' : ''
+            }`}
+          >
+            {/* Front of Card */}
+            <div className="absolute inset-0 backface-hidden bg-gray-700 rounded-xl overflow-hidden border border-cyan-500/20 shadow-2xl shadow-cyan-500/10 group-hover:border-cyan-400/60 group-hover:shadow-cyan-400/20 transition-all duration-500">
+              {/* Animated grid background */}
+              <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
+
+              {/* Tech corner elements */}
+              <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 transition-all"></div>
+              <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 transition-all"></div>
+              <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 transition-all"></div>
+              <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 transition-all"></div>
+
+              {/* Central content */}
+              <div className="flex flex-col items-center justify-center h-full p-6">
+                {/* Profile image */}
+                <div className="relative mb-6">
+                  <div className="relative w-32 h-32 rounded-full">
+                    <img
+                      src={member.photo}
+                      alt={member.name}
+                      className="w-full h-full rounded-full object-cover border-2 border-gray-700 group-hover:border-cyan-400 transition-all duration-500"
+                    />
+                  </div>
+                  <div className="absolute -inset-3 rounded-full bg-cyan-500/0 group-hover:bg-cyan-500/10 transition-all"></div>
+                </div>
+
+                {/* Name and role */}
+                <div className="text-center px-2">
+                  <h3 className="text-xl font-bold mb-2 text-white group-hover:text-cyan-300 transition-colors duration-300">
+                    {member.name}
+                  </h3>
+                  <p className="text-lg text-gray-400 group-hover:text-cyan-200 transition-colors duration-300">
+                    {member.role}
+                  </p>
+                  {member.year && (
+                    <p className="text-cyan-400 text-sm mt-1">
+                      {member.year}
+                    </p>
+                  )}
+                </div>
+
+                {/* Skills (truncated on front) */}
+                {member.skills && (
+                  <div className="flex flex-wrap justify-center gap-1 mt-2">
+                    {member.skills.slice(0, 2).map((skill, i) => (
+                      <span key={i} className="text-xs bg-cyan-900/30 text-cyan-300 px-2 py-1 rounded-full border border-cyan-500/30">
+                        {skill}
+                      </span>
+                    ))}
+                    {member.skills.length > 2 && (
+                      <span className="text-xs text-cyan-400">+{member.skills.length - 2} more</span>
+                    )}
+                  </div>
+                )}
+
+                {/* Flip hint */}
+                <div className="absolute bottom-5 left-0 right-0 flex justify-center opacity-60 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center text-xs bg-black/70 px-3 py-1.5 rounded-full border border-cyan-500/40 group-hover:border-cyan-400/60 transition-all">
+                    <span className="mr-2 text-cyan-300">View details</span>
+                    <FaArrowRight className="text-cyan-400" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Back of Card */}
+            <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-xl overflow-hidden border border-cyan-500/50 shadow-2xl shadow-cyan-500/30">
+              {/* Background */}
+              <div className="absolute inset-0 bg-circuit-pattern opacity-15"></div>
+              <div className="absolute inset-0 rounded-xl border-2 border-cyan-500/20 group-hover:border-cyan-400/40 transition-all"></div>
+
+              {/* Content */}
+              <div className="relative h-full flex flex-col items-center justify-center p-6">
+                {/* Header */}
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-bold mb-1 bg-gradient-to-r from-cyan-300 to-cyan-100 bg-clip-text text-transparent">
+                    {member.name}
+                  </h3>
+                  <p className="text-sm text-cyan-300 font-mono">
+                    {member.role}
+                  </p>
+                  {member.year && (
+                    <p className="text-cyan-400 text-xs mt-1">
+                      {member.year}
+                    </p>
+                  )}
+                </div>
+
+                {/* Bio */}
+                {member.bio && (
+                  <p className="text-gray-300 text-sm mb-4 text-center line-clamp-3">
+                    {member.bio}
+                  </p>
+                )}
+
+                {/* Skills */}
+                {member.skills && (
+                  <div className="flex flex-wrap justify-center gap-2 mb-6">
+                    {member.skills.map((skill, i) => (
+                      <span key={i} className="text-xs bg-cyan-900/30 text-cyan-300 px-2 py-1 rounded-full border border-cyan-500/30">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Social links */}
+                <div className="flex gap-3 text-xl mb-6">
+                  {member.social.instagram && (
+                    <a
+                      href={member.social.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full hover:bg-gradient-to-r hover:from-pink-600 hover:to-purple-600 transition-all transform hover:scale-110 shadow-lg hover:shadow-pink-500/30 border border-gray-700 hover:border-pink-500"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaInstagram className="text-white text-lg" />
+                    </a>
+                  )}
+                  {member.social.facebook && (
+                    <a
+                      href={member.social.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full hover:bg-blue-600 transition-all transform hover:scale-110 shadow-lg hover:shadow-blue-500/30 border border-gray-700 hover:border-blue-500"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaFacebook className="text-white text-lg" />
+                    </a>
+                  )}
+                  {member.social.linkedin && (
+                    <a
+                      href={member.social.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full hover:bg-blue-700 transition-all transform hover:scale-110 shadow-lg hover:shadow-blue-500/30 border border-gray-700 hover:border-blue-400"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaLinkedin className="text-white text-lg" />
+                    </a>
+                  )}
+                </div>
+
+                {/* Flip back hint */}
+                <div className="absolute bottom-5 left-0 right-0 flex justify-center">
+                  <div className="flex items-center text-xs bg-black/50 px-3 py-1 rounded-full border border-cyan-500/30">
+                    <span className="mr-2 text-cyan-300">View profile</span>
+                    <FaArrowRight className="rotate-180 text-cyan-400" />
+                  </div>
+                </div>
+
+                {/* Animated dots */}
+                <div className="absolute top-4 flex space-x-1">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow shadow-red-500/50"></div>
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse delay-300 shadow shadow-yellow-500/50"></div>
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse delay-700 shadow shadow-green-500/50"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </Tilt>
+  );
+};
+
 const Developers = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
+const data = {
+  categories: {
+    leads: {
+      name: "Team Leads",
+      icon: FaUserTie,
+      members: [
+        {
+          name: "Subhajyoti Dey",
+          role: "Dev Wing Head",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757071185/IMG-20250816-WA0006_-_SUBHAJYOTI_DEY_ot2gtd.webp",
+          social: {
+            instagram:
+              "https://www.instagram.com/subhajyoti_dey_?igsh=MW8yZ2RxNDA1a2lk",
 
-  // Sample data structure (replace with your actual data)
-  const data = {
-    categories: {
-      leads: {
-        name: 'Team Leads',
-        icon: FaUserTie,
-        members: [
-          {
-            name: 'John Doe',
-            role: 'Lead Developer',
-            year: '2023',
-            photo: 'images/developer1.jpg',
-            skills: ['React', 'Node.js', 'UI/UX'],
-            bio: 'Experienced full-stack developer with passion for clean code.',
-            social: {
-              instagram: '#',
-              facebook: '#',
-              linkedin: '#'
-            }
+            facebook: "https://www.facebook.com/share/19kx2bddba/",
+            linkedin: "https://www.linkedin.com/in/subhajyoti-dey-635922235",
           },
-          {
-            name: 'Jane Smith',
-            role: 'Design Lead',
-            year: '2023',
-            photo: 'images/developer2.jpg',
-            skills: ['Figma', 'UI/UX', 'Illustration'],
-            bio: 'Creative designer with an eye for detail and user experience.',
-            social: {
-              instagram: '#',
-              facebook: '#',
-              linkedin: '#'
-            }
-          }
-        ]
+        },
+        {
+          name: "Rupjyoti Patgiri",
+          role: "Dev Wing Head",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757613198/RUPJYOTI_PATGIRI_2312123_-_RUPJYOTI_PATGIRI_qebn6t.webp",
+          social: {
+            instagram: "https://www.instagram.com/rup_jyoti019/",
+            facebook: "https://www.facebook.com/profile.php?id=61553281235341",
+            linkedin: "https://www.linkedin.com/in/rupjyoti-patgiri-6ab78628b/",
+          },
+        },
+      ],
+    },
+    developers: {
+      name: "Developers",
+      icon: FaCode,
+      members: [
+        {
+          name: "Nibir Deka",
+          role: "Dev Wing Junior Member",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612828/NibirDeka_2_2412007.jpeg_-_NIBIR_DEKA_mxthop.webp",
+          social: {
+            instagram: "https://www.instagram.com/nibir_deka_07/",
+            facebook: "",
+            linkedin: "https://www.linkedin.com/in/nibir-deka-0a8636331/",
+          },
+        },
+        {
+          name: "Kallul Gogoi",
+          role: "Dev Wing Junior Member",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757072681/KALLUL_-_KALLUL_GOGOI_tn3dad.webp",
+          social: {
+            instagram: "https://www.instagram.com/kallul_gogoi33/",
+            facebook: "https://www.facebook.com/profile.php?id=100067160496166",
+            linkedin: "https://www.linkedin.com/in/kallul-gogoi-00a5152a0/",
+          },
+        },
+        {
+          name: "Olivia Nath",
+          role: "Dev Wing Junior Member",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612715/Olivia_Nath_-_OLIVIA_NATH_ji1xym.webp",
+          social: {
+            instagram: "olivia.nath.714",
+            facebook: "https://www.facebook.com/olivia.nath.714",
+            linkedin: "www.linkedin.com/in/ olivia-nath-721860341",
+          },
+        },
+        {
+          name: "Prachi Chandak",
+          role: "Dev Wing Junior Member",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612606/IMG_20250228_132102_-_PRACHI_CHANDAK_zkc6ab.webp",
+          social: {
+            instagram: "https://www.instagram.com/prachii_chandak/",
+            facebook:
+              "https://www.linkedin.com/in/prachi-chandak-086086325/",
+            linkedin:
+              "https://www.facebook.com/profile.php?id=61564665972673",
+          },
+        },
+        {
+          name: "Hurun Maksora",
+          role: "Dev Wing Junior Member",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612466/IMG_20250817_222038_822_-_HURUN_MAKSORA_br3pmn.webp",
+          social: {
+            instagram: "@ohwellmaksura",
+            facebook: "https://www.facebook.com/share/16kmfXi1wb/",
+            linkedin:
+              "https://www.linkedin.com/in/h-maksura-9a52b8343?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+          },
+        },
+        {
+          name: "Niha Hazarika",
+          role: "Dev Wing Junior Member",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757066600/niha_wb8acc.webp",
+          social: {
+            instagram: "https://www.instagram.com/___nihoo___/",
+            facebook: "https://www.facebook.com/niha.hazarika.261235",
+            linkedin: "https://www.linkedin.com/in/niha-hazarika-1620a9353",
+          },
+        },
+        {
+          name: "Subhajit Sarkar",
+          role: "Dev Wing Junior Member",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612304/pic_-_SUBHAJIT_SARKAR_riyemv.webp",
+          social: {
+            instagram:
+              "https://www.instagram.com/_subhajit15?igsh=ZGZzcmM3Nmtqdjkz",
+            facebook: "https://www.facebook.com/share/1JLBHwv659/",
+            linkedin:
+              "https://www.linkedin.com/in/subhajit-sarkar-57aa432b1?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+          },
+        },
+        {
+          name: "Dibakar Sarmah",
+          role: "Dev Wing Junior Member",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612178/1000238611-Picsart-AiImageEnhancer_-_DIBAKAR_SARMAH_age3fp.webp",
+          social: {
+            instagram: "",
+            facebook: "",
+            linkedin:
+              "https://www.linkedin.com/in/dibakar-sarmah-93b7b3371?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+          },
+        },
+        {
+          name: "Priyanshu Paul",
+          role: "Dev Wing Junior Member",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757611957/IMG-20250827-WA0014_-_PRIYANSHU_PAUL_wxsff0.webp",
+          social: {
+            instagram:
+              "https://www.instagram.com/priyanshu_paul_tsk?utm_source=qr&igsh=Nmt5ZGtpZmlnYjA2",
+            facebook:
+              "https://www.facebook.com/priyanshu.paul.965?mibextid=rS40aB7S9Ucbxw6v",
+            linkedin:
+              "https://www.linkedin.com/in/priyanshu-paul-582839327?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+          },
+        },
+      ],
+    },
+    designers: {
+      name: "Designers",
+      icon: FaPalette,
+      members: [{
+        "name":"Shreya Markam",
+                "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757085269/a7f9a17f-e3e0-43ec-ad7a-9779835d638f_-_SHREYA_MARKAM_u3cjpn.webp",
+                "role": "Design Wing Junior Member",
+                "social": {
+                    "instagram": "https://www.instagram.com/_shreyamarkam?igsh=ZHBjZHZtMmd1YmYx",
+                    "facebook": "https://www.facebook.com/share/16m7qZzoat/?mibextid=wwXIfr",
+                    "linkedin": "https://www.linkedin.com/in/shreya-markam-343416316?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+                }
       },
-      developers: {
-        name: 'Developers',
-        icon: FaCode,
-        members: [
-          {
-            name: 'Alex Johnson',
-            role: 'Frontend Developer',
-            year: '2023',
-            photo: 'images/developer3.jpg',
-            skills: ['React', 'JavaScript', 'CSS'],
-            bio: 'Passionate about creating interactive web experiences.',
-            social: {
-              instagram: '#',
-              facebook: '#',
-              linkedin: '#'
-            }
+    {
+          name: "Nibir Deka",
+          role: "Dev Wing Junior Member",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612828/NibirDeka_2_2412007.jpeg_-_NIBIR_DEKA_mxthop.webp",
+          social: {
+            instagram: "https://www.instagram.com/nibir_deka_07/",
+            facebook: "https://www.facebook.com/nibir.deka.605645",
+            linkedin: "https://www.linkedin.com/in/nibir-deka-0a8636331/",
           },
-          {
-            name: 'Alex Johnson',
-            role: 'Frontend Developer',
-            year: '2023',
-            photo: 'images/developer3.jpg',
-            skills: ['React', 'JavaScript', 'CSS'],
-            bio: 'Passionate about creating interactive web experiences.',
-            social: {
-              instagram: '#',
-              facebook: '#',
-              linkedin: '#'
-            }
+        },
+        {
+          name: "Kallul Gogoi",
+          role: "Dev Wing Junior Member",
+          year: "2025-26",
+          photo:
+            "https://res.cloudinary.com/dfdiplnix/image/upload/v1757072681/KALLUL_-_KALLUL_GOGOI_tn3dad.webp",
+          social: {
+            instagram: "https://www.instagram.com/kallul_gogoi33/",
+            facebook: "https://www.facebook.com/profile.php?id=100067160496166",
+            linkedin: "https://www.linkedin.com/in/kallul-gogoi-00a5152a0/",
           },
-          {
-            name: 'Alex Johnson',
-            role: 'Frontend Developer',
-            year: '2023',
-            photo: 'images/developer3.jpg',
-            skills: ['React', 'JavaScript', 'CSS'],
-            bio: 'Passionate about creating interactive web experiences.',
-            social: {
-              instagram: '#',
-              facebook: '#',
-              linkedin: '#'
-            }
-          },
-          {
-            name: 'Alex Johnson',
-            role: 'Frontend Developer',
-            year: '2023',
-            photo: 'images/developer3.jpg',
-            skills: ['React', 'JavaScript', 'CSS'],
-            bio: 'Passionate about creating interactive web experiences.',
-            social: {
-              instagram: '#',
-              facebook: '#',
-              linkedin: '#'
-            }
-          }
-        ]
-      },
-      designers: {
-        name: 'Designers',
-        icon: FaPalette,
-        members: [
-          {
-            name: 'Sarah Wilson',
-            role: 'UI/UX Designer',
-            year: '2023',
-            photo: 'images/developer4.jpg',
-            skills: ['Figma', 'Illustrator', 'Photoshop'],
-            bio: 'Creating beautiful and functional user interfaces.',
-            social: {
-              instagram: '#',
-              facebook: '#',
-              linkedin: '#'
-            }
-          }
-        ]
-      }
-    }
-  };
+        }],
+    },
+  },
+};
 
   // Combine all members for the "All" category
   const allMembers = Object.values(data.categories).flatMap(category => category.members);
@@ -206,7 +510,7 @@ const Developers = () => {
               className="absolute text-green-400 text-xs animate-fall"
               style={{
                 left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
+                animationDelay: `2s`,
                 top: '-20px',
               }}
             >
@@ -544,94 +848,7 @@ const Developers = () => {
 
             <Carousel className="w-full">
               {getCurrentMembers().map((member, index) => (
-                <div key={index} className="group perspective h-full p-1">
-                  <div className="relative w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-xl overflow-hidden border border-cyan-500/30 shadow-2xl shadow-cyan-500/10 group-hover:border-cyan-400/60 group-hover:shadow-cyan-400/20 transition-all duration-500 p-4">
-                    {/* Tech corner elements with glow*/}
-                    <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 group-hover:opacity-100 transition-all duration-500"></div>
-                    <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 group-hover:opacity-100 transition-all duration-500"></div>
-                    <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 group-hover:opacity-100 transition-all duration-500"></div>
-                    <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-cyan-500/50 opacity-70 group-hover:border-cyan-300 group-hover:opacity-100 transition-all duration-500"></div>
-
-                    <div className="flex flex-col items-center text-center h-full">
-                      {/* Profile Image */}
-                      <div className="relative mb-6">
-                        <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-cyan-500/50">
-                          <img
-                            src={member.photo}
-                            alt={member.name}
-                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                          />
-                        </div>
-                        <div className="absolute -inset-3 rounded-full bg-cyan-500/0 group-hover:bg-cyan-500/10 transition-all duration-500"></div>
-                      </div>
-
-                      {/* Name and Role */}
-                      <h3 className="text-xl font-bold text-white mb-2">
-                        {member.name}
-                      </h3>
-                      <p className="text-cyan-300 text-sm mb-4">
-                        {member.role}
-                      </p>
-                      {member.year && (
-                        <p className="text-cyan-400 text-xs mb-4">
-                          {member.year}
-                        </p>
-                      )}
-
-                      {/* Skills */}
-                      {member.skills && (
-                        <div className="flex flex-wrap justify-center gap-2 mb-6">
-                          {member.skills.map((skill, i) => (
-                            <span key={i} className="text-xs bg-cyan-900/30 text-cyan-300 px-2 py-1 rounded-full border border-cyan-500/30">
-                              {skill}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Bio (truncated) */}
-                      {member.bio && (
-                        <p className="text-gray-300 text-sm mb-6 line-clamp-3">
-                          {member.bio}
-                        </p>
-                      )}
-
-                      {/* Social Links */}
-                      <div className="flex gap-4 text-xl mt-auto">
-                        {member.social.instagram && (
-                          <a
-                            href={member.social.instagram}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-2 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full hover:bg-gradient-to-r hover:from-pink-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-pink-500/30 border border-gray-700 hover:border-pink-500"
-                          >
-                            <FaInstagram className="text-white text-lg" />
-                          </a>
-                        )}
-                        {member.social.facebook && (
-                          <a
-                            href={member.social.facebook}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-2 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full hover:bg-blue-600 transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-blue-500/30 border border-gray-700 hover:border-blue-500"
-                          >
-                            <FaFacebook className="text-white text-lg" />
-                          </a>
-                        )}
-                        {member.social.linkedin && (
-                          <a
-                            href={member.social.linkedin}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-2 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full hover:bg-blue-700 transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-blue-500/30 border border-gray-700 hover:border-blue-400"
-                          >
-                            <FaLinkedin className="text-white text-lg" />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <MemberCard key={index} member={member} index={index} />
               ))}
             </Carousel>
           </div>
@@ -757,6 +974,23 @@ const Developers = () => {
   }
   .bg-circuit-pattern {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0,0 L100,100 M100,0 L0,100 M25,0 L25,100 M50,0 L50,100 M75,0 L75,100 M0,25 L100,25 M0,50 L100,50 M0,75 L100,75' fill='none' stroke='%2300ccff' stroke-width='0.5' opacity='0.1'/%3E%3C/svg%3E");
+  }
+  .bg-tech-grid {
+    background-image: linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .perspective {
+    perspective: 1000px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
   }
 `}</style>
     </div>

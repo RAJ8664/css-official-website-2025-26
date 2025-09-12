@@ -65,3 +65,8 @@
   background: rgba(16, 185, 129, 0.45); /* slightly richer on hover */
 }
 
+@media (max-width: 320px) {
+  .vi-mask-group text {
+    font-size: 200px !important;
+  }
+}
