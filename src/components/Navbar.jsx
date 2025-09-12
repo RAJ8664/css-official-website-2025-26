@@ -23,7 +23,7 @@ logo="https://res.cloudinary.com/dludtk5vz/image/upload/v1757083555/CSS-LOGO_scf
     { label: 'Home', href: '/' },
     { label: 'About Us', href: '/about' },
     { label: 'wings', href: '/members' },
-    { label: 'events', href: '/events' }
+    { label: 'developers', href: '/developers' }
   ]}
   activeHref={activeHref}
   className="custom-nav"
