@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LiquidEther from "../components/ui/LiquidEther";
 import Carousel from "../components/ui/Carousel";
-
 gsap.registerPlugin(ScrollTrigger);
+
+
 
 function Home() {
   const [showContent, setShowContent] = useState(false);
@@ -109,8 +111,9 @@ function Home() {
     };
   }, []);
 
+ 
   return (
-    <div className="w-full relative">
+    <div className="w-full relative bg-black">
       <div className="svg-container sticky top-0 z-[100] w-full h-screen flex items-center justify-center bg-black">
         <svg 
           ref={svgRef}
@@ -285,7 +288,7 @@ function Home() {
 
 
     {/* Pillars Section */}
-  
+   
     </div>
   );
 }
