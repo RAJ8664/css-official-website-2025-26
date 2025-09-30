@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LiquidEther from "../components/ui/LiquidEther";
 import Carousel from "../components/ui/Carousel";
-
 gsap.registerPlugin(ScrollTrigger);
+
+
 
 function Home() {
   const [showContent, setShowContent] = useState(false);
   const [input, setInput] = useState("");
-
-  
+  const svgRef = useRef(null);
+  const animationRef = useRef(null);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -19,32 +21,70 @@ function Home() {
       setInput("");
     }
   };
+
   useEffect(() => {
     window.scrollTo(0, 0);
-    ScrollTrigger.refresh(); // recalc start/end positions
+    
+    // Refresh ScrollTrigger after a short delay to ensure DOM is fully rendered
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 300);
+    
+    return () => clearTimeout(timer);
   }, []);
 
+  // Function to properly detect mobile devices
+  const isMobileDevice = () => {
+    return (
+      typeof window.orientation !== "undefined" || 
+      navigator.userAgent.indexOf('IEMobile') !== -1 ||
+      window.innerWidth < 768
+    );
+  };
 
   useGSAP(() => {
-    const isMobile = window.innerWidth < 768;
+    // Kill any existing animation to prevent conflicts
+    if (animationRef.current) {
+      animationRef.current.kill();
+    }
+    
+    const isMobile = isMobileDevice();
+    
+    // Better mobile detection with more specific scaling
+    let initialScale, finalScale;
+    
+    if (isMobile) {
+      // For mobile, use a more appropriate scale based on screen size
+      const screenRatio = window.innerHeight / window.innerWidth;
+      initialScale = screenRatio > 1.6 ? 0.4 : 0.6; // Adjust for portrait vs landscape
+      finalScale = Math.max(window.innerWidth / 30, 20); // More controlled final scale
+    } else {
+      initialScale = 1.15;
+      finalScale = 15;
+    }
+    
+    // Set initial state
     gsap.set(".vi-mask-group", {
-      scale: isMobile ? 0.5 : 1.15,
+      scale: initialScale,
       transformOrigin: "center center",
     });
-    const finalScale = isMobile ? window.innerWidth / 50 + 10 : 15;
-    gsap.to(".vi-mask-group", {
+    
+    // Create the animation
+    animationRef.current = gsap.to(".vi-mask-group", {
       rotate: 10,
       scale: finalScale,
       transformOrigin: "50% 50%",
       ease: "none",
       scrollTrigger: {
-        trigger: ".svg",
+        trigger: ".svg-container",
         start: "top top",
         end: "bottom top",
         scrub: true,
         pin: true,
         onEnter: () => setShowContent(true),
         onLeaveBack: () => setShowContent(false),
+        // Add mobile-specific markers for debugging (remove in production)
+        // markers: process.env.NODE_ENV === "development",
       },
     });
 
@@ -58,12 +98,29 @@ function Home() {
         scrub: true,
       },
     });
-  });
+    
+    // Add resize event listener to refresh ScrollTrigger on orientation changes
+    const handleResize = () => {
+      ScrollTrigger.refresh();
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
+ 
   return (
-    <div className="w-full relative">
-      <div className="svg sticky top-0 z-[100] w-full h-screen flex items-center justify-center bg-black">
-        <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" className="w-full h-full">
+    <div className="w-full relative bg-black">
+      <div className="svg-container sticky top-0 z-[100] w-full h-screen flex items-center justify-center bg-black">
+        <svg 
+          ref={svgRef}
+          viewBox="0 0 800 600" 
+          preserveAspectRatio="xMidYMid slice" 
+          className="w-full h-full"
+        >
           <defs>
             <mask id="viMask">
               <rect width="100%" height="100%" fill="black" />
@@ -88,12 +145,20 @@ function Home() {
               loop
               muted
               playsInline
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover bg-video"
             >
               <source src="videos/video.mp4" type="video/mp4" />
+              {/* Add fallback for mobile browsers that might block autoplay */}
             </video>
           </foreignObject>
         </svg>
+      </div>
+      
+      {/* Add a simple fallback for mobile if video doesn't play */}
+      <div className="mobile-fallback hidden absolute inset-0 bg-gradient-to-b from-blue-900 to-purple-900">
+        <div className="flex items-center justify-center h-full">
+          <h1 className="text-4xl font-bold text-white">CSS</h1>
+        </div>
       </div>
 
       {/* About Section */}
@@ -223,7 +288,7 @@ function Home() {
 
 
     {/* Pillars Section */}
-  
+   
     </div>
   );
 }
