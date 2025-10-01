@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LiquidEther from "../components/ui/LiquidEther";
 import Carousel from "../components/ui/Carousel";
+import  AnimatedTestimonials  from "../components/ui/PillarsOfCSS";
 gsap.registerPlugin(ScrollTrigger);
 
 
@@ -15,6 +16,34 @@ function Home() {
   const svgRef = useRef(null);
   const animationRef = useRef(null);
 
+
+  // Testimonials data for Pillars of CSS
+  const pillarsTestimonials = [
+    {
+      src: "https://cs.nits.ac.in/storage/FacultyDetails/IMG_175345198568838dd11b534.jpg",
+      name: "Umakanta Majhi",
+      designation: "Faculty Advisor",
+      quote: "Building robust technical skills through hands-on workshops, coding competitions, and project development. We focus on modern technologies and best practices to prepare students for real-world challenges."
+    },
+    {
+      src: "https://media.licdn.com/dms/image/v2/D5603AQGruQwte8cacQ/profile-displayphoto-shrink_400_400/B56ZZRxDdfGcAk-/0/1745128547498?e=1762387200&v=beta&t=hmbsJCGSBtyC8NZ894ISWkilg-OxxRDe6Zq8s7DBwPs",
+      name: "Amborish Sharma",
+      designation: "General Secretary",
+      quote: "Creating a supportive network where students can learn, grow, and collaborate. We organize tech talks, networking events, and mentorship programs to foster meaningful connections."
+    },
+    {
+      src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBlPlpTtK_z4wQ4W74DmV5pxpZYatxBAmzrg&s",
+      name: "Swapneel S.",
+      designation: "President",
+      quote: "Encouraging innovative thinking and research-oriented approach. We support projects in AI, ML, web development, and emerging technologies to push boundaries of what's possible."
+    },
+    {
+      src: "https://img.freepik.com/free-photo/lifestyle-beauty-fashion-people-emotions-concept-young-asian-female-office-manager-ceo-with-pleased-expression-standing-white-background-smiling-with-arms-crossed-chest_1258-59329.jpg?semt=ais_hybrid&w=740&q=80",
+      name: "Ankita Kumari",
+      designation: "Technical Head",
+      quote: "Providing opportunities for professional development through interview preparation, resume building, and industry interactions. We bridge the gap between academia and industry."
+    }
+  ];
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -288,7 +317,77 @@ function Home() {
 
 
     {/* Pillars Section */}
-   
+            <section className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-4 py-16 overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Grid Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="w-full h-full" style={{
+              backgroundImage: `linear-gradient(#00ffff 1px, transparent 1px), linear-gradient(90deg, #00ffff 1px, transparent 1px)`,
+              backgroundSize: '50px 50px',
+            }}></div>
+          </div>
+          
+          {/* Floating Elements */}
+          <div className="absolute inset-0 opacity-5">
+            {[...Array(15)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-cyan-400 animate-pulse"
+                style={{
+                  width: `${Math.random() * 100 + 50}px`,
+                  height: `${Math.random() * 100 + 50}px`,
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 5}s`,
+                  filter: 'blur(40px)',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="relative z-10 w-full max-w-7xl">
+          {/* Section Header */}
+          <div className="text-center mb-12 md:mb-16 px-4">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+              <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+              <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+              <span className="text-cyan-400 font-mono text-sm md:text-md">PILLARS_OF_CSS_TERMINAL</span>
+            </div>
+            
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 font-mono">
+              <span className="text-cyan-400">$~ </span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-green-400">
+                Pillars of CSS
+              </span>
+            </h2>
+            
+            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              The four foundational pillars that define the Computer Science Society and drive our mission forward.
+            </p>
+          </div>
+
+          {/* Testimonials Component */}
+          <div className="bg-black/50 rounded-2xl border border-cyan-500/30 backdrop-blur-md shadow-2xl shadow-cyan-500/10 overflow-hidden">
+            <AnimatedTestimonials 
+              testimonials={pillarsTestimonials}
+              autoplay={true}
+            />
+          </div>
+
+          {/* Additional Info */}
+          <div className="mt-12 text-center">
+            <div className="inline-flex items-center px-6 py-3 rounded-full bg-cyan-900/30 border border-cyan-500/50">
+              <span className="text-cyan-400 font-mono text-sm">
+                $~ cat pillars.txt | more...
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

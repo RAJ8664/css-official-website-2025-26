@@ -21,9 +21,12 @@ logo="https://res.cloudinary.com/dludtk5vz/image/upload/v1757083555/CSS-LOGO_scf
   logoAlt="CSS"
   items={[
     { label: 'Home', href: '/' },
-    { label: 'About Us', href: '/about' },
-    { label: 'wings', href: '/members' },
-    { label: 'developers', href: '/developers' }
+    { label: 'Wings', href: '/wings' },
+    { label: 'Members', href: '/members' },
+    { label: 'Developers', href: '/developers' },
+    { label: 'Events', href: '/events' },
+    { label: 'Editorials', href: '/editorials' },
+    { label: 'Signup / Login', href: '/auth' }
   ]}
   activeHref={activeHref}
   className="custom-nav"
