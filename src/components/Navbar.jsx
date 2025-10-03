@@ -1,45 +1,89 @@
-import React from 'react'
+import React, { useState } from "react";
 
-import PillNav from '../utils/PillNav';
-// import logo from '/path/to/logo.svg';
-import {  useLocation ,Link} from 'react-router-dom'
-import { useState,useEffect } from 'react';
+import {
+  Navbar,
+  NavBody,
+  NavItems,
+  MobileNav,
+  NavbarLogo,
+  NavbarButton,
+  MobileNavHeader,
+  MobileNavToggle,
+  MobileNavMenu,
+} from "../../src/components/ui/resizable-navbar";
 
-const Navbar = () => {
-  
-    const location=useLocation();
-    const [activeHref, setActiveHref] = useState(location.pathname);
 
-  useEffect(() => {
-    setActiveHref(location.pathname);
-  }, [location.pathname]);
+
+export function NavbarDemo() {
+  const navItems = [
+    {
+      name: "Home",
+      link: "/",
+    },
+    {
+      name: "Developers",
+      link: "/developers",
+    },
+    {
+      name: "Contact",
+      link: "#contact",
+    },
+  ];
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
-        <div className="flex justify-center w-full">   {/* flexbox wrapper */}
- <PillNav
-logo="https://res.cloudinary.com/dludtk5vz/image/upload/v1757083555/CSS-LOGO_scfa6u.jpg"
+    <div className="relative w-full">
+      <Navbar>
+        {/* Desktop Navigation */}
+        <NavBody>
+          <NavbarLogo />
+          <NavItems items={navItems} />
+          <div className="flex items-center gap-4">
+            <NavbarButton variant="secondary">Login</NavbarButton>
+            <NavbarButton variant="primary">Book a call</NavbarButton>
+          </div>
+        </NavBody>
 
-  logoAlt="CSS"
-  items={[
-    { label: 'Home', href: '/' },
-    { label: 'About Us', href: '/about' },
-    { label: 'wings', href: '/members' },
-    { label: 'developers', href: '/developers' }
-  ]}
-  activeHref={activeHref}
-  className="custom-nav"
-  ease="power2.easeOut"
-  baseColor="#000000"
-  pillColor="#0f172a"
-  hoveredPillTextColor="#06b6d4"
-  pillTextColor="#ffffff"
-  initialLoadAnimation={true}
-// onMobileMenuClick={() => {
-//     // trigger a tiny state change to refresh PillNav
-//     setTimeout(() => {}, 0);
-//   }}
-/>        
-</div>
-  )
+        {/* Mobile Navigation */}
+        <MobileNav>
+          <MobileNavHeader>
+            <NavbarLogo />
+            <MobileNavToggle
+              isOpen={isMobileMenuOpen}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
+          </MobileNavHeader>
+
+          <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
+            {navItems.map((item, idx) => (
+              <a
+                key={`mobile-link-${idx}`}
+                href={item.link}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="relative text-neutral-600 dark:text-neutral-300">
+                <span className="block">{item.name}</span>
+              </a>
+            ))}
+            <div className="flex w-full flex-col gap-4">
+              <NavbarButton
+                onClick={() => setIsMobileMenuOpen(false)}
+                variant="primary"
+                className="w-full">
+                Login
+              </NavbarButton>
+              <NavbarButton
+                onClick={() => setIsMobileMenuOpen(false)}
+                variant="primary"
+                className="w-full">
+                Book a call
+              </NavbarButton>
+            </div>
+          </MobileNavMenu>
+        </MobileNav>
+      </Navbar>
+      
+      {/* Navbar */}
+    </div>
+  );
 }
 
-export default Navbar
