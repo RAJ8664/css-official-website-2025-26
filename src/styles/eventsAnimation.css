@@ -1,0 +1,154 @@
+
+
+
+/* Container perspective */
+.perspective {
+  perspective: 1000px;
+}
+
+/* Preserve 3D for flipping */
+.preserve-3d {
+  transform-style: preserve-3d;
+}   
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* Smooth flip transition */
+.flip-card-inner {
+  transition: transform 0.7s;
+  transform-style: preserve-3d;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Rotate Y 180deg when flipped */
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Front and back sides */
+.front,
+.back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+/* Front side */
+.front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s;
+}
+
+/* Back side */
+.back {
+  transform: rotateY(180deg);
+  background: linear-gradient(to bottom right, rgba(0,0,0,0.9), rgba(10,10,10,0.95));
+  color: #00ffff;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Cyberpunk MacBook traffic lights */
+.mac-dots {
+  display: flex;
+  gap: 0.4rem;
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+}
+.mac-dots span {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  display: block;
+}
+.mac-dots .red { background: #ff5f57; }
+.mac-dots .yellow { background: #ffbd2e; }
+.mac-dots .blue { background: #28c940; }
+
+/* Neon Border Effect */
+.neon-border {
+  position: relative;
+  border: 1px solid #0ff6;
+  box-shadow: 
+    0 0 5px #0ff8,
+    0 0 10px #0ff6,
+    inset 0 0 5px #0ff8,
+    inset 0 0 10px #0ff6;
+  transition: all 0.3s ease;
+}
+
+.neon-border.neon-glow {
+  box-shadow: 
+    0 0 15px #0ff,
+    0 0 25px #0ff,
+    0 0 35px #0ff,
+    inset 0 0 15px #0ff,
+    inset 0 0 25px #0ff;
+  border: 1px solid #0ff;
+}
+
+.neon-border-subtle {
+  border: 1px solid #0ff4;
+  box-shadow: 
+    0 0 10px #0ff5,
+    inset 0 0 5px #0ff4;
+}
+
+/* Neon Text Effects */
+.neon-text {
+  text-shadow: 
+    0 0 5px #fff,
+    0 0 10px #fff,
+    0 0 15px #0ff,
+    0 0 20px #0ff;
+  animation: pulsate 2s infinite alternate;
+}
+
+.neon-text-section {
+  text-shadow: 
+    0 0 5px #0ff8,
+    0 0 10px #0ff6;
+  animation: pulsate-slow 3s infinite alternate;
+}
+
+@keyframes pulsate {
+  0%, 100% {
+    text-shadow: 
+      0 0 5px #fff,
+      0 0 10px #fff,
+      0 0 15px #0ff,
+      0 0 20px #0ff;
+  }
+  50% {
+    text-shadow: 
+      0 0 7px #fff,
+      0 0 15px #fff,
+      0 0 25px #0ff,
+      0 0 35px #0ff;
+  }
+}
+
+@keyframes pulsate-slow {
+  0%, 100% {
+    text-shadow: 
+      0 0 5px #0ff8,
+      0 0 10px #0ff6;
+  }
+  50% {
+    text-shadow: 
+      0 0 10px #0ff9,
+      0 0 20px #0ff7,
+      0 0 30px #0ff5;
+  }
+}
