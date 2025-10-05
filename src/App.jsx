@@ -7,6 +7,8 @@ import Developers from './pages/Developers'
 import  Wings from './pages/Wings'
 import EditorialsComingSoon from './pages/Editorials'
 import { NavbarDemo } from './components/Navbar'
+import Events from './pages/Events'
+import MoreEvents from './pages/MoreEvents'
 
 
 
@@ -19,6 +21,8 @@ const App = () => {
         <Route path="/members" element={<Member />} />
         <Route path="/developers" element={<Developers />} />
         <Route path="/wings" element={<Wings />} />
+        <Route path= "/events" element={<Events />}/>
+         <Route path="/events/:slug" element={<MoreEvents />} />
         <Route path="/editorials" element={<EditorialsComingSoon />} />
       </Routes>
     </BrowserRouter>

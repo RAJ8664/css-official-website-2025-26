@@ -122,10 +122,8 @@ const eventsContent = {
         section: "Cultural",
         name: "Orientation",
         slug: "orientation",
-        popup: {
-          description:
-            "The CSS organizes the official society orientation programme each year for the fresher batch.The program aims to make the students aware of the wide range of opportunities, events and programmes that society offers. It introduces the freshers to the various divisions and initiatives of the society",
-        },
+        description: "The CSS organizes the official society orientation programme each year for the fresher batch.The program aims to make the students aware of the wide range of opportunities, events and programmes that society offers. It introduces the freshers to the various divisions and initiatives of the society",
+        
         status: "upcoming",
         date: "",
         venue: "",
@@ -140,10 +138,8 @@ const eventsContent = {
         section: "Cultural",
         name: "Esperanza",
         slug: "esperanza",
-        popup: {
-          description:
-            "The official branch freshers for cse is organized by the CSS every year. The objective of the freshers is to provide the  students with a platform to interact with their batchmates and to kickstart their college journey with a bunch of fun and engaging events",
-        },
+         description: "The official branch freshers for cse is organized by the CSS every year. The objective of the freshers is to provide the  students with a platform to interact with their batchmates and to kickstart their college journey with a bunch of fun and engaging events",
+        
 
         status: "upcoming",
         date: "",
@@ -157,10 +153,8 @@ const eventsContent = {
         section: "Cultural",
         name: "The Inspire Room",
         slug: "the-inspire-room",
-        popup: {
-          description:
-            "The Computer Science Society organizes numerous speaker sessions throughout the course of the year featuring techies from across the country. The words of guidance from the speakers target to ignite within the students a sense of zeal and initiative as they strive forward in their respective fields",
-        },
+         description: "The Computer Science Society organizes numerous speaker sessions throughout the course of the year featuring techies from across the country. The words of guidance from the speakers target to ignite within the students a sense of zeal and initiative as they strive forward in their respective fields",
+        
 
         organizer: "Computer Science Society",
         status: "upcoming",
@@ -176,10 +170,8 @@ const eventsContent = {
         section: "Cultural",
         name: "CSS Olympics",
         slug: "css-olympics",
-        popup: {
-          description:
-            "CSS Olympics is the annual sports week conducted by the society and garners participation from all CSE batches. It provides a platform for the students to demonstrate their athletic abilities while participating in a wide range of sporting activities",
-        },
+         description: "CSS Olympics is the annual sports week conducted by the society and garners participation from all CSE batches. It provides a platform for the students to demonstrate their athletic abilities while participating in a wide range of sporting activities",
+        
         status: "upcoming",
         date: "",
         venue: "",
@@ -194,10 +186,8 @@ const eventsContent = {
         section: "Cultural",
         name: "CSS GO",
         slug: "css-go",
-        popup: {
-          description:
-            "Being part of the society and it's legacy is an honour in no small sense.CSS organizes a plethora of fun events to commemorate the formation of society each year. The event is exclusively for second years CSE students and is organized by the second-year wing members themselves",
-        },
+        description: "Being part of the society and it's legacy is an honour in no small sense.CSS organizes a plethora of fun events to commemorate the formation of society each year. The event is exclusively for second years CSE students and is organized by the second-year wing members themselves",
+        
         status: "upcoming",
         date: "",
         venue: "",
@@ -212,10 +202,8 @@ const eventsContent = {
         section: "Cultural",
         name: "Farewell",
         slug: "farewell",
-        popup: {
-          description:
-            "CSS organizes the farewell programme each year to bid adieu to the senior cse batch of the institute. The objective is to provide the seniors with a platform to relish and relive the joyous moments of their college lives and to honor their contributions to the institute and the student body",
-        },
+        description: "CSS organizes the farewell programme each year to bid adieu to the senior cse batch of the institute. The objective is to provide the seniors with a platform to relish and relive the joyous moments of their college lives and to honor their contributions to the institute and the student body",
+        
         date: "",
         venue: "",
         organizer: "Computer Science Society",
@@ -229,10 +217,8 @@ const eventsContent = {
         section: "Technical",
         name: "Development Workshops",
         slug: "development-workshops",
-        popup: {
-          description:
-            "CSS organizes numerous development workshops throughout the course of the year which are conducted by the DEV Wing to help the students navigate through the challenging concepts of fields like app dev, web dev, web3, etc.",
-        },
+         description:"CSS organizes numerous development workshops throughout the course of the year which are conducted by the DEV Wing to help the students navigate through the challenging concepts of fields like app dev, web dev, web3, etc.",
+        
         status: "upcoming",
         date: "",
         venue: "",
@@ -247,10 +233,8 @@ const eventsContent = {
         section: "Technical",
         name: "ML Sessions",
         slug: "ml-sessions",
-        popup: {
-          description:
-            "Machine Learning is one of the fastest-growing domains in computer science with several applications in data analytics. The ML wing of CSS organizes ML sessions on a regular basis to mentor students and help them advance in the field and pursue a career in it",
-        },
+        description:"Machine Learning is one of the fastest-growing domains in computer science with several applications in data analytics. The ML wing of CSS organizes ML sessions on a regular basis to mentor students and help them advance in the field and pursue a career in it",
+        
         status: "upcoming",
         date: "",
         venue: "",
@@ -265,10 +249,8 @@ const eventsContent = {
         section: "Technical",
         name: "Open Source Marathon",
         slug: "open-source-marathon",
-        popup: {
-          description:
-            "The Computer Science Society organizes hackathons throughout the course of the year which are open source.It is a great opportunity to get to know others that have the same interests and it is a great add up to your CV",
-        },
+        description:"The Computer Science Society organizes hackathons throughout the course of the year which are open source.It is a great opportunity to get to know others that have the same interests and it is a great add up to your CV",
+        
         status: "upcoming",
         date: "",
         venue: "",
@@ -283,10 +265,8 @@ const eventsContent = {
         section: "Technical",
         name: "DSA Marathon",
         slug: "dsa-marathon",
-        popup: {
-          description:
-            "The Computer Science Society organizes DSA marathon events to help the students improve their DSA skills which can help them in their carrerand improve their coding skills as well as in creating a competetive enviornment among the students",
-        },
+        description:"The Computer Science Society organizes DSA marathon events to help the students improve their DSA skills which can help them in their carrerand improve their coding skills as well as in creating a competetive enviornment among the students",
+        
         status: "upcoming",
         date: "",
         venue: "",
@@ -301,10 +281,8 @@ const eventsContent = {
         section: "Technical",
         name: "Design Workshops",
         slug: "design-workshops",
-        popup: {
-          description:
-            "The Computer Science Society organizes various design workshops throughout the year for the studentsthus helping them in improving their desgin skills in various fields",
-        },
+         description:"The Computer Science Society organizes various design workshops throughout the year for the studentsthus helping them in improving their desgin skills in various fields",
+        
         status: "upcoming",
         date: "",
         venue: "",
@@ -319,10 +297,8 @@ const eventsContent = {
         section: "Technical",
         name: "C Classes",
         slug: "c-classes",
-        popup: {
-          description:
-            "Every year CSS organizes introductory to advanced-level classes in C programming for freshers taken by the CSE sophomores themselves. The aim of the programme is to provide the students with a mentor who has followed the same path as themselves and resolve the problems faced by the freshers",
-        },
+        description: "Every year CSS organizes introductory to advanced-level classes in C programming for freshers taken by the CSE sophomores themselves. The aim of the programme is to provide the students with a mentor who has followed the same path as themselves and resolve the problems faced by the freshers",
+        
         status: "upcoming",
         date: "",
         venue: "",
