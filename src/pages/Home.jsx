@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
@@ -85,11 +85,11 @@ function Home() {
     if (isMobile) {
       // For mobile, use a more appropriate scale based on screen size
       const screenRatio = window.innerHeight / window.innerWidth;
-      initialScale = screenRatio > 1.6 ? 0.4 : 0.6; // Adjust for portrait vs landscape
-      finalScale = Math.max(window.innerWidth / 30, 20); // More controlled final scale
+      initialScale = screenRatio > 1.6 ? 0.6 : 0.6; // Adjust for portrait vs landscape
+      finalScale = 30; // More controlled final scale
     } else {
       initialScale = 1.15;
-      finalScale = 15;
+      finalScale = 20;
     }
     
     // Set initial state
@@ -140,10 +140,12 @@ function Home() {
     };
   }, []);
 
+
  
+
   return (
     <div className="w-full relative bg-black">
-      <div className="svg-container sticky top-0 z-[100] w-full h-screen flex items-center justify-center bg-black">
+      <div className="svg-container h-screen sticky top-0 z-[100] w-full flex items-center justify-center bg-black">
         <svg 
           ref={svgRef}
           viewBox="0 0 800 600" 
@@ -179,9 +181,14 @@ function Home() {
               <source src="videos/video.mp4" type="video/mp4" />
               {/* Add fallback for mobile browsers that might block autoplay */}
             </video>
-          </foreignObject>
+          </foreignObject> 
         </svg>
-      </div>
+     </div>
+      
+
+      
+
+    
       
       {/* Add a simple fallback for mobile if video doesn't play */}
       <div className="mobile-fallback hidden absolute inset-0 bg-gradient-to-b from-blue-900 to-purple-900">
