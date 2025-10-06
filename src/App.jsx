@@ -10,6 +10,7 @@ import Auth from './pages/auth';
 import OtpVerification from './pages/OtpVerification';
 import Dashboard from './pages/Dashboard';
 import { useAuth } from './context/AuthContext';
+// import Events from './pages/Events';
 
 const App = () => {
   const { user } = useAuth();
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/developers" element={<Developers />} />
         <Route path="/wings" element={<Wings />} />
         <Route path="/editorials" element={<EditorialsComingSoon />} />
+        {/* <Route path="/events" element={<Events />} /> */}
         <Route path="/auth" element={<Auth />} />
         <Route path="/otp-verification" element={<OtpVerification />} />
         <Route

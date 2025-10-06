@@ -8,28 +8,48 @@ export const useAuth = () => useContext(AuthContext);
 
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const fetchProfile = async (userId) => {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+        
+        if (error && error.code !== 'PGRST116') { // PGRST116 = No rows found
+            console.error("Error fetching profile:", error);
+        }
+        return data;
+    };
+
     useEffect(() => {
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN') {
+        setLoading(true);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) {
+                const userProfile = await fetchProfile(session.user.id);
                 setUser(session.user);
-            } else if (event === 'SIGNED_OUT') {
+                setProfile(userProfile);
+            } else {
                 setUser(null);
+                setProfile(null);
             }
             setLoading(false);
         });
 
-        // Check for an existing session
-        const checkSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
+        // Initial session check
+        const checkInitialSession = async () => {
+             const { data: { session } } = await supabase.auth.getSession();
+             if(session?.user) {
+                const userProfile = await fetchProfile(session.user.id);
                 setUser(session.user);
-            }
-            setLoading(false);
-        };
+                setProfile(userProfile);
+             }
+             setLoading(false);
+        }
+        checkInitialSession();
 
-        checkSession();
 
         return () => {
             subscription.unsubscribe();
@@ -39,15 +59,25 @@ const AuthProvider = ({ children }) => {
     const value = {
         signUp: (data) => supabase.auth.signUp(data),
         signIn: (data) => supabase.auth.signInWithPassword(data),
-        signInWithGoogle: () => supabase.auth.signInWithOAuth({ provider: 'google' }),
+        signInWithGoogle: () => supabase.auth.signInWithOAuth({ 
+            provider: 'google',
+            options: {
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                },
+            },
+        }),
         signOut: () => supabase.auth.signOut(),
         verifyOtp: (data) => supabase.auth.verifyOtp(data),
         user,
+        profile,
+        loading,
     };
 
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 };
