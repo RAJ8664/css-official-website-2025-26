@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+// Events.jsx - Updated
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import eventsContent from "../constants/events";
-import { FaArrowRight, FaExternalLinkAlt } from "react-icons/fa";
+import { FaArrowRight, FaExternalLinkAlt, FaLock } from "react-icons/fa";
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../supabaseClient';
 import "../styles/eventsAnimation.css";
 
-
+// EventCard component with registration handling
 function EventCard({
   name,
   description,
@@ -14,13 +17,31 @@ function EventCard({
   registrationLink,
   moreEvents,
   slug,
+  requiresAuth = false,
+  onRegister,
+  isRegistered = false,
 }) {
   const [hovered, setHovered] = useState(false);
-  const isTouchDevice =
-    typeof window !== "undefined" && "ontouchstart" in window;
+  const { user } = useAuth();
+  const isTouchDevice = typeof window !== "undefined" && "ontouchstart" in window;
 
   const handleInteraction = () => {
     if (isTouchDevice) setHovered(!hovered);
+  };
+
+  const handleRegisterClick = (e) => {
+    if (requiresAuth && !user) {
+      e.preventDefault();
+      e.stopPropagation();
+      alert('Please login to register for this event');
+      return;
+    }
+    
+    if (onRegister && user) {
+      e.preventDefault();
+      e.stopPropagation();
+      onRegister();
+    }
   };
 
   return (
@@ -37,6 +58,20 @@ function EventCard({
         >
           {/* Front */}
           <div className="relative inset-0 backface-hidden bg-gray-700 rounded-xl overflow-hidden border border-cyan-500/20 shadow-2xl shadow-cyan-500/10 hover:border-cyan-400/60 hover:shadow-cyan-400/20 transition-all duration-500 min-h-[320px] sm:min-h-[370px] md:min-h-[400px]">
+            {/* Auth required badge */}
+            {requiresAuth && !user && (
+              <div className="absolute top-3 left-3 z-20 bg-red-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+                <FaLock className="text-xs" /> Login Required
+              </div>
+            )}
+            
+            {/* Registered badge */}
+            {isRegistered && (
+              <div className="absolute top-3 left-3 z-20 bg-green-600/90 text-white px-2 py-1 rounded text-xs font-bold">
+                Registered
+              </div>
+            )}
+
             {/* Neon glow */}
             <div className="relative inset-0 rounded-xl bg-cyan-500/5 opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
 
@@ -95,17 +130,29 @@ function EventCard({
                 </p>
               </div>
 
-              {registrationLink && (
+              {registrationLink ? (
                 <a
                   href={registrationLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mb-6 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-700 to-cyan-900 rounded-lg text-white hover:from-cyan-600 hover:to-cyan-800 transition-all duration-300 border border-cyan-500/50 hover:border-cyan-400/70 text-sm sm:text-base"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={handleRegisterClick}
                 >
                   Register Now <FaExternalLinkAlt className="text-xs" />
                 </a>
-              )}
+              ) : onRegister ? (
+                <button
+                  onClick={handleRegisterClick}
+                  disabled={isRegistered}
+                  className={`mb-6 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-white transition-all duration-300 border text-sm sm:text-base ${
+                    isRegistered 
+                      ? 'bg-green-600 border-green-500 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-cyan-700 to-cyan-900 border-cyan-500/50 hover:from-cyan-600 hover:to-cyan-800 hover:border-cyan-400/70'
+                  }`}
+                >
+                  {isRegistered ? 'Registered ✓' : 'Register for Event'}
+                </button>
+              ) : null}
 
               {/* Animated dots */}
               <div className="absolute top-4 right-4 flex space-x-1 z-20">
@@ -134,7 +181,7 @@ function EventCard({
   );
 }
 
-// Header Component 
+// Header Component remains the same
 function Header({ title, description }) {
   return (
     <header className="text-center mb-12 relative z-10 px-2 sm:px-4">
@@ -155,14 +202,81 @@ function Header({ title, description }) {
   );
 }
 
-
 export default function EventsList() {
   const { body } = eventsContent;
-  const sections = ["Yearly", "Cultural", "Technical"];
+  const { user } = useAuth();
+  const [registeredEvents, setRegisteredEvents] = useState([]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  
+  const sections = ["Upcoming", "Yearly", "Cultural", "Technical"];
+
+  // Fetch user's registered events
+  useEffect(() => {
+    if (user) {
+      fetchRegisteredEvents();
+    }
+  }, [user]);
+
+  const fetchRegisteredEvents = async () => {
+    const { data, error } = await supabase
+      .from('user_events')
+      .select('event_id')
+      .eq('user_id', user.id);
+    
+    if (!error && data) {
+      setRegisteredEvents(data.map(item => item.event_id));
+    }
+  };
+
+  // Filter upcoming events (you might want to add an 'upcoming' field to your events data)
+  useEffect(() => {
+    // This is a simple filter - you might want to implement more sophisticated logic
+    const upcoming = body.events.filter(event => 
+      event.status?.toLowerCase().includes('upcoming') || 
+      event.status?.toLowerCase().includes('coming soon')
+    );
+    setUpcomingEvents(upcoming);
+  }, [body.events]);
+
+  const handleEventRegistration = async (eventId, eventName) => {
+    if (!user) {
+      alert('Please login to register for events');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('user_events')
+        .insert([
+          { 
+            user_id: user.id, 
+            event_id: eventId,
+            registered_at: new Date().toISOString()
+          }
+        ]);
+
+      if (error) throw error;
+
+      // Update local state
+      setRegisteredEvents(prev => [...prev, eventId]);
+      alert(`Successfully registered for ${eventName}!`);
+      
+      // Refresh registered events
+      await fetchRegisteredEvents();
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('Failed to register for event. Please try again.');
+    }
+  };
+
+  // Check if user is registered for an event
+  const isEventRegistered = (eventId) => {
+    return registeredEvents.includes(eventId);
+  };
 
   return (
     <div className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white px-2 sm:px-4 md:px-8 lg:px-10 py-6 sm:py-8 md:py-10 overflow-hidden">
-      {/* Background elements from MoreEvents */}
+      {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Falling binary rain */}
         <div className="absolute inset-0 opacity-20">
@@ -194,25 +308,34 @@ export default function EventsList() {
           description="From DSA Marathons, Development, ML and Design Workshops to sessions that sharpen technical expertise, from the spirited CSS Olympics that celebrate sportsmanship to cultural highlights like ESPERANZA, CSS GO, and our flagship annual fest CSS ABACUS — our calendar is packed with opportunities to learn, grow, and celebrate. Guided by the motto Participate, Enjoy & Learn, every event is designed to build all-rounders and leave behind unforgettable memories."
         />
 
-        {sections.map((section) => (
-          <div key={section} className="mb-12 sm:mb-16 relative z-10">
-            <div className="flex items-center justify-center mb-8 sm:mb-12 p-3 sm:p-6 bg-black/60 rounded-lg border border-cyan-500/30 relative overflow-hidden">
-              <div className="absolute inset-0 bg-circuit-pattern opacity-10"></div>
-              {/* Cyberpunk border corners */}
-              <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-cyan-400"></div>
-              <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-cyan-400"></div>
-              <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-cyan-400"></div>
-              <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-cyan-400"></div>
-              <h2 className="text-xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-300 to-cyan-100 bg-clip-text text-transparent text-center">
-                {section.toUpperCase()} EVENTS
-              </h2>
-            </div>
+        {sections.map((section) => {
+          // Filter events for this section
+          let sectionEvents = [];
+          if (section === "Upcoming") {
+            sectionEvents = upcomingEvents;
+          } else {
+            sectionEvents = body.events.filter((event) => event.section === section);
+          }
 
-            {/* Grid Container -- THIS IS THE FIX */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-8 sm:gap-y-12 lg:gap-y-14 w-full max-w-6xl mx-auto px-2 sm:px-4 justify-items-center">
-              {body.events
-                .filter((event) => event.section === section)
-                .map((event) => (
+          if (sectionEvents.length === 0) return null;
+
+          return (
+            <div key={section} className="mb-12 sm:mb-16 relative z-10">
+              <div className="flex items-center justify-center mb-8 sm:mb-12 p-3 sm:p-6 bg-black/60 rounded-lg border border-cyan-500/30 relative overflow-hidden">
+                <div className="absolute inset-0 bg-circuit-pattern opacity-10"></div>
+                {/* Cyberpunk border corners */}
+                <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-cyan-400"></div>
+                <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-cyan-400"></div>
+                <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-cyan-400"></div>
+                <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-cyan-400"></div>
+                <h2 className="text-xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-300 to-cyan-100 bg-clip-text text-transparent text-center">
+                  {section.toUpperCase()} EVENTS
+                </h2>
+              </div>
+
+              {/* Grid Container */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-8 sm:gap-y-12 lg:gap-y-14 w-full max-w-6xl mx-auto px-2 sm:px-4 justify-items-center">
+                {sectionEvents.map((event) => (
                   <EventCard
                     key={event.id}
                     name={event.name}
@@ -223,11 +346,15 @@ export default function EventsList() {
                     registrationLink={event.registrationLink}
                     moreEvents={event.moreEvents}
                     slug={event.slug}
+                    requiresAuth={section === "Upcoming"} // Upcoming events require auth
+                    onRegister={section === "Upcoming" ? () => handleEventRegistration(event.id, event.name) : null}
+                    isRegistered={isEventRegistered(event.id)}
                   />
                 ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

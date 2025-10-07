@@ -1,26 +1,31 @@
+// ProtectedRoute.jsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '/src/context/AuthContext.jsx';
+import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children }) => {
-    const { user, profile, loading } = useAuth();
+const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
+    const { user, loading, requiresProfileCompletion } = useAuth();
 
     if (loading) {
-        return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading session...</div>;
+        return (
+            <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
+                    <p className="mt-4">Loading...</p>
+                </div>
+            </div>
+        );
     }
 
     if (!user) {
-        return <Navigate to="/auth" />;
+        return <Navigate to="/auth" replace />;
     }
 
-    // After login, check if the profile is complete.
-    // The profile exists because of the trigger, but scholar_id might be null.
-    if (!profile?.scholar_id || !profile?.full_name) {
-        return <Navigate to="/complete-profile" />;
+    if (requireProfileCompletion && requiresProfileCompletion) {
+        return <Navigate to="/complete-profile" replace />;
     }
 
     return children;
 };
 
 export default ProtectedRoute;
-

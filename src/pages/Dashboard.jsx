@@ -12,13 +12,25 @@ const badges = [
 ];
 
 const Dashboard = () => {
-    const { user, signOut } = useAuth();
+    const { user, signOut, loading: authLoading } = useAuth(); // ADD: authLoading
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [attendedEvents, setAttendedEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [dataLoading, setDataLoading] = useState(true); // CHANGE: renamed to dataLoading
 
     useEffect(() => {
+        // ADD: Redirect if no user and auth is done loading
+        if (!user && !authLoading) {
+            navigate('/auth');
+            return;
+        }
+
+        if (user) {
+            fetchData();
+        }
+    }, [user, authLoading, navigate]); // ADD: authLoading to dependencies
+
+    const fetchData = async () => {
         if (!user) return;
 
         const fetchProfile = async () => {
@@ -44,29 +56,38 @@ const Dashboard = () => {
             if(error) {
                 console.error('Error fetching attended events:', error);
             } else {
-                setAttendedEvents(data);
+                setAttendedEvents(data || []); // ADD: default to empty array
             }
         };
 
-        const fetchData = async () => {
-            setLoading(true);
-            await Promise.all([fetchProfile(), fetchAttendedEvents()]);
-            setLoading(false);
-        }
-
-        fetchData();
-    }, [user]);
+        setDataLoading(true);
+        await Promise.all([fetchProfile(), fetchAttendedEvents()]);
+        setDataLoading(false);
+    }
 
     const handleLogout = async () => {
         await signOut();
-        navigate('/login');
+        navigate('/'); // CHANGE: navigate to home instead of login
     };
 
-    const earnedBadges = badges.filter(badge => attendedEvents.length >= badge.threshold);
-
-    if (loading) {
-        return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+    // CHANGE: Updated loading check
+    if (authLoading || dataLoading) {
+        return (
+            <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+                    <p className="text-lg">Loading your dashboard...</p>
+                </div>
+            </div>
+        );
     }
+
+    // ADD: Return null if no user (redirect will happen)
+    if (!user) {
+        return null;
+    }
+
+    const earnedBadges = badges.filter(badge => attendedEvents.length >= badge.threshold);
 
     return (
         <div className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white px-4 py-10 overflow-hidden">
@@ -136,4 +157,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
