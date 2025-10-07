@@ -32,6 +32,9 @@ importers:
       '@react-three/postprocessing':
         specifier: ^3.0.4
         version: 3.0.4(@react-three/fiber@9.3.0(@types/react@19.1.11)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(three@0.180.0))(@types/three@0.180.0)(react@19.1.1)(three@0.180.0)
+      '@tabler/icons-react':
+        specifier: ^3.35.0
+        version: 3.35.0(react@19.1.1)
       '@supabase/supabase-js':
         specifier: ^2.58.0
         version: 2.58.0
