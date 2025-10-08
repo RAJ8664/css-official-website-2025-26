@@ -1,0 +1,126 @@
+/* components/Navbar.css (Updated for techy look and responsiveness) */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  color: #fff;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar-logo span {
+  font-size: 2rem;
+}
+
+.navbar-links {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+}
+
+.navbar-links.desktop {
+  display: flex;
+}
+
+.navbar-links.mobile {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: inherit;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.navbar-links li {
+  cursor: pointer;
+}
+
+.navbar-links a {
+  color: #fff;
+  text-decoration: none;
+  position: relative;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.navbar-links li.active a {
+  color: #00ff99;
+  text-shadow: 0 0 10px #00ff99;
+}
+
+.navbar-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #00ff99;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.navbar-links li:hover a::after {
+  transform: scaleX(1);
+}
+
+.navbar-links li:hover a {
+  text-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99, 0 0 30px #00ff99; /* Enhanced glitch glow */
+  animation: glitch 1s linear infinite; /* Added glitch animation */
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+/* Hamburger Icon */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.hamburger div {
+  width: 25px;
+  height: 3px;
+  background: #fff;
+  transition: all 0.3s ease;
+}
+
+/* Responsive Media Query */
+@media (max-width: 768px) {
+  .navbar-links.desktop {
+    display: none;
+  }
+
+  .navbar-links.mobile {
+    display: flex;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+}
