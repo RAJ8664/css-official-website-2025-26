@@ -17,7 +17,7 @@ const eventsContent = {
         date: "",
         venue: "",
         organizer: "Computer Science Society",
-        registrationLink: "@",
+        registrationLink: null,
         "poster-url": "https://res.cloudinary.com/dx8jytou0/image/upload/f_webp/v1757495059/Abacus_az0bsl.png",
         
         moreEvents: [
@@ -113,7 +113,7 @@ const eventsContent = {
         venue: "",
         organizer: "CP Wing",
         "poster-url": "https://res.cloudinary.com/dx8jytou0/image/upload/f_webp/v1757498092/Screenshot_2025-09-10_152620_zjn6hp.png",
-        registrationLink: "@",
+        registrationLink: null,
         moreEvents: null,
       },
 
@@ -281,7 +281,7 @@ const eventsContent = {
         section: "Technical",
         name: "Design Workshops",
         slug: "design-workshops",
-         description:"The Computer Science Society organizes various design workshops throughout the year for the studentsthus helping them in improving their desgin skills in various fields",
+        description:"The Computer Science Society organizes various design workshops throughout the year for the students thus helping them in improving their design skills in various fields",
         
         status: "upcoming",
         date: "",

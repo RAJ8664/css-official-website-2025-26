@@ -12,13 +12,12 @@ const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [requiresProfileCompletion, setRequiresProfileCompletion] = useState(false);
     
-    // Use refs to track state without causing re-renders
+    
     const initializedRef = useRef(false);
     const processingAuthChangeRef = useRef(false);
 
     const fetchProfile = async (userId) => {
         try {
-            console.log('📋 Fetching profile for user:', userId);
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
@@ -27,13 +26,12 @@ const AuthProvider = ({ children }) => {
             
             if (error) {
                 if (error.code === 'PGRST116') {
-                    console.log('❌ No profile found');
                     return null;
                 }
                 console.error("Error fetching profile:", error);
                 return null;
             }
-            console.log('✅ Profile found');
+           
             return data;
         } catch (error) {
             console.error("Error in fetchProfile:", error);
@@ -48,15 +46,12 @@ const AuthProvider = ({ children }) => {
     const processAuthSession = async (session, source) => {
         // Prevent concurrent processing
         if (processingAuthChangeRef.current) {
-            console.log('⏳ Skipping - already processing auth change');
             return;
         }
 
         processingAuthChangeRef.current = true;
         
         try {
-            console.log(`🔄 Processing auth from: ${source}`, session?.user?.email);
-
             if (session?.user) {
                 setUser(session.user);
                 
@@ -65,14 +60,7 @@ const AuthProvider = ({ children }) => {
                 
                 const profileComplete = checkProfileCompletion(userProfile);
                 setRequiresProfileCompletion(!profileComplete);
-                
-                console.log('✅ Auth processing complete:', {
-                    user: session.user.email,
-                    profileExists: !!userProfile,
-                    profileComplete: profileComplete
-                });
             } else {
-                console.log('✅ No session - clearing auth state');
                 setUser(null);
                 setProfile(null);
                 setRequiresProfileCompletion(false);
@@ -90,12 +78,10 @@ const AuthProvider = ({ children }) => {
 
         const initializeAuth = async () => {
             if (initializedRef.current) {
-                console.log('🚫 Already initialized, skipping');
                 return;
             }
 
             try {
-                console.log('🔄 Initial auth check...');
                 const { data: { session }, error } = await supabase.auth.getSession();
                 
                 if (error) {
@@ -103,7 +89,6 @@ const AuthProvider = ({ children }) => {
                     return;
                 }
 
-                console.log('📋 Initial session:', session ? 'Found' : 'None');
                 
                 if (mounted && session) {
                     await processAuthSession(session, 'initial_check');
@@ -124,17 +109,13 @@ const AuthProvider = ({ children }) => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (!mounted) return;
 
-            console.log('🎯 Auth state change:', event);
             
-            // Use setTimeout to break the synchronous call chain that causes duplicates
             setTimeout(async () => {
                 if (!mounted) return;
                 
-                // Only process meaningful events
                 if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
                     await processAuthSession(session, `event_${event}`);
                 } else if (event === 'TOKEN_REFRESHED') {
-                    // Just update user without refetching profile
                     if (session?.user) {
                         setUser(session.user);
                     }
@@ -146,13 +127,12 @@ const AuthProvider = ({ children }) => {
         initializeAuth();
 
         return () => {
-            console.log('🧹 Cleaning up auth');
             mounted = false;
             subscription?.unsubscribe();
         };
     }, []);
 
-    // Auth methods
+    
     const signIn = async (credentials) => {
         const { data, error } = await supabase.auth.signInWithPassword(credentials);
         if (error) throw error;

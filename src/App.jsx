@@ -15,6 +15,8 @@ import Wings from './pages/Wings';
 import Developers from './pages/Developers';
 // ADD: Import useAuth
 import { useAuth } from './context/AuthContext';
+import AdminRoute from './components/AdminRoute'
+import AdminDashboard from './pages/AdminDashboard'
 
 // ADD: ProtectedRoute component inside this file
 const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
@@ -97,6 +99,16 @@ const App = () => {
             element={
               <ProtectedRoute requireProfileCompletion={true}>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute requireProfileCompletion={true}>
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
               </ProtectedRoute>
             } 
           />
