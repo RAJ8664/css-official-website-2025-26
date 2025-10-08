@@ -1,97 +1,311 @@
 {
   "categories": {
     "leads": {
-      "name": "Project Leads & Architecture",
+      "name": "Team Leads",
+      "icon": "FaUserTie",
       "members": [
         {
-          "name": "John Smith",
-          "role": "Lead Developer",
-          "photo": "images/leads/john.jpg",
-          "skills": ["React", "Node.js", "System Architecture"],
-          "bio": "Oversees the technical architecture and development roadmap for all CSS digital projects.",
+          "name": "Subhajyoti Dey",
+          "role": "Dev Wing Head",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757071185/IMG-20250816-WA0006_-_SUBHAJYOTI_DEY_ot2gtd.webp",
           "social": {
-            "instagram": "https://instagram.com/john",
-            "facebook": "https://facebook.com/john",
-            "linkedin": "https://linkedin.com/in/john"
+            "instagram": "https://www.instagram.com/subhajyoti_dey_?igsh=MW8yZ2RxNDA1a2lk",
+            "facebook": "https://www.facebook.com/share/19kx2bddba/",
+            "linkedin": "https://www.linkedin.com/in/subhajyoti-dey-635922235"
           }
         },
         {
-          "name": "Sarah Johnson",
-          "role": "Technical Director",
-          "photo": "images/leads/sarah.jpg",
-          "skills": ["Project Management", "Backend", "DevOps"],
-          "bio": "Coordinates development efforts and ensures technical excellence across all projects.",
+          "name": "Rupjyoti Patgiri",
+          "role": "Dev Wing Head",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757613198/RUPJYOTI_PATGIRI_2312123_-_RUPJYOTI_PATGIRI_qebn6t.webp",
           "social": {
-            "instagram": "https://instagram.com/sarah",
-            "linkedin": "https://linkedin.com/in/sarah"
+            "instagram": "https://www.instagram.com/rup_jyoti019/",
+            "facebook": "https://www.facebook.com/profile.php?id=61553281235341",
+            "linkedin": "https://www.linkedin.com/in/rupjyoti-patgiri-6ab78628b/"
           }
         }
       ]
     },
     "developers": {
-      "name": "2nd Year Developers",
+      "name": "Developers",
+      "icon": "FaCode",
       "members": [
         {
-          "name": "Alex Chen",
-          "role": "Frontend Developer",
-          "year": "2nd Year",
-          "photo": "images/developers/alex.jpg",
-          "skills": ["React", "JavaScript", "CSS"],
-          "bio": "Specializes in creating responsive and interactive user interfaces.",
+          "name": "Nibir Deka",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612828/NibirDeka_2_2412007.jpeg_-_NIBIR_DEKA_mxthop.webp",
           "social": {
-            "instagram": "https://instagram.com/alex",
-            "linkedin": "https://linkedin.com/in/alex"
+            "instagram": "https://www.instagram.com/nibir_deka_07/",
+            "facebook": "",
+            "linkedin": "https://www.linkedin.com/in/nibir-deka-0a8636331/"
           }
         },
         {
-          "name": "Maya Patel",
-          "role": "Backend Developer",
-          "year": "2nd Year",
-          "photo": "images/developers/maya.jpg",
-          "skills": ["Node.js", "Python", "Databases"],
-          "bio": "Focuses on server-side logic, database design and API development.",
+          "name": "Kallul Gogoi",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dgechlqls/image/upload/v1757613620/fdxnqggiarxn6uupzpvt.jpg",
           "social": {
-            "instagram": "https://instagram.com/maya",
-            "linkedin": "https://linkedin.com/in/maya"
+            "instagram": "https://www.instagram.com/kallul_gogoi33/",
+            "facebook": "https://www.facebook.com/profile.php?id=100067160496166",
+            "linkedin": "https://www.linkedin.com/in/kallul-gogoi-00a5152a0/"
           }
         },
         {
-          "name": "David Kim",
-          "role": "Full Stack Developer",
-          "year": "2nd Year",
-          "photo": "images/developers/david.jpg",
-          "skills": ["React", "Express", "MongoDB"],
-          "bio": "Works on both frontend and backend components of web applications.",
+          "name": "Olivia Nath",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612715/Olivia_Nath_-_OLIVIA_NATH_ji1xym.webp",
           "social": {
-            "instagram": "https://instagram.com/david",
-            "linkedin": "https://linkedin.com/in/david"
+            "instagram": "olivia.nath.714",
+            "facebook": "https://www.facebook.com/olivia.nath.714",
+            "linkedin": "https://www.linkedin.com/in/olivia-nath-721860341"
+          }
+        },
+        {
+          "name": "Prachi Chandak",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612606/IMG_20250228_132102_-_PRACHI_CHANDAK_zkc6ab.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/prachii_chandak/",
+            "facebook": "https://www.linkedin.com/in/prachi-chandak-086086325/",
+            "linkedin": "https://www.facebook.com/profile.php?id=61564665972673"
+          }
+        },
+        {
+          "name": "Hurun Maksora",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612466/IMG_20250817_222038_822_-_HURUN_MAKSORA_br3pmn.webp",
+          "social": {
+            "instagram": "@ohwellmaksura",
+            "facebook": "https://www.facebook.com/share/16kmfXi1wb/",
+            "linkedin": "https://www.linkedin.com/in/h-maksura-9a52b8343?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+          }
+        },
+        {
+          "name": "Niha Hazarika",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757066600/niha_wb8acc.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/___nihoo___/",
+            "facebook": "https://www.facebook.com/niha.hazarika.261235",
+            "linkedin": "https://www.linkedin.com/in/niha-hazarika-1620a9353"
+          }
+        },
+        {
+          "name": "Subhajit Sarkar",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612304/pic_-_SUBHAJIT_SARKAR_riyemv.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/_subhajit15?igsh=ZGZzcmM3Nmtqdjkz",
+            "facebook": "https://www.facebook.com/share/1JLBHwv659/",
+            "linkedin": "https://www.linkedin.com/in/subhajit-sarkar-57aa432b1?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+          }
+        },
+        {
+          "name": "Dibakar Sarmah",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612178/1000238611-Picsart-AiImageEnhancer_-_DIBAKAR_SARMAH_age3fp.webp",
+          "social": {
+            "instagram": "",
+            "facebook": "",
+            "linkedin": "https://www.linkedin.com/in/dibakar-sarmah-93b7b3371?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+          }
+        },
+        {
+          "name": "Priyanshu Paul",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757611957/IMG-20250827-WA0014_-_PRIYANSHU_PAUL_wxsff0.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/priyanshu_paul_tsk?utm_source=qr&igsh=Nmt5ZGtpZmlnYjA2",
+            "facebook": "https://www.facebook.com/priyanshu.paul.965?mibextid=rS40aB7S9Ucbxw6v",
+            "linkedin": "https://www.linkedin.com/in/priyanshu-paul-582839327?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
           }
         }
       ]
     },
     "designers": {
-      "name": "UI/UX Designers",
+      "name": "Designers",
+      "icon": "FaPalette",
       "members": [
         {
-          "name": "Emma Wilson",
-          "role": "UI/UX Designer",
-          "photo": "images/designers/emma.jpg",
-          "skills": ["Figma", "User Research", "Prototyping"],
-          "bio": "Creates intuitive and visually appealing user interfaces with a focus on user experience.",
+          "name": "Shreya Markam",
+          "role": "Design Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757085269/a7f9a17f-e3e0-43ec-ad7a-9779835d638f_-_SHREYA_MARKAM_u3cjpn.webp",
           "social": {
-            "instagram": "https://instagram.com/emma",
-            "linkedin": "https://linkedin.com/in/emma"
+            "instagram": "https://www.instagram.com/_shreyamarkam?igsh=ZHBjZHZtMmd1YmYx",
+            "facebook": "https://www.facebook.com/share/16m7qZzoat/?mibextid=wwXIfr",
+            "linkedin": "https://www.linkedin.com/in/shreya-markam-343416316?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
           }
         },
         {
-          "name": "James Taylor",
-          "role": "Graphic Designer",
-          "photo": "images/designers/james.jpg",
-          "skills": ["Illustrator", "Photoshop", "Branding"],
-          "bio": "Develops visual identity and graphic assets for CSS digital properties.",
+          "name": "Kallul Gogoi",
+          "role": "Design Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dgechlqls/image/upload/v1757613620/fdxnqggiarxn6uupzpvt.jpg",
           "social": {
-            "instagram": "https://instagram.com/james",
-            "linkedin": "https://linkedin.com/in/james"
+            "instagram": "https://www.instagram.com/kallul_gogoi33/",
+            "facebook": "https://www.facebook.com/profile.php?id=100067160496166",
+            "linkedin": "https://www.linkedin.com/in/kallul-gogoi-00a5152a0/"
+          }
+        },
+        {
+          "name": "Nibir Deka",
+          "role": "Design Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612828/NibirDeka_2_2412007.jpeg_-_NIBIR_DEKA_mxthop.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/nibir_deka_07/",
+            "facebook": "https://www.facebook.com/nibir.deka.605645",
+            "linkedin": "https://www.linkedin.com/in/nibir-deka-0a8636331/"
+          }
+        }
+      ]
+    },
+    "contributors": {
+      "name": "Contributors",
+      "icon": "FaUsers",
+      "members": [
+        {
+          "name": "Subhajyoti Dey",
+          "role": "Dev Wing Head",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757071185/IMG-20250816-WA0006_-_SUBHAJYOTI_DEY_ot2gtd.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/subhajyoti_dey_?igsh=MW8yZ2RxNDA1a2lk",
+            "facebook": "https://www.facebook.com/share/19kx2bddba/",
+            "linkedin": "https://www.linkedin.com/in/subhajyoti-dey-635922235"
+          }
+        },
+        {
+          "name": "Rupjyoti Patgiri",
+          "role": "Dev Wing Head",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757613198/RUPJYOTI_PATGIRI_2312123_-_RUPJYOTI_PATGIRI_qebn6t.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/rup_jyoti019/",
+            "facebook": "https://www.facebook.com/profile.php?id=61553281235341",
+            "linkedin": "https://www.linkedin.com/in/rupjyoti-patgiri-6ab78628b/"
+          }
+        },
+        {
+          "name": "Nibir Deka",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612828/NibirDeka_2_2412007.jpeg_-_NIBIR_DEKA_mxthop.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/nibir_deka_07/",
+            "facebook": "https://www.facebook.com/nibir.deka.605645",
+            "linkedin": "https://www.linkedin.com/in/nibir-deka-0a8636331/"
+          }
+        },
+        {
+          "name": "Kallul Gogoi",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dgechlqls/image/upload/v1757613620/fdxnqggiarxn6uupzpvt.jpg",
+          "social": {
+            "instagram": "https://www.instagram.com/kallul_gogoi33/",
+            "facebook": "https://www.facebook.com/profile.php?id=100067160496166",
+            "linkedin": "https://www.linkedin.com/in/kallul-gogoi-00a5152a0/"
+          }
+        },
+        {
+          "name": "Olivia Nath",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612715/Olivia_Nath_-_OLIVIA_NATH_ji1xym.webp",
+          "social": {
+            "instagram": "olivia.nath.714",
+            "facebook": "https://www.facebook.com/olivia.nath.714",
+            "linkedin": "https://www.linkedin.com/in/olivia-nath-721860341"
+          }
+        },
+        {
+          "name": "Prachi Chandak",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612606/IMG_20250228_132102_-_PRACHI_CHANDAK_zkc6ab.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/prachii_chandak/",
+            "facebook": "https://www.linkedin.com/in/prachi-chandak-086086325/",
+            "linkedin": "https://www.facebook.com/profile.php?id=61564665972673"
+          }
+        },
+        {
+          "name": "Hurun Maksora",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612466/IMG_20250817_222038_822_-_HURUN_MAKSORA_br3pmn.webp",
+          "social": {
+            "instagram": "@ohwellmaksura",
+            "facebook": "https://www.facebook.com/share/16kmfXi1wb/",
+            "linkedin": "https://www.linkedin.com/in/h-maksura-9a52b8343?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+          }
+        },
+        {
+          "name": "Niha Hazarika",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757066600/niha_wb8acc.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/___nihoo___/",
+            "facebook": "https://www.facebook.com/niha.hazarika.261235",
+            "linkedin": "https://www.linkedin.com/in/niha-hazarika-1620a9353"
+          }
+        },
+        {
+          "name": "Subhajit Sarkar",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612304/pic_-_SUBHAJIT_SARKAR_riyemv.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/_subhajit15?igsh=ZGZzcmM3Nmtqdjkz",
+            "facebook": "https://www.facebook.com/share/1JLBHwv659/",
+            "linkedin": "https://www.linkedin.com/in/subhajit-sarkar-57aa432b1?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+          }
+        },
+        {
+          "name": "Dibakar Sarmah",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612178/1000238611-Picsart-AiImageEnhancer_-_DIBAKAR_SARMAH_age3fp.webp",
+          "social": {
+            "instagram": "",
+            "facebook": "",
+            "linkedin": "https://www.linkedin.com/in/dibakar-sarmah-93b7b3371?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+          }
+        },
+        {
+          "name": "Priyanshu Paul",
+          "role": "Dev Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757611957/IMG-20250827-WA0014_-_PRIYANSHU_PAUL_wxsff0.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/priyanshu_paul_tsk?utm_source=qr&igsh=Nmt5ZGtpZmlnYjA2",
+            "facebook": "https://www.facebook.com/priyanshu.paul.965?mibextid=rS40aB7S9Ucbxw6v",
+            "linkedin": "https://www.linkedin.com/in/priyanshu-paul-582839327?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+          }
+        },
+        {
+          "name": "Shreya Markam",
+          "role": "Design Wing Junior Member",
+          "year": "2025-26",
+          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757085269/a7f9a17f-e3e0-43ec-ad7a-9779835d638f_-_SHREYA_MARKAM_u3cjpn.webp",
+          "social": {
+            "instagram": "https://www.instagram.com/_shreyamarkam?igsh=ZHBjZHZtMmd1YmYx",
+            "facebook": "https://www.facebook.com/share/16m7qZzoat/?mibextid=wwXIfr",
+            "linkedin": "https://www.linkedin.com/in/shreya-markam-343416316?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
           }
         }
       ]

@@ -69,7 +69,7 @@ const App = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
-        {/* <NavbarDemo /> */}
+        <NavbarDemo />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/members" element={<Member />} />
