@@ -1,89 +1,140 @@
-import React, { useState, useEffect, useRef } from 'react'
-import '../../styles/chatbot.css'
+import React, { useState, useEffect, useRef } from 'react';
+import '../../styles/chatbot.css';
 
 const Chatbot = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState([])
-  const [inputValue, setInputValue] = useState('')
-  const [isChatStarted, setIsChatStarted] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isChatStarted, setIsChatStarted] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [sessionId] = useState(
+    () => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  );
 
-  // Refs for various elements
-  const messagesEndRef = useRef(null)
-  const chatWidgetRef = useRef(null)
-  const chatLauncherRef = useRef(null)
+  const messagesEndRef = useRef(null);
+  const chatWidgetRef = useRef(null);
+  const chatLauncherRef = useRef(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-  useEffect(scrollToBottom, [messages])
+  useEffect(scrollToBottom, [messages]);
 
-  // --- NEW: Effect to handle closing the chat on outside click or scroll ---
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Proceed only if the chat widget is open
-      if (!isOpen) return
+      if (!isOpen) return;
 
-      // Check if the click is outside the chat widget AND not on the launcher icon
       if (
         chatWidgetRef.current &&
         !chatWidgetRef.current.contains(event.target) &&
         chatLauncherRef.current &&
         !chatLauncherRef.current.contains(event.target)
       ) {
-        setIsOpen(false)
+        setIsOpen(false);
       }
-    }
+    };
 
     const handleScroll = () => {
       if (isOpen) {
-        setIsOpen(false)
+        setIsOpen(false);
       }
-    }
+    };
 
-    // Add event listeners when the component mounts
-    document.addEventListener('mousedown', handleClickOutside)
-    window.addEventListener('scroll', handleScroll, true) // Use capture phase to detect scroll early
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', handleScroll, true);
 
-    // Cleanup: remove event listeners when the component unmounts
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      window.removeEventListener('scroll', handleScroll, true)
-    }
-  }, [isOpen]) // Re-run the effect if `isOpen` state changes
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [isOpen]);
 
-  const toggleChat = () => setIsOpen(!isOpen)
+  const toggleChat = () => setIsOpen(!isOpen);
 
-  const startConversation = () => {
-    setIsChatStarted(true)
-  }
+  const startConversation = async () => {
+    setIsChatStarted(true);
 
-  const handleSendMessage = (e) => {
-    e.preventDefault()
-    if (inputValue.trim() === '') return
-
-    const newUserMessage = { text: inputValue, sender: 'user' }
-    setMessages((prevMessages) => [...prevMessages, newUserMessage])
-    setInputValue('') // Simulate bot response
-
-    setTimeout(() => {
-      const botResponse = {
-        text: 'Thanks for your message! A representative will get back to you shortly.',
-        sender: 'bot',
+    try {
+      const response = await sendToDialogflow('WELCOME', true);
+      if (response) {
+        const botMessage = {
+          text: response,
+          sender: 'bot',
+        };
+        setMessages([botMessage]);
       }
-      setMessages((prevMessages) => [...prevMessages, botResponse])
-    }, 1200)
-  }
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+    }
+  };
+
+  const sendToDialogflow = async (text, isEvent = false) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/dialogflow', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: text,
+          sessionId: sessionId,
+          isEvent: isEvent,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response from Dialogflow');
+      }
+
+      const data = await response.json();
+      return data.response;
+    } catch (error) {
+      console.error('Dialogflow API Error:', error);
+      return 'Sorry, I am having trouble connecting. Please try again later.';
+    }
+  };
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (inputValue.trim() === '' || isTyping) return;
+
+    const userMessage = inputValue.trim();
+    const newUserMessage = { text: userMessage, sender: 'user' };
+    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+    setInputValue('');
+    setIsTyping(true);
+
+    try {
+      const botResponse = await sendToDialogflow(userMessage, false);
+
+      setTimeout(() => {
+        setIsTyping(false);
+        const botMessage = {
+          text: botResponse,
+          sender: 'bot',
+        };
+        setMessages((prevMessages) => [...prevMessages, botMessage]);
+      }, 800);
+    } catch (error) {
+      setIsTyping(false);
+      const errorMessage = {
+        text: 'Sorry, something went wrong. Please try again.',
+        sender: 'bot',
+      };
+      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+    }
+  };
+
   const resetChat = () => {
-    setIsChatStarted(false)
-    setMessages([])
-  }
+    setIsChatStarted(false);
+    setMessages([]);
+    setIsTyping(false);
+  };
 
   return (
     <>
-            {/*=============== CHATBOT LAUNCHER ===============*/}     {' '}
       <div className="chat-launcher" onClick={toggleChat} ref={chatLauncherRef}>
-               {' '}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -97,25 +148,18 @@ const Chatbot = () => {
         >
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
         </svg>
-             {' '}
       </div>
-            {/*=============== CHATBOT WIDGET ===============*/}     {' '}
-      <div
-        className={`chat-widget ${isOpen ? 'active' : ''}`}
-        ref={chatWidgetRef}
-      >
-               {' '}
+
+      <div className={`chat-widget ${isOpen ? 'active' : ''}`} ref={chatWidgetRef}>
         <div className="chat-header">
-                   {' '}
           <div className="header-content">
-                        <h3 className="header-title">HelpBot</h3>           {' '}
+            <h3 className="header-title">HelpBot</h3>
             {isChatStarted && (
               <button
                 className="icon-btn"
                 onClick={resetChat}
                 title="Start new conversation"
               >
-                                   {' '}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -130,29 +174,18 @@ const Chatbot = () => {
                   <polyline points="23 4 23 10 17 10"></polyline>
                   <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
                 </svg>
-                               {' '}
               </button>
             )}
-                     {' '}
           </div>
-                   {' '}
-          <button
-            className="icon-btn close-btn"
-            onClick={toggleChat}
-            title="Close chat"
-          >
+          <button className="icon-btn close-btn" onClick={toggleChat} title="Close chat">
             &times;
           </button>
-                 {' '}
         </div>
-               {' '}
+
         <div className="chat-body">
-                   {' '}
           {!isChatStarted ? (
             <div className="welcome-screen">
-                           {' '}
               <div className="robot-icon">
-                               {' '}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="60"
@@ -170,46 +203,46 @@ const Chatbot = () => {
                   <path d="M18 18H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z" />
                   <path d="M12 16h.01" />
                 </svg>
-                             {' '}
               </div>
-                            <h2>Welcome to HelpBot</h2>             {' '}
-              <p>How can we assist you today?</p>             {' '}
+              <h2>Welcome to HelpBot</h2>
+              <p>How can we assist you today?</p>
               <button className="start-convo-btn" onClick={startConversation}>
                 Start a convo
               </button>
-                         {' '}
             </div>
           ) : (
             <div className="chat-messages">
-                           {' '}
               {messages.map((msg, index) => (
                 <div key={index} className={`message ${msg.sender}-message`}>
-                                   {' '}
-                  <div className="message-bubble">{msg.text}</div>             
-                   {' '}
+                  <div className="message-bubble">{msg.text}</div>
                 </div>
               ))}
-                            <div ref={messagesEndRef} />           {' '}
+              {isTyping && (
+                <div className="message bot-message">
+                  <div className="message-bubble typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
           )}
-                 {' '}
         </div>
-                       {' '}
+
         {isChatStarted && (
           <div className="chat-footer">
-                           {' '}
             <form onSubmit={handleSendMessage}>
-                                 {' '}
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Type your message..."
                 autoComplete="off"
+                disabled={isTyping}
               />
-                                 {' '}
-              <button type="submit" className="send-btn">
-                                       {' '}
+              <button type="submit" className="send-btn" disabled={isTyping}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -224,18 +257,13 @@ const Chatbot = () => {
                   <line x1="22" y1="2" x2="11" y2="13"></line>
                   <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                 </svg>
-                                   {' '}
               </button>
-                             {' '}
             </form>
-                       {' '}
           </div>
         )}
-             {' '}
       </div>
-         {' '}
     </>
-  )
-}
+  );
+};
 
-export default Chatbot
+export default Chatbot;
