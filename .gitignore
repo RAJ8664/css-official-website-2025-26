@@ -22,4 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-echo ".env" >> .gitignore
+
+
+.env
+.env.local
+
+*.json
+whatever-ceyu-b622005692d5.json
+
+node_modules/
+
+dist/
+build/
