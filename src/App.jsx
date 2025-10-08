@@ -41,6 +41,27 @@ const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
 
     return children;
 };
+const GuestRoute = ({ children }) => {
+    const { user, loading } = useAuth();
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+                    <p className="text-lg">Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (user) {
+        return <Navigate to="/dashboard" replace />;
+    }
+
+    return children;
+};
+
 
 const App = () => {
   return (
@@ -54,7 +75,11 @@ const App = () => {
           <Route path="/wings" element={<Wings />} />
           <Route path="/developers" element={<Developers />} />
           <Route path="/events/:slug" element={<MoreEvents />} />
-          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth" element={
+            <GuestRoute>
+                <Auth />
+            </GuestRoute>
+          } />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/otp-verification" element={<OtpVerification />} />
           
@@ -62,7 +87,7 @@ const App = () => {
           <Route 
             path="/complete-profile" 
             element={
-              <ProtectedRoute>
+              <ProtectedRoute >
                 <CompleteProfile />
               </ProtectedRoute>
             } 

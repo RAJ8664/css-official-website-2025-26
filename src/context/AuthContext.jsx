@@ -1,5 +1,5 @@
 import React from 'react';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { supabase } from '../supabaseClient';
 
 const AuthContext = createContext({});
@@ -11,7 +11,10 @@ const AuthProvider = ({ children }) => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [requiresProfileCompletion, setRequiresProfileCompletion] = useState(false);
-    const [initialized, setInitialized] = useState(false);
+    
+    // Use refs to track state without causing re-renders
+    const initializedRef = useRef(false);
+    const processingAuthChangeRef = useRef(false);
 
     const fetchProfile = async (userId) => {
         try {
@@ -24,13 +27,13 @@ const AuthProvider = ({ children }) => {
             
             if (error) {
                 if (error.code === 'PGRST116') {
-                    console.log('❌ No profile found - new user needs to complete profile');
+                    console.log('❌ No profile found');
                     return null;
                 }
                 console.error("Error fetching profile:", error);
                 return null;
             }
-            console.log('✅ Profile found:', data);
+            console.log('✅ Profile found');
             return data;
         } catch (error) {
             console.error("Error in fetchProfile:", error);
@@ -39,232 +42,163 @@ const AuthProvider = ({ children }) => {
     };
 
     const checkProfileCompletion = (profileData) => {
-        const isComplete = profileData && profileData.full_name && profileData.scholar_id;
-        console.log('🔍 Profile completion check:', { 
-            hasProfile: !!profileData, 
-            hasName: !!profileData?.full_name, 
-            hasScholarId: !!profileData?.scholar_id,
-            isComplete 
-        });
-        return isComplete;
+        return profileData && profileData.full_name && profileData.scholar_id;
     };
 
-    useEffect(() => {
-        let mounted = true;
+    const processAuthSession = async (session, source) => {
+        // Prevent concurrent processing
+        if (processingAuthChangeRef.current) {
+            console.log('⏳ Skipping - already processing auth change');
+            return;
+        }
 
-        const initializeAuth = async () => {
-            setLoading(true);
-            
-            try {
-                console.log('🔄 Checking for existing session...');
-                
-                const { data: { session }, error } = await supabase.auth.getSession();
-                
-                if (error) {
-                    console.error("Session error:", error);
-                    if (mounted) {
-                        setLoading(false);
-                        setInitialized(true);
-                    }
-                    return;
-                }
-
-                console.log('📋 Session found:', session ? `Yes - ${session.user.email}` : 'No');
-
-                if (session?.user && mounted) {
-                    console.log('👤 User detected:', session.user.email);
-                    setUser(session.user);
-                    
-                    // Fetch profile data
-                    const userProfile = await fetchProfile(session.user.id);
-                    setProfile(userProfile);
-                    
-                    // Check if profile needs completion
-                    const profileComplete = checkProfileCompletion(userProfile);
-                    setRequiresProfileCompletion(!profileComplete);
-                    
-                    console.log('🔐 Auth state:', {
-                        user: session.user.email,
-                        profileExists: !!userProfile,
-                        requiresProfileCompletion: !profileComplete
-                    });
-                } else if (mounted) {
-                    console.log('❌ No user session');
-                    setUser(null);
-                    setProfile(null);
-                    setRequiresProfileCompletion(false);
-                }
-            } catch (error) {
-                console.error("🚨 Auth initialization error:", error);
-            } finally {
-                if (mounted) {
-                    setLoading(false);
-                    setInitialized(true);
-                    console.log('✅ Auth initialization complete');
-                }
-            }
-        };
-
-        initializeAuth();
-
-        // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (!mounted) return;
-
-            console.log('🔄 Auth state changed:', event, session ? `User: ${session.user?.email}` : 'No session');
+        processingAuthChangeRef.current = true;
+        
+        try {
+            console.log(`🔄 Processing auth from: ${source}`, session?.user?.email);
 
             if (session?.user) {
-                console.log('👤 User authenticated:', session.user.email);
                 setUser(session.user);
                 
-                // Fetch profile when user logs in
                 const userProfile = await fetchProfile(session.user.id);
                 setProfile(userProfile);
                 
                 const profileComplete = checkProfileCompletion(userProfile);
                 setRequiresProfileCompletion(!profileComplete);
                 
-                console.log('📊 After login:', {
+                console.log('✅ Auth processing complete:', {
+                    user: session.user.email,
                     profileExists: !!userProfile,
-                    requiresProfileCompletion: !profileComplete
+                    profileComplete: profileComplete
                 });
             } else {
-                console.log('👤 User signed out');
+                console.log('✅ No session - clearing auth state');
                 setUser(null);
                 setProfile(null);
                 setRequiresProfileCompletion(false);
             }
+        } catch (error) {
+            console.error('❌ Error processing auth session:', error);
+        } finally {
+            processingAuthChangeRef.current = false;
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        let mounted = true;
+
+        const initializeAuth = async () => {
+            if (initializedRef.current) {
+                console.log('🚫 Already initialized, skipping');
+                return;
+            }
+
+            try {
+                console.log('🔄 Initial auth check...');
+                const { data: { session }, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    console.error("Session error:", error);
+                    return;
+                }
+
+                console.log('📋 Initial session:', session ? 'Found' : 'None');
+                
+                if (mounted && session) {
+                    await processAuthSession(session, 'initial_check');
+                } else if (mounted) {
+                    setLoading(false);
+                }
+                
+                initializedRef.current = true;
+            } catch (error) {
+                console.error("🚨 Auth initialization error:", error);
+                if (mounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        // Set up auth state change listener with debouncing
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (!mounted) return;
+
+            console.log('🎯 Auth state change:', event);
+            
+            // Use setTimeout to break the synchronous call chain that causes duplicates
+            setTimeout(async () => {
+                if (!mounted) return;
+                
+                // Only process meaningful events
+                if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+                    await processAuthSession(session, `event_${event}`);
+                } else if (event === 'TOKEN_REFRESHED') {
+                    // Just update user without refetching profile
+                    if (session?.user) {
+                        setUser(session.user);
+                    }
+                }
+            }, 10); // Small delay to prevent duplicate processing
         });
 
+        // Start the initialization
+        initializeAuth();
+
         return () => {
-            console.log('🧹 Cleaning up auth listener');
+            console.log('🧹 Cleaning up auth');
             mounted = false;
-            subscription.unsubscribe();
+            subscription?.unsubscribe();
         };
     }, []);
 
-    // Enhanced signIn function
+    // Auth methods
     const signIn = async (credentials) => {
-        try {
-            console.log('🔐 Attempting login for:', credentials.email);
-            
-            const { data, error } = await supabase.auth.signInWithPassword(credentials);
-            
-            if (error) {
-                console.error('❌ Login error:', error);
-                throw error;
-            }
-            
-            console.log('✅ Login successful:', data.user.email);
-            
-            // Fetch profile immediately after login
-            if (data.user) {
-                const userProfile = await fetchProfile(data.user.id);
-                setProfile(userProfile);
-                
-                const profileComplete = checkProfileCompletion(userProfile);
-                setRequiresProfileCompletion(!profileComplete);
-                
-                console.log('📋 Profile after login:', {
-                    profileExists: !!userProfile,
-                    requiresProfileCompletion: !profileComplete
-                });
-            }
-            
-            return { data, error: null };
-            
-        } catch (error) {
-            console.error('🚨 Login process error:', error);
-            return { data: null, error };
-        }
+        const { data, error } = await supabase.auth.signInWithPassword(credentials);
+        if (error) throw error;
+        return { data, error: null };
     };
 
     const signUp = async (email, password, fullName, scholarId) => {
-        try {
-            console.log('🚀 Starting signup process...');
-            
-            const { data, error } = await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    data: {
-                        full_name: fullName,
-                        scholar_id: scholarId,
-                    }
-                }
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: fullName, scholar_id: scholarId } }
+        });
+
+        if (error) throw error;
+
+        // Create profile
+        if (data.user) {
+            await supabase.from('profiles').upsert({
+                user_id: data.user.id,
+                full_name: fullName,
+                scholar_id: scholarId,
+                updated_at: new Date().toISOString(),
             });
-
-            console.log('📨 Signup response:', { data, error });
-
-            if (error) {
-                console.error('❌ Signup error:', error);
-                throw error;
-            }
-
-            // Create profile if user was created
-            if (data.user) {
-                try {
-                    const { error: profileError } = await supabase
-                        .from('profiles')
-                        .upsert({
-                            user_id: data.user.id,
-                            full_name: fullName,
-                            scholar_id: scholarId,
-                            updated_at: new Date().toISOString(),
-                        });
-
-                    if (profileError) {
-                        console.error('❌ Profile creation error:', profileError);
-                    } else {
-                        console.log('✅ Profile created successfully');
-                    }
-                } catch (profileError) {
-                    console.error('❌ Profile creation failed:', profileError);
-                }
-            }
-
-            return data;
-            
-        } catch (error) {
-            console.error('🚨 Signup process error:', error);
-            throw error;
         }
+
+        return data;
     };
 
     const verifyOtp = async (params) => {
-        try {
-            console.log('🔑 Verifying OTP for email:', params.email);
-            
-            const { data, error } = await supabase.auth.verifyOtp({
-                email: params.email,
-                token: params.token,
-                type: params.type || 'email'
-            });
-
-            console.log('✅ OTP verification response:', { data, error });
-
-            if (error) throw error;
-            return data;
-        } catch (error) {
-            console.error('❌ OTP verification process error:', error);
-            throw error;
-        }
+        const { data, error } = await supabase.auth.verifyOtp(params);
+        if (error) throw error;
+        return data;
     };
 
     const value = {
         signUp,
-        signIn, // Use our enhanced signIn function
+        signIn,
         signInWithGoogle: () => supabase.auth.signInWithOAuth({ 
             provider: 'google',
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`
-            },
+            options: { redirectTo: `${window.location.origin}/auth/callback` }
         }),
         signOut: () => supabase.auth.signOut(),
         verifyOtp,
         user,
         profile,
-        loading: loading && !initialized,
+        loading,
         requiresProfileCompletion,
         refreshProfile: async () => {
             if (user) {

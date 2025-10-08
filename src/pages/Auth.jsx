@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,9 +10,18 @@ const Auth = () => {
     const [fullName, setFullName] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { signIn, signUp, signInWithGoogle } = useAuth();
+    const { user, requiresProfileCompletion, signIn, signUp, signInWithGoogle } = useAuth();
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (user) {
+            if (requiresProfileCompletion) {
+                navigate('/complete-profile');
+                return;
+            }
+            navigate('/');
+        }
+    }, [user, navigate]);
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);

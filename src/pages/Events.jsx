@@ -1,14 +1,22 @@
-// Events.jsx - Updated
+// Events.jsx - FIXED VERSION
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import eventsContent from "../constants/events";
-import { FaArrowRight, FaExternalLinkAlt, FaLock } from "react-icons/fa";
+import { FaArrowRight, FaExternalLinkAlt, FaLock, FaCheck } from "react-icons/fa";
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
 import "../styles/eventsAnimation.css";
 
+// Add this near the top of your Events.jsx file, after the imports
+const whatsappGroups = {
+    "css-hackathon-2024": "https://chat.whatsapp.com/YOUR_HACKATHON_LINK",
+    "web-dev-workshop": "https://chat.whatsapp.com/YOUR_WORKSHOP_LINK",
+    // Add more event slugs and their WhatsApp links here
+    // Make sure the slugs match exactly with your events in eventsContent
+};
 // EventCard component with registration handling
 function EventCard({
+  slug,
   name,
   description,
   organizer,
@@ -16,12 +24,12 @@ function EventCard({
   image,
   registrationLink,
   moreEvents,
-  slug,
   requiresAuth = false,
   onRegister,
   isRegistered = false,
 }) {
   const [hovered, setHovered] = useState(false);
+  const [registering, setRegistering] = useState(false);
   const { user } = useAuth();
   const isTouchDevice = typeof window !== "undefined" && "ontouchstart" in window;
 
@@ -29,18 +37,21 @@ function EventCard({
     if (isTouchDevice) setHovered(!hovered);
   };
 
-  const handleRegisterClick = (e) => {
+  const handleRegisterClick = async (e) => {
     if (requiresAuth && !user) {
       e.preventDefault();
       e.stopPropagation();
       alert('Please login to register for this event');
+      // Navigate('/auth');
       return;
     }
     
-    if (onRegister && user) {
+    if (onRegister && user && !isRegistered) {
       e.preventDefault();
       e.stopPropagation();
-      onRegister();
+      setRegistering(true);
+      await onRegister();
+      setRegistering(false);
     }
   };
 
@@ -67,24 +78,20 @@ function EventCard({
             
             {/* Registered badge */}
             {isRegistered && (
-              <div className="absolute top-3 left-3 z-20 bg-green-600/90 text-white px-2 py-1 rounded text-xs font-bold">
-                Registered
+              <div className="absolute top-3 left-3 z-20 bg-green-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+                <FaCheck className="text-xs" /> Registered
               </div>
             )}
 
-            {/* Neon glow */}
+            {/* Rest of front card content */}
             <div className="relative inset-0 rounded-xl bg-cyan-500/5 opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-            {/* Tech grid background */}
             <div className="relative inset-0 bg-tech-grid opacity-10"></div>
 
-            {/* Corners */}
             <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-cyan-500/70"></div>
             <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-cyan-500/70"></div>
             <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-cyan-500/70"></div>
             <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-cyan-500/70"></div>
 
-            {/* Event poster */}
             <div className="absolute w-full h-full overflow-hidden">
               <img
                 src={image || "https://via.placeholder.com/400x300"}
@@ -93,26 +100,20 @@ function EventCard({
               />
             </div>
 
-            {/* Neon pulse */}
             <div className="absolute inset-0 rounded-xl border border-cyan-400/30 animate-pulse-slow pointer-events-none"></div>
           </div>
 
           {/* Back */}
           <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-xl overflow-hidden border border-cyan-500/50 shadow-2xl shadow-cyan-500/30 min-h-[320px] sm:min-h-[370px] md:min-h-[400px]">
-            {/* Glow */}
             <div className="absolute inset-0 rounded-xl bg-cyan-500/10 opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-            {/* Background */}
             <div className="absolute inset-0 bg-circuit-pattern opacity-15"></div>
             <div className="absolute inset-0 rounded-xl border-2 border-cyan-500/30 hover:border-cyan-400/50 transition-all duration-500"></div>
 
-            {/* Corners */}
             <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-cyan-400/80"></div>
             <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-cyan-400/80"></div>
             <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-cyan-400/80"></div>
             <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-cyan-400/80"></div>
 
-            {/* Content */}
             <div className="relative h-full flex flex-col justify-between p-3 sm:p-4 md:p-6 z-10">
               <div>
                 <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 bg-gradient-to-r from-cyan-300 to-cyan-100 bg-clip-text text-transparent">
@@ -143,18 +144,31 @@ function EventCard({
               ) : onRegister ? (
                 <button
                   onClick={handleRegisterClick}
-                  disabled={isRegistered}
+                  disabled={isRegistered || registering}
                   className={`mb-6 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-white transition-all duration-300 border text-sm sm:text-base ${
                     isRegistered 
                       ? 'bg-green-600 border-green-500 cursor-not-allowed' 
+                      : registering
+                      ? 'bg-cyan-800 border-cyan-600 cursor-not-allowed'
                       : 'bg-gradient-to-r from-cyan-700 to-cyan-900 border-cyan-500/50 hover:from-cyan-600 hover:to-cyan-800 hover:border-cyan-400/70'
                   }`}
                 >
-                  {isRegistered ? 'Registered ✓' : 'Register for Event'}
+                  {registering ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Registering...
+                    </>
+                  ) : isRegistered ? (
+                    <>
+                      <FaCheck className="text-xs" />
+                      Registered ✓
+                    </>
+                  ) : (
+                    'Register for Event'
+                  )}
                 </button>
               ) : null}
 
-              {/* Animated dots */}
               <div className="absolute top-4 right-4 flex space-x-1 z-20">
                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow shadow-red-500/50"></div>
                 <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse delay-300 shadow shadow-yellow-500/50"></div>
@@ -162,7 +176,6 @@ function EventCard({
               </div>
             </div>
 
-            {/* Neon pulse */}
             <div className="absolute inset-0 rounded-xl border border-cyan-400/40 animate-pulse-slow pointer-events-none"></div>
           </div>
         </div>
@@ -214,23 +227,36 @@ export default function EventsList() {
   useEffect(() => {
     if (user) {
       fetchRegisteredEvents();
+    } else {
+      setRegisteredEvents([]);
     }
   }, [user]);
 
   const fetchRegisteredEvents = async () => {
-    const { data, error } = await supabase
-      .from('user_events')
-      .select('event_id')
-      .eq('user_id', user.id);
+    if (!user) return;
     
-    if (!error && data) {
-      setRegisteredEvents(data.map(item => item.event_id));
+    try {
+      const { data, error } = await supabase
+        .from('user_events')
+        .select('event_slug')
+        .eq('user_id', user.id);
+      
+      if (error) {
+        console.error('Error fetching registered events:', error);
+        return;
+      }
+      
+      if (data) {
+        setRegisteredEvents(data.map(item => item.event_slug));
+        console.log('Registered events:', data.map(item => item.event_slug));
+      }
+    } catch (error) {
+      console.error('Error in fetchRegisteredEvents:', error);
     }
   };
 
-  // Filter upcoming events (you might want to add an 'upcoming' field to your events data)
+  // Filter upcoming events
   useEffect(() => {
-    // This is a simple filter - you might want to implement more sophisticated logic
     const upcoming = body.events.filter(event => 
       event.status?.toLowerCase().includes('upcoming') || 
       event.status?.toLowerCase().includes('coming soon')
@@ -238,40 +264,65 @@ export default function EventsList() {
     setUpcomingEvents(upcoming);
   }, [body.events]);
 
-  const handleEventRegistration = async (eventId, eventName) => {
+  // In Events.jsx - update the handleEventRegistration function
+const handleEventRegistration = async (eventSlug, eventName) => {
     if (!user) {
-      alert('Please login to register for events');
-      return;
+        alert('Please login to register for events');
+        Navigate('/auth');
+        return false;
     }
 
     try {
-      const { error } = await supabase
-        .from('user_events')
-        .insert([
-          { 
-            user_id: user.id, 
-            event_id: eventId,
-            registered_at: new Date().toISOString()
-          }
-        ]);
+        console.log('Registering for event:', eventSlug, eventName);
+        
+        const { data, error } = await supabase
+            .from('user_events')
+            .insert([
+                { 
+                    user_id: user.id, 
+                    event_slug: eventSlug,
+                    registered_at: new Date().toISOString()
+                }
+            ])
+            .select();
 
-      if (error) throw error;
+        if (error) {
+            console.error('Registration error:', error);
+            
+            if (error.code === '23505') {
+                console.log('User already registered for this event');
+                setRegisteredEvents(prev => [...prev, eventSlug]);
+                alert(`You're already registered for ${eventName}! Check your dashboard for the WhatsApp group link.`);
+                return true;
+            }
+            
+            throw error;
+        }
 
-      // Update local state
-      setRegisteredEvents(prev => [...prev, eventId]);
-      alert(`Successfully registered for ${eventName}!`);
-      
-      // Refresh registered events
-      await fetchRegisteredEvents();
+        console.log('Registration successful:', data);
+        setRegisteredEvents(prev => [...prev, eventSlug]);
+        
+        // SHOW WHATSAPP LINK IN ALERT
+        const whatsappLink = whatsappGroups[eventSlug];
+        if (whatsappLink) {
+            alert(`🎉 Successfully registered for ${eventName}!\n\nJoin the WhatsApp group for updates:\n${whatsappLink}\n\nYou can also find this link in your dashboard.`);
+        } else {
+            alert(`🎉 Successfully registered for ${eventName}!\n\nCheck your dashboard for event updates.`);
+        }
+        
+        await fetchRegisteredEvents();
+        return true;
+        
     } catch (error) {
-      console.error('Registration error:', error);
-      alert('Failed to register for event. Please try again.');
+        console.error('Registration failed:', error);
+        alert('Failed to register for event. Please try again.');
+        return false;
     }
-  };
+};
 
   // Check if user is registered for an event
-  const isEventRegistered = (eventId) => {
-    return registeredEvents.includes(eventId);
+  const isEventRegistered = (eventSlug) => {
+    return registeredEvents.includes(eventSlug);
   };
 
   return (
@@ -337,7 +388,8 @@ export default function EventsList() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-8 sm:gap-y-12 lg:gap-y-14 w-full max-w-6xl mx-auto px-2 sm:px-4 justify-items-center">
                 {sectionEvents.map((event) => (
                   <EventCard
-                    key={event.id}
+                    key={event.slug}
+                    slug={event.slug}
                     name={event.name}
                     description={event.description}
                     organizer={event.organizer}
@@ -345,10 +397,9 @@ export default function EventsList() {
                     image={event["poster-url"]}
                     registrationLink={event.registrationLink}
                     moreEvents={event.moreEvents}
-                    slug={event.slug}
-                    requiresAuth={section === "Upcoming"} // Upcoming events require auth
-                    onRegister={section === "Upcoming" ? () => handleEventRegistration(event.id, event.name) : null}
-                    isRegistered={isEventRegistered(event.id)}
+                    requiresAuth={section === "Upcoming"}
+                    onRegister={section === "Upcoming" ? () => handleEventRegistration(event.slug, event.name) : null}
+                    isRegistered={isEventRegistered(event.slug)}
                   />
                 ))}
               </div>
