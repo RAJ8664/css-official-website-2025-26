@@ -13,6 +13,7 @@ import AuthProvider from './context/AuthContext';
 import AuthCallback from './pages/AuthCallBack'
 import Wings from './pages/Wings';
 import Developers from './pages/Developers';
+import EditorialsComingSoon from './pages/Editorials';
 // ADD: Import useAuth
 import { useAuth } from './context/AuthContext';
 import AdminRoute from './components/AdminRoute'
@@ -77,6 +78,7 @@ const App = () => {
           <Route path="/wings" element={<Wings />} />
           <Route path="/developers" element={<Developers />} />
           <Route path="/events/:slug" element={<MoreEvents />} />
+          <Route path="/editorials" element={<EditorialsComingSoon />} />
           <Route path="/auth" element={
             <GuestRoute>
                 <Auth />

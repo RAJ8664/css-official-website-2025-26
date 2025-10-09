@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import {
   FaHome,
   FaCode,
@@ -9,6 +10,7 @@ import {
   FaFeatherAlt,
   FaNewspaper,
   FaSignInAlt,
+  FaUserCircle,
 } from 'react-icons/fa'
 
 const menuItems = [
@@ -18,12 +20,12 @@ const menuItems = [
   { path: '/events', label: 'Events', icon: FaCalendarAlt },
   { path: '/wings', label: 'Wings', icon: FaFeatherAlt },
   { path: '/editorials', label: 'Editorials', icon: FaNewspaper },
-  { path: '/auth', label: 'auth', icon: FaSignInAlt },
 ]
 
 export const NavbarDemo = () => {
   const [isOpen, setIsOpen] = useState(false)
   const location = useLocation()
+  const { user, profile } = useAuth() // Add this line to get user and profile from auth context
 
   const variants = {
     inactive: {
@@ -42,6 +44,11 @@ export const NavbarDemo = () => {
       scale: 1.1,
       boxShadow: '0 0 25px rgba(100, 255, 218, 0.9)',
       transition: { duration: 0.2, yoyo: Infinity },
+    },
+    profileHover: {
+      scale: 1.05,
+      boxShadow: '0 0 20px rgba(100, 255, 218, 0.7)',
+      transition: { duration: 0.2 },
     },
   }
 
@@ -124,11 +131,9 @@ export const NavbarDemo = () => {
               <Link to={item.path} key={item.path}>
                 <motion.div
                   className={`relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 group flex items-center gap-2 ${
-                    item.label === 'auth'
-                      ? 'bg-[#64ffda]/20 border-2 border-[#64ffda] shadow-[0_0_20px_rgba(100,255,218,0.9)] text-[#64ffda] px-5 py-2.5'
-                      : location.pathname === item.path
-                        ? 'text-[#64ffda] border border-[#64ffda] shadow-[0_0_15px_rgba(100,255,218,0.8)]'
-                        : 'text-[#ccd6f6] border border-[#64ffda]/30 hover:shadow-[0_0_10px_rgba(100,255,218,0.6)]'
+                    location.pathname === item.path
+                      ? 'text-[#64ffda] border border-[#64ffda] shadow-[0_0_15px_rgba(100,255,218,0.8)]'
+                      : 'text-[#ccd6f6] border border-[#64ffda]/30 hover:shadow-[0_0_10px_rgba(100,255,218,0.6)]'
                   }`}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -136,9 +141,7 @@ export const NavbarDemo = () => {
                   variant={
                     location.pathname === item.path ? 'active' : 'inactive'
                   }
-                  whileHover={
-                    item.label === 'auth' ? 'authHover' : { scale: 1.05 }
-                  }
+                  whileHover={{ scale: 1.05 }}
                 >
                   <item.icon className="text-lg" />
                   <span className="relative z-10">{item.label}</span>
@@ -155,14 +158,14 @@ export const NavbarDemo = () => {
                   )}
                   <div
                     className={`absolute inset-0 bg-[#64ffda]/0 group-hover:bg-[#64ffda]/10 transition-all duration-300 rounded-lg ${
-                      location.pathname === item.path && item.label !== 'auth'
+                      location.pathname === item.path
                         ? 'bg-[#64ffda]/20'
                         : ''
-                    } ${item.label === 'auth' ? 'bg-[#64ffda]/20' : ''}`}
+                    }`}
                   ></div>
                   <div
                     className={`absolute top-1 right-1 w-1.5 h-1.5 bg-[#64ffda] rounded-full animate-pulse transition-opacity ${
-                      location.pathname === item.path || item.label === 'auth'
+                      location.pathname === item.path
                         ? 'opacity-100'
                         : 'opacity-0 group-hover:opacity-100'
                     }`}
@@ -170,6 +173,43 @@ export const NavbarDemo = () => {
                 </motion.div>
               </Link>
             ))}
+            
+            {/* Profile Picture or Auth Button */}
+            {user ? (
+              <Link to="/dashboard">
+                <motion.div
+                  className="relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 group flex items-center gap-2 bg-[#64ffda]/20 border-2 border-[#64ffda] shadow-[0_0_20px_rgba(100,255,218,0.9)] text-[#64ffda]"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  variants={variants}
+                  whileHover="profileHover"
+                >
+                  <img
+                    src={profile?.avatar_url || `https://api.dicebear.com/8.x/identicon/svg?seed=${user?.email}`}
+                    alt="Profile"
+                    className="w-6 h-6 rounded-full border border-[#64ffda]"
+                  />
+                  <span className="relative z-10">Profile</span>
+                  <div className="absolute inset-0 bg-[#64ffda]/20 rounded-lg"></div>
+                  <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#64ffda] rounded-full animate-pulse opacity-100"></div>
+                </motion.div>
+              </Link>
+            ) : (
+              <Link to="/auth">
+                <motion.div
+                  className="relative px-4 text-sm font-medium rounded-lg transition-all duration-300 group flex items-center gap-2 bg-[#64ffda]/20 border-2 border-[#64ffda] shadow-[0_0_20px_rgba(100,255,218,0.9)] text-[#64ffda]  py-2.5"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  variants={variants}
+                  whileHover="authHover"
+                >
+                  <FaSignInAlt className="text-lg" />
+                  <span className="relative z-10">Auth</span>
+                  <div className="absolute inset-0 bg-[#64ffda]/20 rounded-lg"></div>
+                  <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#64ffda] rounded-full animate-pulse opacity-100"></div>
+                </motion.div>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -222,11 +262,9 @@ export const NavbarDemo = () => {
                 >
                   <motion.div
                     className={`relative  px-4 py-3 text-base font-medium rounded-lg transition-all duration-300 group flex items-center gap-2 ${
-                      item.label === 'auth'
-                        ? 'bg-[#64ffda]/20 border-2 border-[#64ffda] shadow-[0_0_20px_rgba(100,255,218,0.9)] text-[#64ffda] px-5 py-3.5'
-                        : location.pathname === item.path
-                          ? 'text-[#64ffda] border border-[#64ffda] shadow-[0_0_15px_rgba(100,255,218,0.8)]'
-                          : 'text-[#ccd6f6] hover:shadow-[0_0_10px_rgba(100,255,218,0.6)]'
+                      location.pathname === item.path
+                        ? 'text-[#64ffda] border border-[#64ffda] shadow-[0_0_15px_rgba(100,255,218,0.8)]'
+                        : 'text-[#ccd6f6] hover:shadow-[0_0_10px_rgba(100,255,218,0.6)]'
                     }`}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -234,9 +272,7 @@ export const NavbarDemo = () => {
                     variant={
                       location.pathname === item.path ? 'active' : 'inactive'
                     }
-                    whileHover={
-                      item.label === 'auth' ? 'authHover' : { scale: 1.05 }
-                    }
+                    whileHover={{ scale: 1.05 }}
                   >
                     <item.icon className="text-lg" />
                     <span className="relative z-10">{item.label}</span>
@@ -253,16 +289,14 @@ export const NavbarDemo = () => {
                     )}
                     <div
                       className={`absolute inset-0 bg-[#64ffda]/0 group-hover:bg-[#64ffda]/10 transition-all duration-300 rounded-lg ${
-                        location.pathname === item.path &&
-                        item.label !== 'auth'
+                        location.pathname === item.path
                           ? 'bg-[#64ffda]/20'
                           : ''
-                      } ${item.label === 'auth' ? 'bg-[#64ffda]/20' : ''}`}
+                      }`}
                     ></div>
                     <div
                       className={`absolute top-1 right-1 w-1.5 h-1.5 bg-[#64ffda] rounded-full animate-pulse transition-opacity ${
-                        location.pathname === item.path ||
-                        item.label === 'auth'
+                        location.pathname === item.path
                           ? 'opacity-100'
                           : 'opacity-0 group-hover:opacity-100'
                       }`}
@@ -270,6 +304,49 @@ export const NavbarDemo = () => {
                   </motion.div>
                 </Link>
               ))}
+              
+              {/* Mobile Profile Picture or Auth Button */}
+              {user ? (
+                <Link
+                  to="/dashboard"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <motion.div
+                    className="relative px-4 py-3 text-base font-medium rounded-lg transition-all duration-300 group flex items-center gap-2 bg-[#64ffda]/20 border-2 border-[#64ffda] shadow-[0_0_20px_rgba(100,255,218,0.9)] text-[#64ffda]"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    variants={variants}
+                    whileHover="profileHover"
+                  >
+                    <img
+                      src={profile?.avatar_url || `https://api.dicebear.com/8.x/identicon/svg?seed=${user?.email}`}
+                      alt="Profile"
+                      className="w-6 h-6 rounded-full border border-[#64ffda]"
+                    />
+                    <span className="relative z-10">Profile</span>
+                    <div className="absolute inset-0 bg-[#64ffda]/20 rounded-lg"></div>
+                    <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#64ffda] rounded-full animate-pulse opacity-100"></div>
+                  </motion.div>
+                </Link>
+              ) : (
+                <Link
+                  to="/auth"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <motion.div
+                    className="relative px-4 py-3 text-base font-medium rounded-lg transition-all duration-300 group flex items-center gap-2 bg-[#64ffda]/20 border-2 border-[#64ffda] shadow-[0_0_20px_rgba(100,255,218,0.9)] text-[#64ffda]"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    variants={variants}
+                    whileHover="authHover"
+                  >
+                    <FaSignInAlt className="text-lg" />
+                    <span className="relative z-10">Auth</span>
+                    <div className="absolute inset-0 bg-[#64ffda]/20 rounded-lg"></div>
+                    <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#64ffda] rounded-full animate-pulse opacity-100"></div>
+                  </motion.div>
+                </Link>
+              )}
             </div>
           </motion.div>
         )}
