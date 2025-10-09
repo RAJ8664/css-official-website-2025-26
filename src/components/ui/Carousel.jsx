@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState, useRef } from "react";
-import { motion, useMotionValue, useTransform } from "motion/react";
+import { motion, useMotionValue } from "motion/react";
 import {
   FiCircle,
   FiCode,
@@ -55,10 +55,55 @@ const VELOCITY_THRESHOLD = 500;
 const GAP = 16;
 const SPRING_OPTIONS = { type: "spring", stiffness: 300, damping: 30 };
 
+// CSS as string to avoid jsx attribute
+const styles = `
+  @keyframes fall {
+    from {
+      transform: translateY(-20px);
+    }
+    to {
+      transform: translateY(100vh);
+    }
+  }
+  @keyframes grid-move {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 50px 50px;
+    }
+  }
+  @keyframes scan {
+    0% {
+      top: 0;
+    }
+    100% {
+      top: 100%;
+    }
+  }
+  .animate-fall {
+    animation: fall 5s linear infinite;
+  }
+  .animate-grid-move {
+    animation: grid-move 10s linear infinite;
+  }
+  .animate-scan {
+    animation: scan 2s linear infinite;
+  }
+  .bg-grid-pattern {
+    background-image: linear-gradient(
+        rgba(6, 182, 212, 0.1) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+  }
+`;
+
 export default function Carousel() {
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [itemWidth, setItemWidth] = useState(280);
+  const [isMounted, setIsMounted] = useState(false);
 
   const carouselItems = [...DEFAULT_ITEMS, DEFAULT_ITEMS[0]]; // For looping
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -68,31 +113,45 @@ export default function Carousel() {
 
   // Calculate container and item widths
   useEffect(() => {
+    setIsMounted(true);
+    
     const updateWidth = () => {
       if (containerRef.current) {
         const screenWidth = window.innerWidth;
         let newContainerWidth;
+        let newItemWidth;
 
         if (screenWidth >= 1024) {
           newContainerWidth = Math.min(1200, screenWidth * 0.85);
-          setItemWidth(300);
+          newItemWidth = 300;
         } else if (screenWidth >= 768) {
           newContainerWidth = screenWidth * 0.9;
-          setItemWidth(250);
+          newItemWidth = 250;
         } else {
-          // Mobile-specific adjustments
-          newContainerWidth = screenWidth * 0.98; // Increased from 0.95 to 0.98
-          setItemWidth(screenWidth * 0.85); // Make items wider on mobile
+          // Mobile-specific adjustments - FIXED OVERFLOW
+          newContainerWidth = screenWidth * 0.95;
+          // Much smaller cards on mobile to prevent overflow
+          newItemWidth = Math.min(280, screenWidth * 0.75); // Reduced from 80% to 75%
         }
 
         setContainerWidth(newContainerWidth);
+        setItemWidth(newItemWidth);
       }
     };
 
     updateWidth();
-    window.addEventListener("resize", updateWidth);
+    
+    // Throttle resize events
+    let resizeTimeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(updateWidth, 250);
+    };
+    
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener("resize", updateWidth);
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(resizeTimeout);
     };
   }, []);
 
@@ -112,9 +171,10 @@ export default function Carousel() {
     }
   }, []);
 
+  // Optimized autoplay
   useEffect(() => {
-    const timer = setInterval(() => {
-      if (!isHovered) {
+    if (!isHovered && isMounted) {
+      const timer = setInterval(() => {
         setCurrentIndex((prev) => {
           if (prev === DEFAULT_ITEMS.length - 1) {
             return prev + 1;
@@ -124,10 +184,10 @@ export default function Carousel() {
           }
           return prev + 1;
         });
-      }
-    }, 3000);
-    return () => clearInterval(timer);
-  }, [isHovered, carouselItems.length]);
+      }, 3000);
+      return () => clearInterval(timer);
+    }
+  }, [isHovered, carouselItems.length, isMounted]);
 
   const effectiveTransition = isResetting ? { duration: 0 } : SPRING_OPTIONS;
 
@@ -181,27 +241,33 @@ export default function Carousel() {
     });
   };
 
+  // Calculate the proper offset to center the active card
+  const getCarouselOffset = () => {
+    if (!containerWidth || !itemWidth) return 0;
+    
+    // Calculate the offset needed to center the active card
+    const containerCenter = containerWidth / 2;
+    const itemCenter = itemWidth / 2;
+    const offset = containerCenter - itemCenter - (currentIndex * trackItemOffset);
+    
+    return offset;
+  };
+
+  // Memoize random values to prevent re-renders
+  const randomPositions = useRef(
+    Array.from({ length: 30 }, () => ({
+      left: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 5}s`
+    }))
+  ).current;
+
   return (
-    <div className=" flex flex-col items-center justify-center bg-gradient-to-br from-black to-[#021547] p-2 md:p-4 relative overflow-hidden">
+    <div className="flex flex-col items-center justify-center bg-gradient-to-br from-black to-[#021547] p-2 md:p-4 relative overflow-hidden w-full">
+      {/* Inject styles without jsx attribute */}
+      <style>{styles}</style>
+      
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Binary rain */}
-        <div className="absolute inset-0 opacity-20">
-          {[...Array(30)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute text-cyan-400 text-xs animate-fall"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                top: "-20px",
-              }}
-            >
-              {Math.random() > 0.5 ? "1" : "0"}
-            </div>
-          ))}
-        </div>
-
         {/* Grid background */}
         <div className="absolute inset-0 bg-grid-pattern bg-[length:50px_50px] opacity-10 animate-grid-move"></div>
       </div>
@@ -211,17 +277,22 @@ export default function Carousel() {
         <button
           onClick={goToPrev}
           className="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-cyan-900/50 border border-cyan-500/40 text-cyan-300 mr-4 hover:shadow-[0_0_15px_rgba(0,255,255,0.6)] transition-all duration-300"
+          aria-label="Previous slide"
         >
           <FiArrowLeft />
         </button>
 
         <div
           ref={containerRef}
-          className="relative overflow-hidden p-2 md:p-6 rounded-2xl border border-cyan-500/30 backdrop-blur-lg bg-black/60"
-          style={{ width: containerWidth || "90%", maxWidth: "1200px" }}
+          className="relative overflow-hidden p-2 md:p-6 rounded-2xl border border-cyan-500/30 backdrop-blur-lg bg-black/60 w-full max-w-full"
+          style={{ 
+            width: containerWidth || "100%", 
+            maxWidth: "1200px",
+            overflow: "hidden"
+          }}
         >
           <motion.div
-            className="flex cursor-grab"
+            className="flex cursor-grab items-center"
             drag="x"
             dragConstraints={{
               left: -trackItemOffset * (carouselItems.length - 1),
@@ -232,43 +303,38 @@ export default function Carousel() {
               x,
             }}
             onDragEnd={handleDragEnd}
-            animate={{ x: -(currentIndex * trackItemOffset) }}
+            animate={{ x: getCarouselOffset() }}
             transition={effectiveTransition}
             onAnimationComplete={handleAnimationComplete}
           >
             {carouselItems.map((item, index) => {
-              // Calculate the position of each card relative to the center
               const position = index - currentIndex;
               const absPosition = Math.abs(position);
               
-              // Only apply rotation to cards that are not in the center
-              const rotateY = position > 0 ? Math.min(position * 10, 30) : 
-                             position < 0 ? Math.max(position * 10, -30) : 0;
+              const rotateY = position > 0 ? Math.min(position * 8, 25) : 
+                             position < 0 ? Math.max(position * 8, -25) : 0;
               
-              // Scale down cards that are further from the center
-              const scale = absPosition > 0 ? Math.max(0.9, 1 - absPosition * 0.1) : 1;
-              
-              // Adjust opacity for cards that are further from the center
-              const opacity = absPosition > 1 ? Math.max(0.6, 1 - absPosition * 0.2) : 1;
-              
-              // Adjust z-index to ensure proper layering
+              const scale = absPosition > 0 ? Math.max(0.85, 1 - absPosition * 0.15) : 1;
+              const opacity = absPosition > 1 ? Math.max(0.5, 1 - absPosition * 0.25) : 1;
               const zIndex = carouselItems.length - absPosition;
 
               return (
                 <motion.div
-                  key={index}
+                  key={`${item.id}-${index}`}
                   className="relative shrink-0 flex flex-col items-start justify-between 
                              bg-gradient-to-br from-[#0a0a0a] to-[#021547] 
                              border border-cyan-500/40 
                              rounded-xl overflow-hidden cursor-grab active:cursor-grabbing 
-                             group p-4 md:p-5 shadow-[0_0_15px_rgba(0,255,255,0.15)]"
+                             group p-3 md:p-5 shadow-[0_0_15px_rgba(0,255,255,0.15)]"
                   style={{
                     width: itemWidth,
-                    minHeight: window.innerWidth < 768 ? "320px" : "360px", // Reduced height on mobile
+                    minHeight: typeof window !== 'undefined' && window.innerWidth < 768 ? "280px" : "360px", // Reduced mobile height
                     zIndex: zIndex,
                     transformStyle: "preserve-3d",
                     scale: scale,
                     opacity: opacity,
+                    // FIXED: Better mobile overflow prevention
+                    maxWidth: typeof window !== 'undefined' && window.innerWidth < 768 ? "85vw" : "none"
                   }}
                   animate={{
                     rotateY: rotateY,
@@ -278,12 +344,13 @@ export default function Carousel() {
                   {/* Glow header strip */}
                   <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500 opacity-60"></div>
 
-                  {/* Image */}
-                  <div className="w-full mb-3 md:mb-4 overflow-hidden rounded-lg border border-cyan-500/20">
+                  {/* Image - Reduced height on mobile */}
+                  <div className="w-full mb-2 md:mb-4 overflow-hidden rounded-lg border border-cyan-500/20">
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-32 md:h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                      className="w-full h-24 md:h-48 object-cover group-hover:scale-105 transition-transform duration-500" // Smaller mobile image
                     />
                   </div>
 
@@ -294,18 +361,18 @@ export default function Carousel() {
                   <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-cyan-400/70 group-hover:border-purple-400 transition-all duration-300"></div>
 
                   {/* Icon + Text */}
-                  <div className="mb-3 md:mb-4">
-                    <span className="flex h-[28px] w-[28px] md:h-[32px] md:w-[32px] items-center justify-center 
+                  <div className="mb-2 md:mb-4">
+                    <span className="flex h-[24px] w-[24px] md:h-[32px] md:w-[32px] items-center justify-center 
                                    rounded-full bg-cyan-900/60 border border-cyan-400/30 
                                    shadow-[0_0_10px_rgba(0,255,255,0.3)]">
                       {item.icon}
                     </span>
                   </div>
-                  <div>
-                    <div className="mb-1 md:mb-2 font-black text-base md:text-lg text-cyan-300 group-hover:text-purple-300 transition-colors duration-300 tracking-wide">
+                  <div className="w-full">
+                    <div className="mb-1 md:mb-2 font-black text-sm md:text-lg text-cyan-300 group-hover:text-purple-300 transition-colors duration-300 tracking-wide">
                       {item.title}
                     </div>
-                    <p className="text-xs md:text-sm text-gray-300 group-hover:text-gray-100 transition-colors duration-300 leading-relaxed">
+                    <p className="text-xs md:text-sm text-gray-300 group-hover:text-gray-100 transition-colors duration-300 leading-relaxed line-clamp-2">
                       {item.description}
                     </p>
                   </div>
@@ -328,6 +395,7 @@ export default function Carousel() {
                     : "bg-cyan-900"
                 }`}
                 onClick={() => setCurrentIndex(index)}
+                aria-label={`Go to slide ${index + 1}`}
               />
             ))}
           </div>
@@ -337,6 +405,7 @@ export default function Carousel() {
         <button
           onClick={goToNext}
           className="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-cyan-900/50 border border-cyan-500/40 text-cyan-300 ml-4 hover:shadow-[0_0_15px_rgba(0,255,255,0.6)] transition-all duration-300"
+          aria-label="Next slide"
         >
           <FiArrowRight />
         </button>
@@ -347,59 +416,18 @@ export default function Carousel() {
         <button
           onClick={goToPrev}
           className="flex items-center justify-center w-10 h-10 rounded-full bg-cyan-900/50 border border-cyan-500/40 text-cyan-300 hover:shadow-[0_0_15px_rgba(0,255,255,0.6)] transition-all duration-300"
+          aria-label="Previous slide"
         >
           <FiArrowLeft />
         </button>
         <button
           onClick={goToNext}
           className="flex items-center justify-center w-10 h-10 rounded-full bg-cyan-900/50 border border-cyan-500/40 text-cyan-300 hover:shadow-[0_0_15px_rgba(0,255,255,0.6)] transition-all duration-300"
+          aria-label="Next slide"
         >
           <FiArrowRight />
         </button>
       </div>
-
-      <style jsx>{`
-        @keyframes fall {
-          from {
-            transform: translateY(-20px);
-          }
-          to {
-            transform: translateY(100vh);
-          }
-        }
-        @keyframes grid-move {
-          0% {
-            background-position: 0 0;
-          }
-          100% {
-            background-position: 50px 50px;
-          }
-        }
-        @keyframes scan {
-          0% {
-            top: 0;
-          }
-          100% {
-            top: 100%;
-          }
-        }
-        .animate-fall {
-          animation: fall 5s linear infinite;
-        }
-        .animate-grid-move {
-          animation: grid-move 10s linear infinite;
-        }
-        .animate-scan {
-          animation: scan 2s linear infinite;
-        }
-        .bg-grid-pattern {
-          background-image: linear-gradient(
-              rgba(6, 182, 212, 0.1) 1px,
-              transparent 1px
-            ),
-            linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
-        }
-      `}</style>
     </div>
   );
 }

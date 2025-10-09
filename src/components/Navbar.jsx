@@ -56,7 +56,7 @@ export const NavbarDemo = () => {
     <nav className="bg-[linear-gradient(to_right,#0a192f,#112240)] text-[#ccd6f6] sticky top-0 z-50 shadow-[0_0_15px_rgba(100,255,218,0.3)] backdrop-blur-lg bg-opacity-95 font-['Rajdhani',_sans-serif]  clip-path-[inset(0_0_10px_0_round_24px)]">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Background tech effects */}
-        <div className="absolute inset-0 bg-circuit-pattern opacity-25 pointer-events-none rounded-b-3xl"></div>
+        {/* <div className="absolute inset-0 bg-circuit-pattern opacity-25 pointer-events-none rounded-b-3xl"></div>
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(12)].map((_, i) => (
             <div
@@ -71,8 +71,8 @@ export const NavbarDemo = () => {
               {Math.random() > 0.5 ? '1' : '0'}
             </div>
           ))}
-        </div>
-        <svg
+        </div> */}
+        {/* <svg
           className="absolute inset-0 opacity-20 pointer-events-none"
           width="100%"
           height="100%"
@@ -104,7 +104,7 @@ export const NavbarDemo = () => {
               <stop offset="100%" stopColor="#64ffda" stopOpacity="0.9" />
             </linearGradient>
           </defs>
-        </svg>
+        </svg> */}
         <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-[#64ffda] opacity-80"></div>
         <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-[#64ffda] opacity-80"></div>
         <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-[#64ffda] opacity-80"></div>

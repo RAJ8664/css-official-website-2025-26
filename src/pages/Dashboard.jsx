@@ -274,14 +274,7 @@ const Dashboard = () => {
                 </div>
             )}
 
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(40)].map((_, i) => (
-                    <div key={i} className="absolute text-cyan-400 text-xs animate-[fall_6s_linear_infinite]"
-                        style={{ left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 6}s`, top: "-20px" }}>
-                        {Math.random() > 0.5 ? "1" : "0"}
-                    </div>
-                ))}
-            </div>
+            
 
             <div className="relative max-w-4xl mx-auto bg-black/70 border border-cyan-500/30 rounded-2xl p-8 shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg">
                 <div className="flex flex-col md:flex-row items-center gap-8">
