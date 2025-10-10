@@ -173,15 +173,123 @@ function Home() {
     }
   }, []);
 
-  // Optimized mobile detection with memoization
   const isMobileDevice = useCallback(() => {
-    return (
-      typeof window.orientation !== "undefined" || 
-      navigator.userAgent.indexOf('IEMobile') !== -1 ||
-      window.innerWidth < 768
-    );
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
   }, []);
 
+  const getTextOrientation = useCallback(() => {
+    if (typeof window === 'undefined') return 'horizontal';
+    
+    const isMobile = isMobileDevice();
+    if (!isMobile) return 'horizontal';
+    
+    // For mobile, check if we should use vertical layout
+    return window.innerHeight > window.innerWidth ? 'vertical' : 'horizontal';
+  }, [isMobileDevice]);
+  
+  // Memoized text configuration
+  const textConfig = useMemo(() => {
+    const orientation = getTextOrientation();
+    const isMobile = isMobileDevice();
+    if (orientation === 'vertical') {
+      return {
+        fontSize: isMobile ? "300" : "220",
+        textAnchor: "middle",
+        dominantBaseline: "middle",
+        letterSpacing: "0",
+        writingMode: "tb", // top to bottom (vertical)
+        glyphOrientationVertical: "0"
+      };
+    } else {
+      return {
+        fontSize: isMobile ? "200" : "320",
+        textAnchor: "middle",
+        dominantBaseline: "middle",
+        letterSpacing: "0",
+        writingMode: "lr", // left to right (horizontal)
+      };
+    }
+  }, [getTextOrientation, isMobileDevice]);
+  const getViewBox = useCallback(() => {
+    const isMobile = isMobileDevice();
+    const orientation = getTextOrientation();
+    
+    if (isMobile && orientation === 'vertical') {
+      return "0 0 800 600"; // Taller viewBox for vertical text
+    } else if (isMobile) {
+      return "0 0 1200 800"; // Wider viewBox for mobile horizontal
+    }
+    return "0 0 800 600"; // Default for desktop
+  }, [isMobileDevice, getTextOrientation]);
+
+   const MaskText = useMemo(() => {
+    const orientation = getTextOrientation();
+    const fontFamily = "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+    if (orientation === 'vertical') {
+      // Vertical text layout - each character on a new line
+      return (
+        <g className="vi-mask-group">
+        {/* C - Top of screen */}
+        <text
+          x="50%"
+          y="3%"
+          fontSize={textConfig.fontSize}
+          textAnchor="middle"
+          fill="white"
+          dominantBaseline="middle"
+          fontFamily={fontFamily}
+          fontWeight="1000"
+        >
+          C
+        </text>
+        {/* S - Middle of screen */}
+        <text
+          x="50%"
+          y="58%"
+          fontSize={textConfig.fontSize}
+          textAnchor="middle"
+          fill="white"
+          fontFamily={fontFamily}
+          fontWeight="1000"
+        >
+          S
+        </text>
+        {/* S - Bottom of screen */}
+        <text
+          x="50%"
+          y="99%"
+          fontSize={textConfig.fontSize}
+          textAnchor="middle"
+          fill="white"
+          fontFamily={fontFamily}
+          fontWeight="1000"
+        >
+          S
+        </text>
+      </g>
+      );
+    } else {
+      // Horizontal text layout
+      return (
+        <g className="vi-mask-group">
+          <text
+            x="50%"
+            y="50%"
+            fontSize={textConfig.fontSize}
+            textAnchor={textConfig.textAnchor}
+            fill="white"
+            dominantBaseline={textConfig.dominantBaseline}
+            fontFamily="Arial Black"
+            letterSpacing={textConfig.letterSpacing}
+          >
+            CSS
+          </text>
+        </g>
+      );
+    }
+  }, [textConfig, getTextOrientation]);
   const cssFontSize = useMemo(() => 
     isMobileDevice() ? "250" : "320", 
     [isMobileDevice]
@@ -280,10 +388,16 @@ function Home() {
     }
     
     const isMobile = isMobileDevice();
-    
+    const orientation = getTextOrientation();
+
     let initialScale, finalScale;
     
-    if (isMobile) {
+    if (isMobile && orientation === 'vertical') {
+      // Adjust scales for vertical text on mobile
+      const screenRatio = window.innerHeight / window.innerWidth;
+      initialScale = screenRatio > 1.6 ? 0.6 : 0.6;
+      finalScale = 9; // Increased for better vertical coverage
+    } else if (isMobile) {
       const screenRatio = window.innerHeight / window.innerWidth;
       initialScale = screenRatio > 1.6 ? 0.5 : 0.5;
       finalScale = 20;
@@ -299,7 +413,7 @@ function Home() {
     });
     
     animationRef.current = gsap.to(".vi-mask-group", {
-      rotate: 10,
+      rotate: orientation === 'vertical' ? 0 : 10,
       scale: finalScale,
       transformOrigin: "50% 50%",
       ease: "none",
@@ -313,6 +427,7 @@ function Home() {
         onLeaveBack: () => setShowContent(false),
       },
     });
+    
 
     gsap.to(".bg-video", {
       opacity: 0.5,
@@ -348,6 +463,7 @@ function Home() {
     
     window.addEventListener('resize', handleResize);
     
+    
     return () => {
       window.removeEventListener('resize', handleResize);
       clearTimeout(resizeTimeout);
@@ -355,7 +471,7 @@ function Home() {
         animationRef.current.kill();
       }
     };
-  }, [isMobileDevice, isMounted]);
+  }, [isMobileDevice, isMounted, getTextOrientation]);
 
   // Optimized video element with preload and lazy loading
   const VideoBackground = useMemo(() => (
@@ -386,6 +502,7 @@ function Home() {
   if (!isMounted) {
     return null;
   }
+ 
 
   return (
     <>
@@ -395,31 +512,21 @@ function Home() {
 
         <Chatbot />
 
-        <div className="svg-container sticky top-0 z-[100] w-full h-screen flex items-center justify-center bg-black">
+        <div className="svg-container sticky top-0 z-[100] w-full h-screen flex items-center justify-center bg-red">
           <svg 
             ref={svgRef}
-            viewBox="0 0 800 600" 
+            viewBox={getViewBox()} 
             preserveAspectRatio="xMidYMid slice" 
             className="w-full h-full"
           >
+            
             <defs>
               <mask id="viMask">
                 <rect width="100%" height="100%" fill="black" />
-                <g className="vi-mask-group">
-                  <text
-                    x="50%"
-                    y="50%"
-                    fontSize={cssFontSize}
-                    textAnchor="middle"
-                    fill="white"
-                    dominantBaseline="middle"
-                    fontFamily="Arial Black"
-                  >
-                    CSS
-                  </text>
-                </g>
+                {MaskText}
               </mask>
             </defs>
+            
             <foreignObject width="100%" height="100%" mask="url(#viMask)">
               {VideoBackground}
             </foreignObject>
@@ -483,7 +590,7 @@ function Home() {
           </div>
         </section>
 
-        {/* Announcement Section - Reduced padding and margins */}
+        {/* Announcement Section */}
         <section className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex flex-col items-center justify-center px-3 py-1 md:py-7 overflow-hidden">
           {/* Foreground Terminal Box */}
           <div className="relative z-10 w-full max-w-[1200px] bg-black/70 rounded-xl border border-cyan-500/20 p-3 md:p-9 backdrop-blur-md shadow-lg shadow-cyan-500/10">
@@ -511,8 +618,8 @@ function Home() {
           </div>
         </section>
 
-        {/* Pillars Section - Reduced padding and margins */}
-        <section className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-3 py-5 md:py-7 overflow-hidden">
+        {/* Pillars Section */}
+        <section className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-3 py-1 md:py-7 overflow-hidden">
           {/* Main Content */}
           <div className="relative z-10 w-full max-w-7xl">
             {/* Section Header */}

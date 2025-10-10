@@ -1,8 +1,8 @@
-// pages/AdminDashboard.jsx - COMPLETE FIXED VERSION
+// pages/AdminDashboard.jsx - MOBILE OPTIMIZED VERSION
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { FaDownload, FaWhatsapp, FaEye, FaEdit, FaTrash, FaToggleOn, FaToggleOff } from 'react-icons/fa';
+import { FaDownload, FaWhatsapp, FaEye, FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaBars, FaTimes } from 'react-icons/fa';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -13,6 +13,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('events');
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -31,48 +32,50 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchEvents();
   }, []);
+
   // Add this useEffect to both AdminDashboard and Events components
-useEffect(() => {
-  // Subscribe to events table changes
-  const eventsSubscription = supabase
-    .channel('events-changes')
-    .on('postgres_changes', 
-      { 
-        event: '*', // INSERT, UPDATE, DELETE
-        schema: 'public', 
-        table: 'events' 
-      }, 
-      (payload) => {
-        console.log('🔔 Events table changed:', payload);
-        fetchEvents(); // Refresh events list
-      }
-    )
-    .subscribe();
-
-  // Subscribe to user_events table changes
-  const userEventsSubscription = supabase
-    .channel('user-events-changes')
-    .on('postgres_changes', 
-      { 
-        event: '*', 
-        schema: 'public', 
-        table: 'user_events' 
-      }, 
-      (payload) => {
-        console.log('🔔 User events table changed:', payload);
-        if (user) {
-          fetchRegisteredEvents(); // Refresh user registrations
+  useEffect(() => {
+    // Subscribe to events table changes
+    const eventsSubscription = supabase
+      .channel('events-changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', // INSERT, UPDATE, DELETE
+          schema: 'public', 
+          table: 'events' 
+        }, 
+        (payload) => {
+          console.log('🔔 Events table changed:', payload);
+          fetchEvents(); // Refresh events list
         }
-      }
-    )
-    .subscribe();
+      )
+      .subscribe();
 
-  // Cleanup subscriptions
-  return () => {
-    eventsSubscription.unsubscribe();
-    userEventsSubscription.unsubscribe();
-  };
-}, [user]);
+    // Subscribe to user_events table changes
+    const userEventsSubscription = supabase
+      .channel('user-events-changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'user_events' 
+        }, 
+        (payload) => {
+          console.log('🔔 User events table changed:', payload);
+          if (user) {
+            fetchRegisteredEvents(); // Refresh user registrations
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscriptions
+    return () => {
+      eventsSubscription.unsubscribe();
+      userEventsSubscription.unsubscribe();
+    };
+  }, [user]);
+
   const fetchEvents = async () => {
     try {
       const { data, error } = await supabase
@@ -90,63 +93,63 @@ useEffect(() => {
   };
 
   // Updated fetchRegistrations function with better error handling
-const fetchRegistrations = async (eventSlug) => {
-  try {
-    console.log('Fetching registrations for event:', eventSlug);
-    
-    // First, let's try a different approach - fetch user_events and profiles separately
-    const { data: userEvents, error: userEventsError } = await supabase
-      .from('user_events')
-      .select('*')
-      .eq('event_slug', eventSlug)
-      .order('registered_at', { ascending: false });
+  const fetchRegistrations = async (eventSlug) => {
+    try {
+      console.log('Fetching registrations for event:', eventSlug);
+      
+      // First, let's try a different approach - fetch user_events and profiles separately
+      const { data: userEvents, error: userEventsError } = await supabase
+        .from('user_events')
+        .select('*')
+        .eq('event_slug', eventSlug)
+        .order('registered_at', { ascending: false });
 
-    if (userEventsError) throw userEventsError;
+      if (userEventsError) throw userEventsError;
 
-    console.log('User events found:', userEvents);
+      console.log('User events found:', userEvents);
 
-    if (!userEvents || userEvents.length === 0) {
+      if (!userEvents || userEvents.length === 0) {
+        setRegistrations(prev => ({
+          ...prev,
+          [eventSlug]: []
+        }));
+        return;
+      }
+
+      // Get all user IDs from registrations
+      const userIds = userEvents.map(ue => ue.user_id);
+      
+      // Fetch profiles for these users
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('user_id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      console.log('Profiles found:', profiles);
+
+      // Combine the data
+      const combinedData = userEvents.map(ue => {
+        const userProfile = profiles?.find(p => p.user_id === ue.user_id);
+        return {
+          ...ue,
+          profiles: userProfile || null
+        };
+      });
+
+      console.log('Combined registrations data:', combinedData);
+      
       setRegistrations(prev => ({
         ...prev,
-        [eventSlug]: []
+        [eventSlug]: combinedData
       }));
-      return;
+
+    } catch (error) {
+      console.error('Error fetching registrations:', error);
+      alert('Error fetching registrations: ' + error.message);
     }
-
-    // Get all user IDs from registrations
-    const userIds = userEvents.map(ue => ue.user_id);
-    
-    // Fetch profiles for these users
-    const { data: profiles, error: profilesError } = await supabase
-      .from('profiles')
-      .select('*')
-      .in('user_id', userIds);
-
-    if (profilesError) throw profilesError;
-
-    console.log('Profiles found:', profiles);
-
-    // Combine the data
-    const combinedData = userEvents.map(ue => {
-      const userProfile = profiles?.find(p => p.user_id === ue.user_id);
-      return {
-        ...ue,
-        profiles: userProfile || null
-      };
-    });
-
-    console.log('Combined registrations data:', combinedData);
-    
-    setRegistrations(prev => ({
-      ...prev,
-      [eventSlug]: combinedData
-    }));
-
-  } catch (error) {
-    console.error('Error fetching registrations:', error);
-    alert('Error fetching registrations: ' + error.message);
-  }
-};
+  };
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
@@ -167,7 +170,7 @@ const fetchRegistrations = async (eventSlug) => {
       setShowCreateForm(false);
       resetForm();
       fetchEvents();
-       window.dispatchEvent(new CustomEvent('eventsUpdated'));
+      window.dispatchEvent(new CustomEvent('eventsUpdated'));
     } catch (error) {
       console.error('Error creating event:', error);
       alert('Failed to create event: ' + error.message);
@@ -309,7 +312,7 @@ const fetchRegistrations = async (eventSlug) => {
         console.log('🔄 Refreshing events list due to error');
         fetchEvents();
     }
-};
+  };
 
   const handleToggleEvent = async (eventId, currentStatus) => {
     try {
@@ -395,29 +398,41 @@ const fetchRegistrations = async (eventSlug) => {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white p-6">
+    <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold" style={{ fontFamily: "Goldman, sans-serif" }}>
-            Admin Dashboard
-          </h1>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl sm:text-4xl font-bold" style={{ fontFamily: "Goldman, sans-serif" }}>
+              Admin Dashboard
+            </h1>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="sm:hidden p-2 text-cyan-400"
+            >
+              {mobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+            </button>
+          </div>
           <button
             onClick={() => {
               setEditingEvent(null);
               setShowCreateForm(true);
               resetForm();
             }}
-            className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-6 rounded-lg transition-all flex items-center gap-2"
+            className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 sm:px-6 rounded-lg transition-all flex items-center gap-2 justify-center text-sm sm:text-base"
           >
             Create New Event
           </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex space-x-4 mb-6">
+        <div className={`flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-6 ${mobileMenuOpen ? 'block' : 'hidden'} sm:flex`}>
           <button
-            onClick={() => setActiveTab('events')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+            onClick={() => {
+              setActiveTab('events');
+              setMobileMenuOpen(false);
+            }}
+            className={`px-4 py-3 sm:py-2 rounded-lg font-semibold transition-all text-sm sm:text-base ${
               activeTab === 'events' 
                 ? 'bg-cyan-600 text-white' 
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -426,8 +441,11 @@ const fetchRegistrations = async (eventSlug) => {
             Manage Events
           </button>
           <button
-            onClick={() => setActiveTab('registrations')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+            onClick={() => {
+              setActiveTab('registrations');
+              setMobileMenuOpen(false);
+            }}
+            className={`px-4 py-3 sm:py-2 rounded-lg font-semibold transition-all text-sm sm:text-base ${
               activeTab === 'registrations' 
                 ? 'bg-cyan-600 text-white' 
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -440,18 +458,18 @@ const fetchRegistrations = async (eventSlug) => {
         {/* Create/Edit Event Modal */}
         {(showCreateForm || editingEvent) && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-900 border border-cyan-500/30 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <h2 className="text-2xl font-bold text-cyan-400 mb-4">
+            <div className="bg-gray-900 border border-cyan-500/30 rounded-2xl p-4 sm:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <h2 className="text-xl sm:text-2xl font-bold text-cyan-400 mb-4">
                 {editingEvent ? 'Edit Event' : 'Create New Event'}
               </h2>
               <form onSubmit={editingEvent ? handleUpdateEvent : handleCreateEvent} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-cyan-300 mb-2">Event Name *</label>
+                    <label className="block text-cyan-300 mb-2 text-sm sm:text-base">Event Name *</label>
                     <input
                       type="text"
                       required
-                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500"
+                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500 text-sm sm:text-base"
                       value={formData.name}
                       onChange={(e) => {
                         setFormData({
@@ -463,11 +481,11 @@ const fetchRegistrations = async (eventSlug) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-cyan-300 mb-2">Slug *</label>
+                    <label className="block text-cyan-300 mb-2 text-sm sm:text-base">Slug *</label>
                     <input
                       type="text"
                       required
-                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500"
+                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500 text-sm sm:text-base"
                       value={formData.slug}
                       onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                       disabled={editingEvent}
@@ -476,31 +494,31 @@ const fetchRegistrations = async (eventSlug) => {
                 </div>
 
                 <div>
-                  <label className="block text-cyan-300 mb-2">Description *</label>
+                  <label className="block text-cyan-300 mb-2 text-sm sm:text-base">Description *</label>
                   <textarea
                     required
                     rows="3"
-                    className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500"
+                    className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500 text-sm sm:text-base"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-cyan-300 mb-2">Organizer *</label>
+                    <label className="block text-cyan-300 mb-2 text-sm sm:text-base">Organizer *</label>
                     <input
                       type="text"
                       required
-                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500"
+                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500 text-sm sm:text-base"
                       value={formData.organizer}
                       onChange={(e) => setFormData({ ...formData, organizer: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="block text-cyan-300 mb-2">Status *</label>
+                    <label className="block text-cyan-300 mb-2 text-sm sm:text-base">Status *</label>
                     <select
-                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500"
+                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500 text-sm sm:text-base"
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     >
@@ -510,46 +528,46 @@ const fetchRegistrations = async (eventSlug) => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-cyan-300 mb-2">Date *</label>
+                    <label className="block text-cyan-300 mb-2 text-sm sm:text-base">Date *</label>
                     <input
                       type="datetime-local"
                       required
-                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500"
+                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500 text-sm sm:text-base"
                       value={formData.date}
                       onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-cyan-300 mb-2">Poster URL</label>
+                    <label className="block text-cyan-300 mb-2 text-sm sm:text-base">Poster URL</label>
                     <input
                       type="url"
-                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500"
+                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500 text-sm sm:text-base"
                       value={formData.poster_url}
                       onChange={(e) => setFormData({ ...formData, poster_url: e.target.value })}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-cyan-300 mb-2">WhatsApp Group Link *</label>
+                    <label className="block text-cyan-300 mb-2 text-sm sm:text-base">WhatsApp Group Link *</label>
                     <input
                       type="url"
                       required
-                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500"
+                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500 text-sm sm:text-base"
                       value={formData.whatsapp_group_link}
                       onChange={(e) => setFormData({ ...formData, whatsapp_group_link: e.target.value })}
                       placeholder="https://chat.whatsapp.com/..."
                     />
                   </div>
                   <div>
-                    <label className="block text-cyan-300 mb-2">Max Participants</label>
+                    <label className="block text-cyan-300 mb-2 text-sm sm:text-base">Max Participants</label>
                     <input
                       type="number"
-                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500"
+                      className="w-full p-3 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:border-cyan-500 text-sm sm:text-base"
                       value={formData.max_participants}
                       onChange={(e) => setFormData({ ...formData, max_participants: parseInt(e.target.value) })}
                     />
@@ -564,15 +582,15 @@ const fetchRegistrations = async (eventSlug) => {
                     checked={formData.requires_auth}
                     onChange={(e) => setFormData({ ...formData, requires_auth: e.target.checked })}
                   />
-                  <label htmlFor="requires_auth" className="text-cyan-300">
+                  <label htmlFor="requires_auth" className="text-cyan-300 text-sm sm:text-base">
                     Requires Authentication
                   </label>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex flex-col sm:flex-row gap-3 pt-4">
                   <button
                     type="submit"
-                    className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-lg transition-all"
+                    className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex-1 text-sm sm:text-base"
                   >
                     {editingEvent ? 'Update Event' : 'Create Event'}
                   </button>
@@ -583,7 +601,7 @@ const fetchRegistrations = async (eventSlug) => {
                       setEditingEvent(null);
                       resetForm();
                     }}
-                    className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-all"
+                    className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-all flex-1 text-sm sm:text-base"
                   >
                     Cancel
                   </button>
@@ -595,27 +613,27 @@ const fetchRegistrations = async (eventSlug) => {
 
         {/* Events Management Tab */}
         {activeTab === 'events' && (
-          <div className="bg-black/70 border border-cyan-500/30 rounded-2xl p-6 backdrop-blur-lg">
-            <h2 className="text-2xl font-bold text-cyan-400 mb-4">Manage Events</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="bg-black/70 border border-cyan-500/30 rounded-2xl p-4 sm:p-6 backdrop-blur-lg">
+            <h2 className="text-xl sm:text-2xl font-bold text-cyan-400 mb-4">Manage Events</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
               {events.map((event) => (
                 <div key={event.id} className="bg-gray-800/50 p-4 rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all">
                   <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-xl font-bold text-cyan-300 flex-1">{event.name}</h3>
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${
+                    <h3 className="text-lg sm:text-xl font-bold text-cyan-300 flex-1 pr-2">{event.name}</h3>
+                    <span className={`px-2 py-1 rounded text-xs font-bold flex-shrink-0 ${
                       event.is_active ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'
                     }`}>
                       {event.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </div>
                   
-                  <p className="text-gray-400 text-sm mb-2">{event.organizer} • {event.status}</p>
-                  <p className="text-gray-300 text-sm mb-4 line-clamp-2">{event.description}</p>
+                  <p className="text-gray-400 text-xs sm:text-sm mb-2">{event.organizer} • {event.status}</p>
+                  <p className="text-gray-300 text-xs sm:text-sm mb-4 line-clamp-2">{event.description}</p>
                   
                   <div className="space-y-2 text-xs text-gray-400">
                     <div className="flex justify-between">
                       <span>Slug:</span>
-                      <span className="text-cyan-300">{event.slug}</span>
+                      <span className="text-cyan-300 text-xs truncate ml-2">{event.slug}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Participants:</span>
@@ -623,7 +641,7 @@ const fetchRegistrations = async (eventSlug) => {
                     </div>
                     <div className="flex justify-between">
                       <span>Date:</span>
-                      <span>{new Date(event.date).toLocaleDateString()}</span>
+                      <span className="text-xs">{new Date(event.date).toLocaleDateString()}</span>
                     </div>
                     {event.whatsapp_group_link && (
                       <div className="flex justify-between items-center">
@@ -640,38 +658,38 @@ const fetchRegistrations = async (eventSlug) => {
                     )}
                   </div>
 
-                  <div className="flex gap-2 mt-4 pt-4 border-t border-gray-700">
+                  <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-700">
                     <button
                       onClick={() => {
                         setSelectedEvent(event);
                         setActiveTab('registrations');
                         fetchRegistrations(event.slug);
                       }}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm transition-all flex items-center justify-center gap-1"
+                      className="flex-1 min-w-[80px] bg-blue-600 hover:bg-blue-700 text-white py-2 px-2 rounded text-xs transition-all flex items-center justify-center gap-1"
                     >
-                      <FaEye /> View
+                      <FaEye size={12} /> View
                     </button>
                     <button
                       onClick={() => handleEditEvent(event)}
-                      className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-3 rounded text-sm transition-all flex items-center justify-center gap-1"
+                      className="flex-1 min-w-[80px] bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-2 rounded text-xs transition-all flex items-center justify-center gap-1"
                     >
-                      <FaEdit /> Edit
+                      <FaEdit size={12} /> Edit
                     </button>
                     <button
                       onClick={() => handleToggleEvent(event.id, event.is_active)}
-                      className={`flex-1 py-2 px-3 rounded text-sm transition-all flex items-center justify-center gap-1 ${
+                      className={`flex-1 min-w-[80px] py-2 px-2 rounded text-xs transition-all flex items-center justify-center gap-1 ${
                         event.is_active 
                           ? 'bg-orange-600 hover:bg-orange-700' 
                           : 'bg-green-600 hover:bg-green-700'
                       } text-white`}
                     >
-                      {event.is_active ? <FaToggleOff /> : <FaToggleOn />} {event.is_active ? 'Deactivate' : 'Activate'}
+                      {event.is_active ? <FaToggleOff size={12} /> : <FaToggleOn size={12} />} {event.is_active ? 'Deactivate' : 'Activate'}
                     </button>
                     <button
                       onClick={() => handleDeleteEvent(event.id)}
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded text-sm transition-all flex items-center justify-center gap-1"
+                      className="flex-1 min-w-[80px] bg-red-600 hover:bg-red-700 text-white py-2 px-2 rounded text-xs transition-all flex items-center justify-center gap-1"
                     >
-                      <FaTrash /> Delete
+                      <FaTrash size={12} /> Delete
                     </button>
                   </div>
                 </div>
@@ -688,22 +706,22 @@ const fetchRegistrations = async (eventSlug) => {
 
         {/* Registrations Tab */}
         {activeTab === 'registrations' && (
-          <div className="bg-black/70 border border-cyan-500/30 rounded-2xl p-6 backdrop-blur-lg">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-cyan-400">
+          <div className="bg-black/70 border border-cyan-500/30 rounded-2xl p-4 sm:p-6 backdrop-blur-lg">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-cyan-400 text-center sm:text-left">
                 {selectedEvent ? `Registrations for ${selectedEvent.name}` : 'Select an event to view registrations'}
               </h2>
               {selectedEvent && (
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={() => exportRegistrations(selectedEvent.slug)}
-                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-all flex items-center gap-2"
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-all flex items-center gap-2 justify-center text-sm"
                   >
-                    <FaDownload /> Export CSV
+                    <FaDownload size={14} /> Export CSV
                   </button>
                   <button
                     onClick={() => setSelectedEvent(null)}
-                    className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-all"
+                    className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-all text-sm"
                   >
                     Back to Events
                   </button>
@@ -718,28 +736,28 @@ const fetchRegistrations = async (eventSlug) => {
             ) : (
               <div className="space-y-6">
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-cyan-900/30 p-4 rounded-lg border border-cyan-500/30">
-                    <div className="text-cyan-300 text-sm">Total Registrations</div>
-                    <div className="text-2xl font-bold text-white">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="bg-cyan-900/30 p-3 sm:p-4 rounded-lg border border-cyan-500/30">
+                    <div className="text-cyan-300 text-xs sm:text-sm">Total Registrations</div>
+                    <div className="text-lg sm:text-2xl font-bold text-white">
                       {(registrations[selectedEvent.slug] || []).length}
                     </div>
                   </div>
-                  <div className="bg-cyan-900/30 p-4 rounded-lg border border-cyan-500/30">
-                    <div className="text-cyan-300 text-sm">Event Capacity</div>
-                    <div className="text-2xl font-bold text-white">
+                  <div className="bg-cyan-900/30 p-3 sm:p-4 rounded-lg border border-cyan-500/30">
+                    <div className="text-cyan-300 text-xs sm:text-sm">Event Capacity</div>
+                    <div className="text-lg sm:text-2xl font-bold text-white">
                       {selectedEvent.max_participants}
                     </div>
                   </div>
-                  <div className="bg-cyan-900/30 p-4 rounded-lg border border-cyan-500/30">
-                    <div className="text-cyan-300 text-sm">Remaining Slots</div>
-                    <div className="text-2xl font-bold text-white">
+                  <div className="bg-cyan-900/30 p-3 sm:p-4 rounded-lg border border-cyan-500/30">
+                    <div className="text-cyan-300 text-xs sm:text-sm">Remaining Slots</div>
+                    <div className="text-lg sm:text-2xl font-bold text-white">
                       {Math.max(0, selectedEvent.max_participants - (registrations[selectedEvent.slug] || []).length)}
                     </div>
                   </div>
-                  <div className="bg-cyan-900/30 p-4 rounded-lg border border-cyan-500/30">
-                    <div className="text-cyan-300 text-sm">Status</div>
-                    <div className="text-xl font-bold text-white capitalize">
+                  <div className="bg-cyan-900/30 p-3 sm:p-4 rounded-lg border border-cyan-500/30">
+                    <div className="text-cyan-300 text-xs sm:text-sm">Status</div>
+                    <div className="text-base sm:text-xl font-bold text-white capitalize">
                       {selectedEvent.status}
                     </div>
                   </div>
@@ -747,45 +765,51 @@ const fetchRegistrations = async (eventSlug) => {
 
                 {/* Registrations Table */}
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-left text-gray-400">
+                  <table className="w-full text-xs sm:text-sm text-left text-gray-400">
                     <thead className="text-xs uppercase bg-gray-700 text-cyan-300">
                       <tr>
-                        <th className="px-4 py-3">Name</th>
-                        <th className="px-4 py-3">Scholar ID</th>
-                        <th className="px-4 py-3">Email</th>
-                        <th className="px-4 py-3">Branch</th>
-                        <th className="px-4 py-3">Year</th>
-                        <th className="px-4 py-3">Registration Date</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3">Actions</th>
+                        <th className="px-2 py-2 sm:px-4 sm:py-3">Name</th>
+                        <th className="px-2 py-2 sm:px-4 sm:py-3">Scholar ID</th>
+                        <th className="px-2 py-2 sm:px-4 sm:py-3 hidden sm:table-cell">Email</th>
+                        <th className="px-2 py-2 sm:px-4 sm:py-3">Branch</th>
+                        <th className="px-2 py-2 sm:px-4 sm:py-3 hidden md:table-cell">Year</th>
+                        <th className="px-2 py-2 sm:px-4 sm:py-3">Reg Date</th>
+                        <th className="px-2 py-2 sm:px-4 sm:py-3">Status</th>
+                        <th className="px-2 py-2 sm:px-4 sm:py-3">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {(registrations[selectedEvent.slug] || []).map((registration) => (
                         <tr key={registration.id} className="border-b border-gray-700 bg-gray-800/50 hover:bg-gray-700/50">
-                          <td className="px-4 py-3 font-medium text-white">
-                            {registration.profiles?.full_name || 'N/A'}
+                          <td className="px-2 py-2 sm:px-4 sm:py-3 font-medium text-white">
+                            <div className="max-w-[80px] sm:max-w-none truncate">
+                              {registration.profiles?.full_name || 'N/A'}
+                            </div>
                           </td>
-                          <td className="px-4 py-3 font-mono">
+                          <td className="px-2 py-2 sm:px-4 sm:py-3 font-mono text-xs">
                             {registration.profiles?.scholar_id || 'N/A'}
                           </td>
-                          <td className="px-4 py-3">
-                            {registration.profiles?.email || 'N/A'}
+                          <td className="px-2 py-2 sm:px-4 sm:py-3 hidden sm:table-cell">
+                            <div className="max-w-[120px] truncate">
+                              {registration.profiles?.email || 'N/A'}
+                            </div>
                           </td>
-                          <td className="px-4 py-3">
-                            {registration.profiles?.branch || 'N/A'}
+                          <td className="px-2 py-2 sm:px-4 sm:py-3">
+                            <div className="max-w-[60px] sm:max-w-none truncate">
+                              {registration.profiles?.branch || 'N/A'}
+                            </div>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-2 py-2 sm:px-4 sm:py-3 hidden md:table-cell">
                             {registration.profiles?.year || 'N/A'}
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-2 py-2 sm:px-4 sm:py-3 text-xs">
                             {new Date(registration.registered_at).toLocaleDateString()}
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-2 py-2 sm:px-4 sm:py-3">
                             <select
                               value={registration.attendance_status || 'registered'}
                               onChange={(e) => updateAttendanceStatus(registration.id, e.target.value)}
-                              className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs text-white"
+                              className="bg-gray-700 border border-gray-600 rounded px-1 py-1 text-xs text-white w-full max-w-[100px]"
                             >
                               <option value="registered">Registered</option>
                               <option value="attended">Attended</option>
@@ -793,16 +817,16 @@ const fetchRegistrations = async (eventSlug) => {
                               <option value="no-show">No Show</option>
                             </select>
                           </td>
-                          <td className="px-4 py-3">
-                            {registration.whatsapp_group_link && (
+                          <td className="px-2 py-2 sm:px-4 sm:py-3">
+                            {selectedEvent.whatsapp_group_link && (
                               <a 
-                                href={registration.whatsapp_group_link}
+                                href={selectedEvent.whatsapp_group_link}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-green-400 hover:text-green-300"
                                 title="Join WhatsApp Group"
                               >
-                                <FaWhatsapp />
+                                <FaWhatsapp size={14} />
                               </a>
                             )}
                           </td>

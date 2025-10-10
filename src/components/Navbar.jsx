@@ -11,6 +11,7 @@ import {
   FaNewspaper,
   FaSignInAlt,
   FaUserCircle,
+  FaBookOpen,
 } from 'react-icons/fa'
 
 const menuItems = [
@@ -19,7 +20,8 @@ const menuItems = [
   { path: '/members', label: 'Members', icon: FaUsers },
   { path: '/events', label: 'Events', icon: FaCalendarAlt },
   { path: '/wings', label: 'Wings', icon: FaFeatherAlt },
-  { path: '/editorials', label: 'Editorials', icon: FaNewspaper },
+  { path: '/chat', label: 'Chat', icon: FaUserCircle },
+  { path: '/materials', label: 'Materials', icon: FaBookOpen },
 ]
 
 export const NavbarDemo = () => {
@@ -119,9 +121,13 @@ export const NavbarDemo = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              CSS
+              <img 
+                src="https://res.cloudinary.com/dp4sknsba/image/upload/v1760078712/Untitled_design_xzhopc.svg" 
+                alt="CSS Logo" 
+                className="mt-2 h-23 w-auto" // Adjust height as needed
+              />
             </motion.span>
-            <div className="absolute -bottom-1 w-full h-1 bg-gradient-to-r from-[#64ffda] to-[#64ffda] animate-holographic rounded-b-md opacity-60"></div>
+            {/* <div className="absolute -bottom-1 w-full h-1 bg-gradient-to-r from-[#64ffda] to-[#64ffda] animate-holographic rounded-b-md opacity-60"></div> */}
             <div className="absolute -top-2 -right-2 w-2 h-2 bg-[#64ffda] rounded-full animate-ping shadow-[0_0_15px_#64ffda]"></div>
           </div>
 

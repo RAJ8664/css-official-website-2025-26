@@ -18,6 +18,10 @@ import EditorialsComingSoon from './pages/Editorials';
 import { useAuth } from './context/AuthContext';
 import AdminRoute from './components/AdminRoute'
 import AdminDashboard from './pages/AdminDashboard'
+import Footer from './components/Footer'
+import Materials from './pages/Materials'
+import Leaderboard from './pages/Leaderboard'
+import ChatSystem from './pages/ChatSystem'
 
 // ADD: ProtectedRoute component inside this file
 const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
@@ -79,6 +83,7 @@ const App = () => {
           <Route path="/developers" element={<Developers />} />
           <Route path="/events/:slug" element={<MoreEvents />} />
           <Route path="/editorials" element={<EditorialsComingSoon />} />
+          <Route path="/materials" element={<Materials />} />
           <Route path="/auth" element={
             <GuestRoute>
                 <Auth />
@@ -86,6 +91,7 @@ const App = () => {
           } />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/otp-verification" element={<OtpVerification />} />
+          <Route path="/chat" element={<ChatSystem />} />
           
           {/* Protected Routes */}
           <Route 
@@ -105,6 +111,14 @@ const App = () => {
             } 
           />
           <Route 
+            path="/leaderboard" 
+            element={
+              <ProtectedRoute requireProfileCompletion={true}>
+                <Leaderboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/admin" 
             element={
               <ProtectedRoute requireProfileCompletion={true}>
@@ -118,6 +132,7 @@ const App = () => {
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <Footer />
       </BrowserRouter>
     </AuthProvider>
   );

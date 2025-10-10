@@ -126,14 +126,7 @@ const OtpVerification = () => {
     return (
         <div className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-6 py-10 overflow-hidden">
             {/* Background Effects */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(40)].map((_, i) => (
-                <div key={i} className="absolute text-cyan-400 text-xs animate-[fall_6s_linear_infinite]"
-                    style={{ left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 6}s`, top: "-20px" }}>
-                    {Math.random() > 0.5 ? "1" : "0"}
-                </div>
-                ))}
-            </div>
+           
             
             <div className="relative max-w-md w-full bg-black/70 border border-cyan-500/30 rounded-2xl p-8 shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg">
                 {/* Cyberpunk corners */}

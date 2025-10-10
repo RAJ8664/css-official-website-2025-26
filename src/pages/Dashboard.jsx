@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '/src/context/AuthContext.jsx';
 import { supabase } from '/src/supabaseClient.js';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // --- Badge Definitions ---
 const badges = [
@@ -19,6 +19,7 @@ const Dashboard = () => {
     const [dataLoading, setDataLoading] = useState(true);
     const [showWhatsappModal, setShowWhatsappModal] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     
     const mounted = useRef(true);
 
@@ -41,8 +42,40 @@ const Dashboard = () => {
 
         if (user && !authLoading) {
             fetchData();
+            checkAdminStatus();
         }
     }, [user, authLoading, navigate]);
+
+    const checkAdminStatus = async () => {
+        if (!user) return;
+        
+        try {
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+
+            if (error) {
+                console.error('Error fetching profile:', error);
+                return;
+            }
+
+            // Check admin status - adjust these conditions based on your admin criteria
+            const adminStatus = 
+                profile?.role === 'admin' || 
+                profile?.is_admin === true ||
+                profile?.admin === true ||
+                (profile?.email && profile.email.includes('admin')) ||
+                (user?.email && user.email.includes('admin'));
+
+            setIsAdmin(adminStatus);
+            console.log('👑 Admin status:', adminStatus);
+
+        } catch (error) {
+            console.error('Error checking admin status:', error);
+        }
+    };
 
     const fetchData = async () => {
         if (!user || !mounted.current) return;
@@ -163,6 +196,18 @@ const Dashboard = () => {
         navigate('/');
     };
 
+    const navigateToLeaderboard = () => {
+        navigate('/leaderboard');
+    };
+
+    const navigateToAdminDashboard = () => {
+        navigate('/admin');
+    };
+
+    const navigateToChat = () => {
+        navigate('/chat');
+    };
+
     // Function to handle WhatsApp group join
     const handleJoinWhatsappGroup = (event) => {
         setSelectedEvent(event);
@@ -274,9 +319,33 @@ const Dashboard = () => {
                 </div>
             )}
 
-            
-
             <div className="relative max-w-4xl mx-auto bg-black/70 border border-cyan-500/30 rounded-2xl p-8 shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg">
+                {/* Navigation Buttons */}
+                <div className="flex flex-wrap gap-3 mb-6 justify-center">
+                    <button 
+                        onClick={navigateToLeaderboard}
+                        className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded transition-all flex items-center gap-2"
+                    >
+                        🏆 Leaderboard
+                    </button>
+                    
+                    <button 
+                        onClick={navigateToChat}
+                        className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-all flex items-center gap-2"
+                    >
+                        💬 Community Chat
+                    </button>
+                    
+                    {isAdmin && (
+                        <button 
+                            onClick={navigateToAdminDashboard}
+                            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all flex items-center gap-2"
+                        >
+                            🛡️ Admin Dashboard
+                        </button>
+                    )}
+                </div>
+
                 <div className="flex flex-col md:flex-row items-center gap-8">
                     <img
                         src={profile?.avatar_url || `https://api.dicebear.com/8.x/identicon/svg?seed=${user?.email}`}
@@ -287,6 +356,11 @@ const Dashboard = () => {
                         <h1 className="text-4xl font-bold" style={{ fontFamily: "Goldman, sans-serif" }}>{profile?.full_name || user?.email}</h1>
                         <p className="text-cyan-400 font-mono mt-1">Scholar ID: {profile?.scholar_id || 'N/A'}</p>
                         <p className="text-gray-400 mt-1">Events Registered: {attendedEvents.length}</p>
+                        {isAdmin && (
+                            <p className="text-red-400 font-semibold mt-1 flex items-center gap-1">
+                                <span>🛡️</span> Administrator
+                            </p>
+                        )}
                     </div>
                     <button onClick={handleLogout} className="ml-auto bg-red-600/80 hover:bg-red-700/80 text-white font-bold py-2 px-4 rounded transition-all">
                         Logout
@@ -356,7 +430,10 @@ const Dashboard = () => {
                         ) : (
                             <div className="text-center p-6 bg-gray-800/30 rounded-lg border border-cyan-500/20">
                                 <p className="text-gray-400 text-lg">No events registered yet.</p>
-                                <p className="text-cyan-400 mt-2">Go to Events page and register for upcoming events!</p>
+                               
+                                <p className="text-cyan-400 mt-2">
+                                    <Link to="/events" className="underline">Go to Events  </Link>
+                                        page and register for upcoming events!</p>
                             </div>
                         )}
                     </div>
