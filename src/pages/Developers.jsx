@@ -17,6 +17,7 @@ import { motion } from 'framer-motion'
 import teamData from '../jsonData/developers.json' // Fetch data from JSON
 import '../styles/developers.css'
 import { NavbarDemo } from '../components/Navbar'
+import TerminalLoader from '../components/Loader'
 
 // Default options for Tilt component with no scale
 const defaultTiltOptions = {
@@ -161,7 +162,9 @@ const Carousel = ({ children, className }) => {
   const members = React.Children.toArray(children)
   const totalItems = members.length
   const totalSlides = Math.ceil(totalItems / itemsPerView)
+  const [isLoading, setIsLoading] = useState(true);
 
+  
   // Dynamic itemsPerView based on screen size
   useEffect(() => {
     const updateItemsPerView = () => {
@@ -200,6 +203,49 @@ const Carousel = ({ children, className }) => {
   if (totalItems === 0)
     return <p className="text-center text-cyan-300">No members found</p>
 
+  useEffect(() => {
+    // Wait for all images to load
+    const images = document.querySelectorAll('img');
+    let loadedImages = 0;
+    const totalImages = images.length;
+
+    if (totalImages === 0) {
+      setIsLoading(false);
+      return;
+    }
+
+    const imageLoaded = () => {
+      loadedImages++;
+      if (loadedImages === totalImages) {
+        setIsLoading(false);
+      }
+    };
+
+    images.forEach(img => {
+      if (img.complete) {
+        imageLoaded();
+      } else {
+        img.addEventListener('load', imageLoaded);
+        img.addEventListener('error', imageLoaded); // Also count errors as loaded
+      }
+    });
+
+    // Fallback - hide loader after 3 seconds max
+    const fallbackTimer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+    
+    return () => {
+      clearTimeout(fallbackTimer);
+      images.forEach(img => {
+        img.removeEventListener('load', imageLoaded);
+        img.removeEventListener('error', imageLoaded);
+      });
+    };
+  }, []);
+  if (isLoading) {
+    return <TerminalLoader />;
+  }
   return (
     <div className={`relative ${className}`}>
       <div className="relative flex items-center px-8 sm:px-12 lg:px-16">
@@ -255,7 +301,7 @@ const Developers = () => {
   const [selectedCategory, setSelectedCategory] = useState(() => {
     return localStorage.getItem('selectedCategory') || 'all'
   })
-
+  
   // Save selected category to localStorage and reset carousel index
   useEffect(() => {
     localStorage.setItem('selectedCategory', selectedCategory)
