@@ -164,7 +164,18 @@
             "facebook": "https://www.facebook.com/nibir.deka.605645",
             "linkedin": "https://www.linkedin.com/in/nibir-deka-0a8636331/"
           }
-        }
+        },
+         {
+            "name": "Niladri Saikia",
+            "year": "2025-26",
+            "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757530497/20250831_230146_-_NILADRI_SAIKIA_iypljp.webp",
+            "role": "Junior Member",
+            "social": {
+              "instagram": "https://www.instagram.com/niladri_saikia?igsh=MTZ2NmZxdG9lMjl0YQ==",
+              "facebook": "https://www.facebook.com/share/19FLv54Cmh/",
+              "linkedin": "https://www.linkedin.com/in/niladri-saikia-a3aa56332?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+            }
+          }
       ]
     },
     "ml": {
@@ -213,6 +224,16 @@
               "facebook": "https://www.facebook.com/share/19FLv54Cmh/",
               "linkedin": "https://www.linkedin.com/in/niladri-saikia-a3aa56332?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
             }
+          },
+          {
+            "name":"Kausthuv Narayan Medhi ",
+            "photo":"https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757531023/IMG20241102232232_-_KAUSTHUV_NARAYAN_MEDHI_e6lqgu.webp",
+            "role":"Ml Wing Junior Member",
+            "social": {
+              "instagram":"kausthuv_medhi",
+              "facebook":"Kausthuv Narayan Medhi ",
+              "linkedin":"https://www.linkedin.com/in/kausthuv-narayan-medhi-720a54323"   
+             }
           }
       ]
     },
