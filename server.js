@@ -16,7 +16,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Use environment variable if available, otherwise use local file
+
 const credentials = process.env.GOOGLE_CREDENTIALS_JSON 
   ? JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON)
   : undefined;
