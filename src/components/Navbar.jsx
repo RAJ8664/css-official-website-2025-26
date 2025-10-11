@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
-// import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/AuthContext'
 import {
   FaHome,
   FaCode,
@@ -20,15 +20,15 @@ const menuItems = [
   { path: '/members', label: 'Members', icon: FaUsers },
   { path: '/events', label: 'Events', icon: FaCalendarAlt },
   { path: '/wings', label: 'Wings', icon: FaFeatherAlt },
-  // { path: '/chat', label: 'Chat', icon: FaUserCircle },
+  { path: '/chat', label: 'Chat', icon: FaUserCircle },
   { path: '/materials', label: 'Materials', icon: FaBookOpen },
-  { path: '/editorials', label: 'Editorials', icon: FaNewspaper },
+  // { path: '/editorials', label: 'Editorials', icon: FaNewspaper },
 ]
 
 export const NavbarDemo = () => {
   const [isOpen, setIsOpen] = useState(false)
   const location = useLocation()
-  // const { user, profile } = useAuth() // Add this line to get user and profile from auth context
+  const { user, profile } = useAuth() // Add this line to get user and profile from auth context
 
   const variants = {
     inactive: {
@@ -182,7 +182,7 @@ export const NavbarDemo = () => {
             ))}
             
             {/* Profile Picture or Auth Button */}
-            {/* {user ? (
+             {user ? (
               <Link to="/dashboard">
                 <motion.div
                   className="relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 group flex items-center gap-2 bg-[#64ffda]/20 border-2 border-[#64ffda] shadow-[0_0_20px_rgba(100,255,218,0.9)] text-[#64ffda]"
@@ -216,7 +216,7 @@ export const NavbarDemo = () => {
                   <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#64ffda] rounded-full animate-pulse opacity-100"></div>
                 </motion.div>
               </Link>
-            )} */}
+            )} 
           </div>
 
           {/* Mobile Menu Button */}
@@ -313,7 +313,7 @@ export const NavbarDemo = () => {
               ))}
               
               {/* Mobile Profile Picture or Auth Button */}
-              {/* {user ? (
+              {user ? (
                 <Link
                   to="/dashboard"
                   onClick={() => setIsOpen(false)}
@@ -353,7 +353,7 @@ export const NavbarDemo = () => {
                     <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#64ffda] rounded-full animate-pulse opacity-100"></div>
                   </motion.div>
                 </Link>
-              )} */}
+              )} 
             </div>
           </motion.div>
         )}
