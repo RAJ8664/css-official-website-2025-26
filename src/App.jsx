@@ -48,6 +48,7 @@ const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
 
     return children;
 };
+
 const GuestRoute = ({ children }) => {
     const { user, loading } = useAuth();
 
