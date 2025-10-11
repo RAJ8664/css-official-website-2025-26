@@ -238,4 +238,4 @@ const Chatbot = () => {
   )
 }
 
-export default Chatbot
+export default Chatbot;

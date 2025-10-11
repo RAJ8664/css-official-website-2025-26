@@ -1,0 +1,1 @@
+/utils – This folder contains utility/helper functions (e.g., formatters, validators, constants) that provide common reusable logic across the application.

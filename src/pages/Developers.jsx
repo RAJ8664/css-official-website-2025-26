@@ -18,12 +18,12 @@ import teamData from '../jsonData/developers.json' // Fetch data from JSON
 import '../styles/developers.css'
 import { NavbarDemo } from '../components/Navbar'
 
-// Default options for Tilt component
+// Default options for Tilt component with no scale
 const defaultTiltOptions = {
   reverse: true,
   max: 35,
   perspective: 1000,
-  scale: 1.05,
+  scale: 1.0,
   speed: 1000,
   transition: true,
   axis: null,
@@ -40,7 +40,10 @@ const MemberCard = ({ member, index }) => {
 
   return (
     <Tilt options={defaultTiltOptions}>
-      <div className="group perspective h-96 w-full" onClick={handleFlip}>
+      <div
+        className="group perspective h-96 w-full sm:w-80 md:w-72 lg:w-64"
+        onClick={handleFlip}
+      >
         <div
           className={`relative w-full h-full transition-transform duration-700 preserve-3d ${
             flipped ? 'rotate-y-180' : ''
@@ -198,38 +201,40 @@ const Carousel = ({ children, className }) => {
     return <p className="text-center text-cyan-300">No members found</p>
 
   return (
-    <div className={`relative px-8 ${className}`}>
-      <div
-        {...handlers}
-        className="overflow-hidden cursor-grab active:cursor-grabbing"
-      >
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
-          initial={false}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{
-            type: 'tween',
-            ease: 'easeOut',
-            duration: 0.3,
-          }}
+    <div className={`relative ${className}`}>
+      <div className="relative flex items-center px-8 sm:px-12 lg:px-16">
+        <button
+          onClick={prev}
+          className="lg:ml-9 absolute top-1/2 -translate-y-1/2 left-2 sm:-left-8 lg:-left-16 bg-cyan-900/70 border border-cyan-500 text-cyan-300 p-2 sm:p-3 lg:p-4 rounded-full hover:bg-cyan-800/80 hover:text-cyan-200 hover:scale-110 transition-all duration-300 shadow-lg shadow-cyan-500/30 z-10"
+          aria-label="Previous slide"
         >
-          {visibleItems}
-        </motion.div>
+          <FaChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+        </button>
+        <div
+          {...handlers}
+          className="flex-1 overflow-visible cursor-grab active:cursor-grabbing"
+        >
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 lg:gap-20"
+            initial={false}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{
+              type: 'tween',
+              ease: 'easeOut',
+              duration: 0.3,
+            }}
+          >
+            {visibleItems}
+          </motion.div>
+        </div>
+        <button
+          onClick={next}
+          className="absolute lg:mr-9 top-1/2 -translate-y-1/2 right-2 sm:-right-20 lg:-right-24 bg-cyan-900/70 border border-cyan-500 text-cyan-300 p-2 sm:p-3 lg:p-4 rounded-full hover:bg-cyan-800/80 hover:text-cyan-200 hover:scale-110 transition-all duration-300 shadow-lg shadow-cyan-500/30 z-10"
+          aria-label="Next slide"
+        >
+          <FaChevronRight className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+        </button>
       </div>
-      <button
-        onClick={prev}
-        className="absolute top-1/2 -translate-y-1/2 bg-cyan-900/70 border border-cyan-500 text-cyan-300 p-2 sm:p-3 lg:p-4 rounded-full hover:bg-cyan-800/80 hover:text-cyan-200 hover:scale-110 transition-all duration-300 shadow-lg shadow-cyan-500/30 z-10 left-8 sm:left-10 lg:left-12"
-        aria-label="Previous slide"
-      >
-        <FaChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-      </button>
-      <button
-        onClick={next}
-        className="absolute top-1/2 -translate-y-1/2 bg-cyan-900/70 border border-cyan-500 text-cyan-300 p-2 sm:p-3 lg:p-4 rounded-full hover:bg-cyan-800/80 hover:text-cyan-200 hover:scale-110 transition-all duration-300 shadow-lg shadow-cyan-500/30 z-10 right-8 sm:right-10 lg:right-12"
-        aria-label="Next slide"
-      >
-        <FaChevronRight className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-      </button>
       <div className="flex justify-center mt-6 space-x-2">
         {Array.from({ length: totalSlides }).map((_, idx) => (
           <button
@@ -285,6 +290,11 @@ const Developers = () => {
       icon: FaPalette,
       count: teamData.categories.designers?.members.length || 0,
     },
+    ml: {
+      name: 'ML',
+      icon: FaUsers,
+      count: teamData.categories.ml?.members.length || 0,
+    },
   }
 
   return (
@@ -298,7 +308,7 @@ const Developers = () => {
               className="absolute text-green-400 text-xs animate-fall"
               style={{
                 left: `${Math.random() * 100}%`,
-                animationDelay: `2s`,
+                animationDelay: '2s',
                 top: '-20px',
               }}
             >
@@ -570,6 +580,7 @@ const Developers = () => {
               })}
               {categories[selectedCategory].name} ({getCurrentMembers().length})
             </h2>
+            <div className='flex justify-center items-center'>
             <Carousel className="w-full" key={selectedCategory}>
               {getCurrentMembers().map((member, index) => (
                 <MemberCard
@@ -579,6 +590,7 @@ const Developers = () => {
                 />
               ))}
             </Carousel>
+            </div>
           </div>
         </div>
       </div>
