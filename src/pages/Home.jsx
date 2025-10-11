@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Carousel from "../components/ui/Carousel";
 import AnimatedTestimonials from "../components/ui/PillarsOfCSS";
 import Chatbot from "../components/ui/Chatbot";
+import { NavbarDemo } from "../components/Navbar";
 
 // Register GSAP plugins only once
 if (typeof window !== 'undefined') {
@@ -27,7 +28,7 @@ const PILLARS_TESTIMONIALS = [
   },
   {
     src: "https://res.cloudinary.com/dp4sknsba/image/upload/v1760007829/Amborish_xqum5s.jpg",
-    name: "Amborish Sharma",
+    name: "Amborish Sarmah",
     designation: "General Secretary",
     quote: "Creating a supportive network where students can learn, grow, and collaborate. We organize tech talks, networking events, and mentorship programs to foster meaningful connections."
   },
@@ -154,16 +155,38 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
-  
+  const [showNavbar, setShowNavbar] = useState(false)
+
   const svgRef = useRef(null);
   const animationRef = useRef(null);
   const videoRef = useRef(null);
+
+  
 
   // Set mounted state
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const aboutSection = document.getElementById('about')
+      if (aboutSection) {
+        const aboutSectionTop = aboutSection.offsetTop
+        const scrollPosition = window.scrollY + window.innerHeight / 2
+        
+        // Show navbar when we reach about section
+        setShowNavbar(scrollPosition >= aboutSectionTop)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    // Initial check
+    handleScroll()
+    
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Memoize event handlers
   const handleKeyDown = useCallback((e) => {
@@ -225,7 +248,7 @@ function Home() {
 
    const MaskText = useMemo(() => {
     const orientation = getTextOrientation();
-    const fontFamily = "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+    const fontFamily = "goldman, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
     if (orientation === 'vertical') {
       // Vertical text layout - each character on a new line
@@ -234,37 +257,46 @@ function Home() {
         {/* C - Top of screen */}
         <text
           x="50%"
-          y="3%"
+          y="4%"
           fontSize={textConfig.fontSize}
           textAnchor="middle"
           fill="white"
           dominantBaseline="middle"
           fontFamily={fontFamily}
           fontWeight="1000"
+          stroke="white" 
+          strokeWidth="20px" 
+          paintOrder="stroke"
         >
           C
         </text>
         {/* S - Middle of screen */}
         <text
           x="50%"
-          y="58%"
+          y="56%"
           fontSize={textConfig.fontSize}
           textAnchor="middle"
           fill="white"
           fontFamily={fontFamily}
           fontWeight="1000"
+          stroke="white" 
+          strokeWidth="20px" 
+          paintOrder="stroke"
         >
           S
         </text>
         {/* S - Bottom of screen */}
         <text
           x="50%"
-          y="99%"
+          y="97%"
           fontSize={textConfig.fontSize}
           textAnchor="middle"
           fill="white"
           fontFamily={fontFamily}
           fontWeight="1000"
+          stroke="white" 
+          strokeWidth="20px" 
+          paintOrder="stroke"
         >
           S
         </text>
@@ -395,8 +427,8 @@ function Home() {
     if (isMobile && orientation === 'vertical') {
       // Adjust scales for vertical text on mobile
       const screenRatio = window.innerHeight / window.innerWidth;
-      initialScale = screenRatio > 1.6 ? 0.6 : 0.6;
-      finalScale = 9; // Increased for better vertical coverage
+      initialScale = screenRatio > 1.6 ? 0.7 : 0.7;
+      finalScale = 15; // Increased for better vertical coverage
     } else if (isMobile) {
       const screenRatio = window.innerHeight / window.innerWidth;
       initialScale = screenRatio > 1.6 ? 0.5 : 0.5;
@@ -490,7 +522,7 @@ function Home() {
         }
       }}
     >
-      <source src="videos/video.mp4" type="video/mp4" />
+      <source src="https://res.cloudinary.com/dp4sknsba/video/upload/v1760194377/InShot_20251011_175117378_am5uzf.mp4" type="video/mp4" />
       {/* Add fallback for browsers that don't support video */}
       <div className="absolute inset-0 bg-gradient-to-b from-blue-900 to-purple-900 flex items-center justify-center">
         <h1 className="text-4xl font-bold text-white">CSS</h1>
@@ -533,8 +565,10 @@ function Home() {
           </svg>
         </div>
 
+        {showNavbar && <NavbarDemo />}
+
         {/* About Section - Reduced padding for mobile */}
-        <section className="about relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-4 py-1 md:py-3.5 overflow-hidden">
+        <section id="about" className="about relative min-h-[65vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-4 py-1 md:py-3.5 overflow-hidden">
           <div className="relative z-10 max-w-6xl w-full flex flex-col md:flex-row items-center gap-6 md:gap-10">
             <div className="flex-1 bg-black/70 rounded-xl border border-cyan-500/20 p-5 md:p-8 lg:p-12 backdrop-blur-md shadow-lg shadow-cyan-500/10">
               <div className="flex items-center mb-3 md:mb-6">
@@ -560,7 +594,7 @@ function Home() {
               </div>
               <div className="flex items-center mt-3 md:mt-6">
                 <span className="text-cyan-400 font-mono text-sm md:text-lg mr-2">$~</span>
-                <input
+                {/* <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -568,7 +602,7 @@ function Home() {
                   className="bg-transparent outline-none border-none text-sm md:text-lg font-mono text-white w-full caret-cyan-400"
                   placeholder="type a command..."
                   autoFocus
-                />
+                /> */}
               </div>
             </div>
             
