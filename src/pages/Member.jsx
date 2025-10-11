@@ -21,64 +21,7 @@ const Members = () => {
 
   return (
     <div className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white px-6 py-10 overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 opacity-20">
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute text-green-400 text-xs animate-[fall_5s_linear_infinite]"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                top: '-20px',
-              }}
-            >
-              {Math.random() > 0.5 ? '1' : '0'}
-            </div>
-          ))}
-        </div>
-        <div className="absolute inset-0 bg-grid-pattern bg-[length:50px_50px] opacity-10 animate-grid-move"></div>
-        <div className="absolute inset-0 bg-hexagon-pattern bg-[length:100px_100px] opacity-5 animate-pulse"></div>
-        <div className="absolute inset-0">
-          <svg width="100%" height="100%" className="opacity-10">
-            <path
-              d="M0,100 Q200,50 400,150 T800,50 T1200,200 T1600,0"
-              stroke="cyan"
-              strokeWidth="2"
-              fill="none"
-              strokeDasharray="10,10"
-            >
-              <animate
-                attributeName="stroke-dashoffset"
-                from="0"
-                to="20"
-                dur="3s"
-                repeatCount="indefinite"
-              />
-            </path>
-            <path
-              d="M0,300 Q300,200 600,300 T1200,250 T1800,400"
-              stroke="magenta"
-              strokeWidth="2"
-              fill="none"
-              strokeDasharray="8,8"
-            >
-              <animate
-                attributeName="stroke-dashoffset"
-                from="0"
-                to="16"
-                dur="4s"
-                repeatCount="indefinite"
-              />
-            </path>
-          </svg>
-        </div>
-        <div className="absolute w-20 h-20 border-2 border-cyan-500/30 rounded-lg animate-float-1"></div>
-        <div className="absolute w-16 h-16 border-2 border-purple-500/30 rounded-full right-20 top-1/4 animate-float-2"></div>
-        <div className="absolute w-24 h-24 border-2 border-green-500/20 rotate-45 bottom-1/3 left-1/4 animate-float-3"></div>
-        <div className="absolute w-72 h-72 bg-red-600/10 rounded-full blur-xl animate-[pulse_4s_ease-in-out_infinite] top-10 left-10"></div>
-        <div className="absolute w-96 h-96 bg-blue-600/10 rounded-full blur-xl animate-[pulse_5s_ease-in-out_infinite_1s] bottom-20 right-10"></div>
-      </div>
+    
       <div className="relative max-w-7xl mx-auto">
         <div className="text-center mb-12 mt-8">
           <h1
