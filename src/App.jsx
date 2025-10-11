@@ -51,7 +51,6 @@ const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
 
 const GuestRoute = ({ children }) => {
     const { user, loading } = useAuth();
-
     if (loading) {
         return (
             <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center">
