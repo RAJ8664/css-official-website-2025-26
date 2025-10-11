@@ -11,16 +11,23 @@ const __dirname = dirname(__filename);
 dotenv.config();
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
-const sessionClient = new dialogflowLib.SessionsClient({
-  keyFilename: join(__dirname, 'whatever-ceyu-b622005692d5.json'),
-});
+// Use environment variable if available, otherwise use local file
+const credentials = process.env.GOOGLE_CREDENTIALS_JSON 
+  ? JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON)
+  : undefined;
 
-const projectId = 'whatever-ceyu';
+const sessionClient = new dialogflowLib.SessionsClient(
+  credentials 
+    ? { credentials } 
+    : { keyFilename: join(__dirname, 'whatever-ceyu-b622005692d5.json') }
+);
+
+const projectId = process.env.GOOGLE_PROJECT_ID || 'whatever-ceyu';
 
 app.post('/api/dialogflow', async (req, res) => {
   try {
