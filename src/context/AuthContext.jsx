@@ -174,6 +174,12 @@ const AuthProvider = ({ children }) => {
             provider: 'google',
             options: { redirectTo: `${window.location.origin}/auth/callback` }
         }),
+
+//         signInWithGoogle: () => {
+//             // This now simply points the user to our secure, server-side endpoint.
+//             // The serverless function will handle the rest.
+//             window.location.href = '/api/auth/signin';
+//         },
         signOut: () => supabase.auth.signOut(),
         verifyOtp,
         user,

@@ -522,15 +522,13 @@ function Home() {
         }
       }}
     >
-      <source src="https://res.cloudinary.com/dp4sknsba/video/upload/v1760165631/InShot_20251011_122135951_vffino.mp4" type="video/mp4" />
-      {/* Add fallback for browsers that don't support video */}
+      <source src="https://res.cloudinary.com/dx8jytou0/video/upload/v1760209325/techVid_az70rq.mp4" type="video/mp4" />
       <div className="absolute inset-0 bg-gradient-to-b from-blue-900 to-purple-900 flex items-center justify-center">
         <h1 className="text-4xl font-bold text-white">CSS</h1>
       </div>
     </video>
   ), [isLoading, loadingProgress, isMounted]);
 
-  // Don't render anything until mounted
   if (!isMounted) {
     return null;
   }

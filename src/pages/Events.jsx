@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import eventsContent from "../constants/events";
-import { FaArrowRight, FaExternalLinkAlt, FaLock, FaCheck } from "react-icons/fa";
+import { FaArrowRight, FaExternalLinkAlt, FaLock, FaCheck, FaHandPointer, FaInfoCircle } from "react-icons/fa";
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
 import "../styles/eventsAnimation.css";
@@ -45,6 +45,14 @@ function EventCard({
     }
   };
 
+  // Get appropriate tap message based on status
+  const getTapMessage = () => {
+    if (status?.toLowerCase() === 'upcoming') {
+      return "Tap for info & register";
+    }
+    return "Tap for more info";
+  };
+
   return (
     <div className="w-full max-w-md h-full min-w-0">
       {/* Event Card */}
@@ -59,6 +67,15 @@ function EventCard({
         >
           {/* Front */}
           <div className="relative inset-0 backface-hidden bg-gray-700 rounded-xl overflow-hidden border border-cyan-500/20 shadow-2xl shadow-cyan-500/10 hover:border-cyan-400/60 hover:shadow-cyan-400/20 transition-all duration-500 min-h-[280px] sm:min-h-[320px] md:min-h-[370px] lg:min-h-[400px]">
+            {/* Mobile tap indicator - only show on touch devices and when not hovered */}
+            {isTouchDevice && !hovered && (
+              <div className="absolute top-2 right-2 z-30 bg-cyan-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1 animate-pulse">
+                <FaHandPointer className="text-xs" /> 
+                <span className="hidden xs:inline">{getTapMessage()}</span>
+                <span className="xs:hidden">Tap</span>
+              </div>
+            )}
+            
             {/* Auth required badge */}
             {requiresAuth && !user && (
               <div className="absolute top-2 left-2 z-20 bg-red-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
@@ -82,12 +99,37 @@ function EventCard({
             <div className="absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 border-cyan-500/70"></div>
             <div className="absolute bottom-2 right-2 w-2 h-2 border-b-2 border-r-2 border-cyan-500/70"></div>
 
+            {/* Image Container - Fixed for mobile */}
             <div className="absolute w-full h-full overflow-hidden">
               <img
                 src={image || "https://via.placeholder.com/400x300"}
                 alt={name}
                 className="w-full h-full object-cover rounded-lg"
+                style={{ 
+                  objectPosition: 'center',
+                  // Ensure image covers properly on all devices
+                  minHeight: '100%',
+                  minWidth: '100%'
+                }}
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/400x300/1a202c/cyan?text=Event+Image";
+                }}
               />
+              {/* Fallback overlay for better text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            </div>
+
+            {/* Event info overlay on front card */}
+            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 bg-gradient-to-t from-black/90 to-transparent rounded-b-xl">
+              <h3 className="text-base sm:text-lg md:text-xl font-bold text-white line-clamp-1">
+                {name}
+              </h3>
+              <p className="text-xs text-cyan-300 font-mono mt-1">
+                {status}
+              </p>
+              <p className="text-xs text-gray-300 mt-1 line-clamp-2">
+                {description}
+              </p>
             </div>
 
             <div className="absolute inset-0 rounded-xl border border-cyan-400/30 animate-pulse-slow pointer-events-none"></div>
@@ -103,6 +145,15 @@ function EventCard({
             <div className="absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 border-cyan-400/80"></div>
             <div className="absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 border-cyan-400/80"></div>
             <div className="absolute bottom-2 right-2 w-2 h-2 border-b-2 border-r-2 border-cyan-400/80"></div>
+
+            {/* Mobile back indicator - only show on touch devices */}
+            {isTouchDevice && (
+              <div className="absolute top-2 right-2 z-30 bg-purple-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+                <FaInfoCircle className="text-xs" /> 
+                <span className="hidden xs:inline">Tap to flip back</span>
+                <span className="xs:hidden">Tap back</span>
+              </div>
+            )}
 
             <div className="relative h-full flex flex-col justify-between p-3 sm:p-4 md:p-6 z-10">
               <div className="flex-1 overflow-hidden">
@@ -159,7 +210,7 @@ function EventCard({
                 </button>
               ) : null}
 
-              <div className="absolute top-2 right-2 flex space-x-1 z-20">
+              <div className="absolute top-2 left-2 flex space-x-1 z-20">
                 <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse shadow shadow-red-500/50"></div>
                 <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse delay-300 shadow shadow-yellow-500/50"></div>
                 <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse delay-700 shadow shadow-green-500/50"></div>
@@ -235,11 +286,9 @@ export default function EventsList() {
 
    useEffect(() => {
     const handleEventDeleted = (event) => {
-      console.log('Received event deletion notification:', event.detail);
       const { eventId, eventSlug } = event.detail;
             setDatabaseEvents(prevEvents => {
         const newEvents = prevEvents.filter(e => e.id !== eventId && e.slug !== eventSlug);
-        console.log('🔄 Updated Events page databaseEvents:', newEvents);
         return newEvents;
       });
       
@@ -335,7 +384,6 @@ export default function EventsList() {
     }
 
     try {
-      console.log('Registering for event:', eventSlug, eventName);
       
       const { data: eventData, error: eventError } = await supabase
         .from('events')
@@ -380,7 +428,6 @@ export default function EventsList() {
         throw error;
       }
 
-      console.log('Registration successful:', data);
       
       const { error: updateError } = await supabase
         .from('events')
@@ -458,6 +505,14 @@ export default function EventsList() {
           title="Our Events"
           description="From DSA Marathons, Development, ML and Design Workshops to sessions that sharpen technical expertise, from the spirited CSS Olympics that celebrate sportsmanship to cultural highlights like ESPERANZA, CSS GO, and our flagship annual fest CSS ABACUS — our calendar is packed with opportunities to learn, grow, and celebrate. Guided by the motto Participate, Enjoy & Learn, every event is designed to build all-rounders and leave behind unforgettable memories."
         />
+
+        {/* Mobile Instructions */}
+        <div className="md:hidden mb-6 p-3 bg-cyan-900/30 border border-cyan-500/50 rounded-lg text-center">
+          <p className="text-cyan-300 text-sm flex items-center justify-center gap-2">
+            <FaHandPointer className="text-cyan-400" />
+            Tap on cards to flip and see registration options
+          </p>
+        </div>
 
         {sections.map((section) => {
           const sectionEvents = getEventsForSection(section);

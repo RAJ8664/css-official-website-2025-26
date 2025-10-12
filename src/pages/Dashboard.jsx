@@ -70,7 +70,6 @@ const Dashboard = () => {
                 (user?.email && user.email.includes('admin'));
 
             setIsAdmin(adminStatus);
-            console.log('👑 Admin status:', adminStatus);
 
         } catch (error) {
             console.error('Error checking admin status:', error);
@@ -97,73 +96,66 @@ const Dashboard = () => {
                 return data;
             };
 
-          const fetchAttendedEvents = async () => {
+            const fetchAttendedEvents = async () => {
     try {
-        console.log('🔍 Fetching attended events for user:', user.id);
         
-        // Use the working SQL query approach
-        const { data, error } = await supabase
+        // First, try to get events without the join to see what data we have
+        const { data: simpleData, error: simpleError } = await supabase
             .from('user_events')
-            .select(`
-                event_slug,
-                event_name,
-                registered_at,
-                whatsapp_group_link,
-                events!inner (
-                    name,
-                    organizer,
-                    whatsapp_group_link
-                )
-            `)
+            .select('*')
             .eq('user_id', user.id)
             .order('registered_at', { ascending: false });
 
-        console.log('📋 Query result:', data);
         
-        if (error) {
-            console.error('❌ Error fetching events:', error);
-            
-            // Fallback: try simple query without join
-            const { data: simpleData, error: simpleError } = await supabase
-                .from('user_events')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('registered_at', { ascending: false });
-                
-            if (simpleError) throw simpleError;
-            
-            console.log('📋 Fallback data:', simpleData);
-            
-            return simpleData.map(item => ({
-                event_slug: item.event_slug,
-                event_name: item.event_name || `Event: ${item.event_slug}`,
-                event_description: null,
-                event_organizer: null,
-                registered_at: item.registered_at,
-                whatsapp_link: item.whatsapp_group_link
-            }));
-        }
-
-        if (!data || data.length === 0) {
-            console.log('ℹ️ No events found');
+        if (simpleError) {
+            console.error('❌ Error fetching events:', simpleError);
             return [];
         }
 
-        // Process the joined data
-        const eventsWithDetails = data.map(item => {
-            console.log('📝 Processing item:', item);
-            
-            return {
-                event_slug: item.event_slug,
-                event_name: item.events?.name || item.event_name || 'Unknown Event',
-                event_description: null,
-                event_organizer: item.events?.organizer,
-                registered_at: item.registered_at,
-                whatsapp_link: item.events?.whatsapp_group_link || item.whatsapp_group_link
-            };
-        });
+        if (!simpleData || simpleData.length === 0) {
+            return [];
+        }
 
-        console.log('✅ Final events:', eventsWithDetails);
+        // Since the join isn't working, let's fetch event details separately
+        const eventsWithDetails = await Promise.all(
+            simpleData.map(async (item) => {
+                try {
+                    // Try to get event details from events table if event_slug exists
+                    let eventDetails = null;
+                    if (item.event_slug) {
+                        const { data: eventData, error: eventError } = await supabase
+                            .from('events')
+                            .select('name, organizer, whatsapp_group_link')
+                            .eq('slug', item.event_slug)
+                            .single();
+
+                        if (!eventError && eventData) {
+                            eventDetails = eventData;
+                        }
+                    }
+
+                    return {
+                        event_slug: item.event_slug,
+                        event_name: eventDetails?.name || item.event_name || `Event: ${item.event_slug || 'Unknown'}`,
+                        event_description: null,
+                        event_organizer: eventDetails?.organizer,
+                        registered_at: item.registered_at,
+                        whatsapp_link: eventDetails?.whatsapp_group_link || item.whatsapp_group_link
+                    };
+                } catch (error) {
+                    console.error('Error processing event item:', error);
+                    return {
+                        event_slug: item.event_slug,
+                        event_name: item.event_name || `Event: ${item.event_slug || 'Unknown'}`,
+                        event_description: null,
+                        event_organizer: null,
+                        registered_at: item.registered_at,
+                        whatsapp_link: item.whatsapp_group_link
+                    };
+                }
+            })
+        );
+
         return eventsWithDetails;
 
     } catch (error) {
@@ -180,7 +172,6 @@ const Dashboard = () => {
             if (mounted.current) {
                 setLocalProfile(profileData);
                 setAttendedEvents(eventsData);
-                console.log('Final attended events state:', eventsData);
             }
         } catch (error) {
             console.error('Error in fetchData:', error);
@@ -241,7 +232,7 @@ const Dashboard = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center">
+            <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-4">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
                     <p className="text-lg">Loading your dashboard...</p>
@@ -257,11 +248,11 @@ const Dashboard = () => {
     const earnedBadges = badges.filter(badge => attendedEvents.length >= badge.threshold);
 
     return (
-        <div className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white px-4 py-10 overflow-hidden">
+        <div className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white px-4 py-6 sm:py-10 overflow-hidden">
             {/* WhatsApp Modal */}
             {showWhatsappModal && selectedEvent && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-gray-900 border border-cyan-500/30 rounded-2xl p-6 max-w-md w-full backdrop-blur-lg">
+                    <div className="bg-gray-900 border border-cyan-500/30 rounded-2xl p-6 max-w-md w-full backdrop-blur-lg mx-4">
                         <h3 className="text-xl font-bold text-cyan-400 mb-4">Join WhatsApp Group</h3>
                         <p className="text-gray-300 mb-2">
                             You've successfully registered for:
@@ -319,103 +310,129 @@ const Dashboard = () => {
                 </div>
             )}
 
-            <div className="relative max-w-4xl mx-auto bg-black/70 border border-cyan-500/30 rounded-2xl p-8 shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg">
-                {/* Navigation Buttons */}
-                <div className="flex flex-wrap gap-3 mb-6 justify-center">
-                    {/* <button 
-                        onClick={navigateToLeaderboard}
-                        className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded transition-all flex items-center gap-2"
-                    >
-                        🏆 Leaderboard
-                    </button>
-                     */}
-                    <button 
-                        onClick={navigateToChat}
-                        className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-all flex items-center gap-2"
-                    >
-                        💬 Community Chat
-                    </button>
-                    
-                    {isAdmin && (
-                        <button 
-                            onClick={navigateToAdminDashboard}
-                            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all flex items-center gap-2"
-                        >
-                            🛡️ Admin Dashboard
-                        </button>
-                    )}
-                </div>
-
-                <div className="flex flex-col md:flex-row items-center gap-8">
-                    <img
-                        src={profile?.avatar_url || `https://api.dicebear.com/8.x/identicon/svg?seed=${user?.email}`}
-                        alt="Profile"
-                        className="w-32 h-32 rounded-full border-4 border-cyan-500 shadow-lg"
-                    />
-                    <div className="text-center md:text-left">
-                        <h1 className="text-4xl font-bold" style={{ fontFamily: "Goldman, sans-serif" }}>{profile?.full_name || user?.email}</h1>
-                        <p className="text-cyan-400 font-mono mt-1">Scholar ID: {profile?.scholar_id || 'N/A'}</p>
-                        <p className="text-gray-400 mt-1">Events Registered: {attendedEvents.length}</p>
-                        {isAdmin && (
-                            <p className="text-red-400 font-semibold mt-1 flex items-center gap-1">
-                                <span>🛡️</span> Administrator
+            <div className="relative max-w-4xl mx-auto bg-black/70 border border-cyan-500/30 rounded-2xl p-4 sm:p-6 md:p-8 shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg">
+                {/* Profile Section with All Buttons in One Line */}
+                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 mb-8">
+                    {/* Left Side - Profile Info */}
+                    <div className="flex items-center gap-4 flex-1">
+                        <img
+                            src={profile?.avatar_url || `https://api.dicebear.com/8.x/identicon/svg?seed=${user?.email}`}
+                            alt="Profile"
+                            className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-full border-4 border-cyan-500 shadow-lg flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold truncate" style={{ fontFamily: "Goldman, sans-serif" }}>
+                                {profile?.full_name || user?.email}
+                            </h1>
+                            <p className="text-cyan-400 font-mono text-sm sm:text-base truncate">
+                                Scholar ID: {profile?.scholar_id || 'N/A'}
                             </p>
-                        )}
+                            <p className="text-gray-400 text-sm sm:text-base">
+                                Events Registered: {attendedEvents.length}
+                            </p>
+                            {isAdmin && (
+                                <p className="text-red-400 font-semibold text-sm sm:text-base flex items-center gap-1 mt-1">
+                                    <span>🛡️</span> Administrator
+                                </p>
+                            )}
+                        </div>
                     </div>
-                    <button onClick={handleLogout} className="ml-auto bg-red-600/80 hover:bg-red-700/80 text-white font-bold py-2 px-4 rounded transition-all">
-                        Logout
-                    </button>
+
+                    {/* Right Side - All Buttons in One Line */}
+                    <div className="flex flex-wrap gap-3 w-full lg:w-auto justify-center lg:justify-end">
+                        <button 
+                            onClick={navigateToChat}
+                            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-all flex items-center gap-2 text-sm flex-shrink-0"
+                        >
+                            💬 Chat
+                        </button>
+                        
+                        {isAdmin && (
+                            <button 
+                                onClick={navigateToAdminDashboard}
+                                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all flex items-center gap-2 text-sm flex-shrink-0"
+                            >
+                                🛡️ Admin
+                            </button>
+                        )}
+                        
+                        <button 
+                            onClick={handleLogout} 
+                            className="bg-red-600/80 hover:bg-red-700/80 text-white font-bold py-2 px-4 rounded transition-all text-sm flex-shrink-0"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
 
-                <div className="my-8 border-t border-cyan-500/20"></div>
+                <div className="my-6 sm:my-8 border-t border-cyan-500/20"></div>
 
                 {/* --- Badges Section --- */}
-                <div>
-                    <h2 className="text-2xl font-bold mb-4" style={{ fontFamily: "Goldman, sans-serif" }}>Badges Earned</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="mb-8">
+                    <h2 className="text-xl sm:text-2xl font-bold mb-4" style={{ fontFamily: "Goldman, sans-serif" }}>
+                        Badges Earned
+                    </h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                         {badges.map((badge) => (
-                            <div key={badge.name} className={`p-4 rounded-lg text-center transition-all ${earnedBadges.some(b => b.name === badge.name) ? 'bg-cyan-900/50 border border-cyan-700' : 'bg-gray-800/50 border border-gray-700 opacity-40'}`}>
-                                <div className="text-5xl">{badge.icon}</div>
-                                <h3 className="font-bold mt-2">{badge.name}</h3>
-                                <p className="text-xs text-gray-400">{badge.description}</p>
+                            <div 
+                                key={badge.name} 
+                                className={`p-3 sm:p-4 rounded-lg text-center transition-all ${
+                                    earnedBadges.some(b => b.name === badge.name) 
+                                        ? 'bg-cyan-900/50 border border-cyan-700' 
+                                        : 'bg-gray-800/50 border border-gray-700 opacity-40'
+                                }`}
+                            >
+                                <div className="text-3xl sm:text-4xl md:text-5xl">{badge.icon}</div>
+                                <h3 className="font-bold mt-2 text-xs sm:text-sm md:text-base">{badge.name}</h3>
+                                <p className="text-xs text-gray-400 mt-1 hidden xs:block">{badge.description}</p>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div className="my-8 border-t border-cyan-500/20"></div>
+                <div className="my-6 sm:my-8 border-t border-cyan-500/20"></div>
 
                 {/* --- Registered Events Section --- */}
                 <div>
-                    <h2 className="text-2xl font-bold mb-4" style={{ fontFamily: "Goldman, sans-serif" }}>Your Registered Events</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold mb-4" style={{ fontFamily: "Goldman, sans-serif" }}>
+                        Your Registered Events
+                    </h2>
                     <div className="space-y-3">
                         {attendedEvents.length > 0 ? (
                             attendedEvents.map((event, index) => (
-                                <div key={index} className="bg-gray-800/50 p-4 rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all">
-                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                        <div className="flex-1">
-                                            <h3 className="text-lg font-bold text-cyan-300">{event.event_name}</h3>
-                                            <p className="text-gray-400 text-sm">
+                                <div 
+                                    key={index} 
+                                    className="bg-gray-800/50 p-4 rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
+                                >
+                                    <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                                        {/* Event Details - Left Side */}
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-base sm:text-lg font-bold text-cyan-300 mb-2 truncate">
+                                                {event.event_name}
+                                            </h3>
+                                            <p className="text-gray-400 text-xs sm:text-sm mb-2">
                                                 Registered on: {new Date(event.registered_at).toLocaleDateString('en-US', {
-                                                    weekday: 'long',
+                                                    weekday: 'short',
                                                     year: 'numeric',
-                                                    month: 'long',
+                                                    month: 'short',
                                                     day: 'numeric',
                                                     hour: '2-digit',
                                                     minute: '2-digit'
                                                 })}
                                             </p>
                                             {event.event_organizer && (
-                                                <p className="text-cyan-200 text-sm mt-1">
+                                                <p className="text-cyan-200 text-xs sm:text-sm truncate">
                                                     <strong>Organizer:</strong> {event.event_organizer}
                                                 </p>
                                             )}
                                         </div>
-                                        <div className="flex gap-2">
+                                        
+                                        {/* WhatsApp Button - Right Side */}
+                                        <div className="flex-shrink-0">
                                             {event.whatsapp_link && (
                                                 <button
                                                     onClick={() => handleJoinWhatsappGroup(event)}
-                                                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-all flex items-center gap-2 text-sm"
+                                                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-all flex items-center gap-2 text-xs sm:text-sm w-full lg:w-auto justify-center min-w-[140px]"
                                                 >
                                                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893c0-3.18-1.24-6.17-3.495-8.418"/>
@@ -429,11 +446,12 @@ const Dashboard = () => {
                             ))
                         ) : (
                             <div className="text-center p-6 bg-gray-800/30 rounded-lg border border-cyan-500/20">
-                                <p className="text-gray-400 text-lg">No events registered yet.</p>
-                               
-                                <p className="text-cyan-400 mt-2">
-                                    <Link to="/events" className="underline">Go to Events  </Link>
-                                        page and register for upcoming events!</p>
+                                <p className="text-gray-400 text-base sm:text-lg mb-3">No events registered yet.</p>
+                                <p className="text-cyan-400 text-sm sm:text-base">
+                                    <Link to="/events" className="underline hover:text-cyan-300 transition-colors">
+                                        Go to Events page
+                                    </Link> and register for upcoming events!
+                                </p>
                             </div>
                         )}
                     </div>

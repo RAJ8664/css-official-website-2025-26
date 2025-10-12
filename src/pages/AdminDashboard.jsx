@@ -45,7 +45,6 @@ const AdminDashboard = () => {
           table: 'events' 
         }, 
         (payload) => {
-          console.log('🔔 Events table changed:', payload);
           fetchEvents(); // Refresh events list
         }
       )
@@ -61,7 +60,6 @@ const AdminDashboard = () => {
           table: 'user_events' 
         }, 
         (payload) => {
-          console.log('🔔 User events table changed:', payload);
           if (user) {
             fetchRegisteredEvents(); // Refresh user registrations
           }
@@ -95,7 +93,6 @@ const AdminDashboard = () => {
   // Updated fetchRegistrations function with better error handling
   const fetchRegistrations = async (eventSlug) => {
     try {
-      console.log('Fetching registrations for event:', eventSlug);
       
       // First, let's try a different approach - fetch user_events and profiles separately
       const { data: userEvents, error: userEventsError } = await supabase
@@ -106,7 +103,6 @@ const AdminDashboard = () => {
 
       if (userEventsError) throw userEventsError;
 
-      console.log('User events found:', userEvents);
 
       if (!userEvents || userEvents.length === 0) {
         setRegistrations(prev => ({
@@ -127,7 +123,6 @@ const AdminDashboard = () => {
 
       if (profilesError) throw profilesError;
 
-      console.log('Profiles found:', profiles);
 
       // Combine the data
       const combinedData = userEvents.map(ue => {
@@ -138,7 +133,6 @@ const AdminDashboard = () => {
         };
       });
 
-      console.log('Combined registrations data:', combinedData);
       
       setRegistrations(prev => ({
         ...prev,
@@ -236,7 +230,6 @@ const AdminDashboard = () => {
     if (!confirm('Are you sure you want to delete this event? This will also delete all registrations for this event.')) return;
 
     try {
-        console.log('🗑️ Starting deletion process for event ID:', eventId);
         
         // Store the event being deleted
         const eventToDelete = events.find(e => e.id === eventId);
@@ -246,11 +239,9 @@ const AdminDashboard = () => {
             return;
         }
 
-        console.log('📋 Event to delete:', eventToDelete);
 
         // First delete registrations
         const eventSlug = eventToDelete.slug;
-        console.log('🎯 Deleting registrations for event slug:', eventSlug);
         
         if (eventSlug) {
             const { error: regError } = await supabase
@@ -262,31 +253,25 @@ const AdminDashboard = () => {
                 console.error('❌ Error deleting registrations:', regError);
                 throw regError;
             }
-            console.log('✅ Registrations deleted successfully');
         }
 
         // Then delete event
-        console.log('🗑️ Deleting event from database...');
         const { data, error } = await supabase
             .from('events')
             .delete()
             .eq('id', eventId)
             .select(); // Add select to see what was deleted
 
-        console.log('📋 Delete response data:', data);
-        console.log('❌ Delete error:', error);
 
         if (error) {
             console.error('❌ Error deleting event:', error);
             throw error;
         }
 
-        console.log('✅ Event deleted from database successfully');
 
         // Update the UI immediately
         setEvents(prevEvents => {
             const newEvents = prevEvents.filter(event => event.id !== eventId);
-            console.log('🔄 Updated events list:', newEvents);
             return newEvents;
         });
         
@@ -309,7 +294,6 @@ const AdminDashboard = () => {
         alert('Failed to delete event: ' + error.message);
         
         // If deletion failed, refresh the events list to ensure consistency
-        console.log('🔄 Refreshing events list due to error');
         fetchEvents();
     }
   };

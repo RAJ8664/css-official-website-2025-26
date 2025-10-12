@@ -1,25 +1,65 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
-import eventsContent from "../constants/events";
-import { FaExternalLinkAlt } from "react-icons/fa";
-import "../styles/eventsAnimation.css";
+import React, { useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import eventsContent from '../constants/events'
+import { FaExternalLinkAlt } from 'react-icons/fa'
+import '../styles/eventsAnimation.css'
 
 function MoreEvents() {
-  const { slug } = useParams();
-  const { body } = eventsContent;
+  const { slug } = useParams()
+  const navigate = useNavigate()
+  const { body } = eventsContent
 
-  const mainEvent = body.events.find((event) => event.slug === slug);
+  const mainEvent = body.events.find((event) => event.slug === slug)
 
   if (!mainEvent) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white bg-black">
         <h2 className="text-2xl">Event not found.</h2>
       </div>
-    );
+    )
   }
 
   return (
+    
     <div className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white px-4 sm:px-6 md:px-10 py-8 md:py-10 overflow-hidden">
+      {/* 🟢 BACK BUTTON */}
+      <button
+        onClick={() => navigate('/events')}
+        className="
+          fixed
+          top-20 sm:top-20
+          left-4 sm:left-6
+          flex items-center gap-2
+          bg-black/70 backdrop-blur-md
+          px-2 sm:px-4 py-2 sm:py-3
+          rounded-xl
+          border border-cyan-500/70
+          shadow-lg shadow-cyan-500/40
+          text-white font-semibold
+          hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500
+          hover:shadow-xl hover:shadow-cyan-400/50
+          transition-all duration-300
+          text-sm sm:text-base
+          z-[2000]
+        "
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="w-5 h-5 sm:w-6 sm:h-6"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        <span className="hidden sm:inline">Back</span>
+      </button>
+
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 opacity-20">
@@ -28,12 +68,12 @@ function MoreEvents() {
               key={i}
               className="absolute text-green-400 text-xs animate-[fall_5s_linear_infinite]"
               style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                top: "-20px",
+                left: '${Math.random() * 100}%',
+                animationDelay: '${Math.random() * 5}s',
+                top: '-20px',
               }}
             >
-              {Math.random() > 0.5 ? "1" : "0"}
+              {Math.random() > 0.5 ? '1' : '0'}
             </div>
           ))}
         </div>
@@ -50,7 +90,7 @@ function MoreEvents() {
         <header className="text-center mb-8 md:mb-12 relative z-10">
           <h1
             className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white"
-            style={{ fontFamily: "Goldman, sans-serif" }}
+            style={{ fontFamily: 'Goldman, sans-serif' }}
           >
             {mainEvent.name}
           </h1>
@@ -63,7 +103,8 @@ function MoreEvents() {
         </header>
 
         {/* Sub Events */}
-        {Array.isArray(mainEvent.moreEvents) && mainEvent.moreEvents.length > 0 ? (
+        {Array.isArray(mainEvent.moreEvents) &&
+        mainEvent.moreEvents.length > 0 ? (
           <div className="relative z-10">
             <div className="flex items-center justify-center mb-8 md:mb-12 p-4 md:p-6 bg-black/60 rounded-xl border border-cyan-500/30 relative overflow-hidden">
               {/* Cyberpunk border corners */}
@@ -76,7 +117,6 @@ function MoreEvents() {
               </h2>
             </div>
 
-            
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-8 sm:gap-y-12 lg:gap-y-14 w-full max-w-6xl mx-auto px-2 sm:px-4 justify-items-center">
               {mainEvent.moreEvents.map((subEvent, index) => (
                 <SubEventCard key={index} subEvent={subEvent} />
@@ -91,19 +131,19 @@ function MoreEvents() {
           </div>
         )}
       </div>
-    </div>
-  );
+    </div>  
+  )
 }
 
 // SubEventCard Component
 function SubEventCard({ subEvent }) {
-  const [hovered, setHovered] = useState(false);
+  const [hovered, setHovered] = useState(false)
   const isTouchDevice =
-    typeof window !== "undefined" && "ontouchstart" in window;
+    typeof window !== 'undefined' && 'ontouchstart' in window
 
   const handleInteraction = () => {
-    if (isTouchDevice) setHovered(!hovered);
-  };
+    if (isTouchDevice) setHovered(!hovered)
+  }
 
   return (
     <div
@@ -115,14 +155,14 @@ function SubEventCard({ subEvent }) {
       {/* Flip card container */}
       <div
         className={`relative w-full h-full transition-transform duration-700 preserve-3d ${
-          hovered ? "rotate-y-180" : ""
+          hovered ? 'rotate-y-180' : ''
         }`}
       >
         {/* Front */}
         <div className="absolute w-full h-full backface-hidden rounded-xl overflow-hidden border border-cyan-500/20 shadow-2xl shadow-cyan-500/10">
-          {subEvent["poster-url"] ? (
+          {subEvent['poster-url'] ? (
             <img
-              src={subEvent["poster-url"]}
+              src={subEvent['poster-url']}
               alt={subEvent.name}
               className="w-full h-full object-cover"
             />
@@ -137,13 +177,15 @@ function SubEventCard({ subEvent }) {
             <h3 className="text-lg sm:text-xl font-bold text-white">
               {subEvent.name}
             </h3>
-            <p className="text-cyan-300 text-xs sm:text-sm">{subEvent.status}</p>
+            <p className="text-cyan-300 text-xs sm:text-sm">
+              {subEvent.status}
+            </p>
           </div>
         </div>
 
         {/* Back */}
         <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-gray-900 rounded-xl overflow-hidden border border-cyan-500/50 shadow-2xl shadow-cyan-500/30 p-4 flex flex-col justify-between">
-          {/* Tech corner elements with glow */}
+          {/* Tech corners */}
           <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-cyan-400/80 opacity-90"></div>
           <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-cyan-400/80 opacity-90"></div>
           <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-cyan-400/80 opacity-90"></div>
@@ -160,18 +202,24 @@ function SubEventCard({ subEvent }) {
             <h3 className="text-lg sm:text-xl font-bold mb-2 text-cyan-200">
               {subEvent.name}
             </h3>
-            <p className="text-xs sm:text-sm text-cyan-300 mb-2">{subEvent.status}</p>
+            <p className="text-xs sm:text-sm text-cyan-300 mb-2">
+              {subEvent.status}
+            </p>
             {subEvent.description && (
-              <p className="text-gray-300 text-sm sm:text-base mb-2">{subEvent.description}</p>
+              <p className="text-gray-300 text-sm sm:text-base mb-2">
+                {subEvent.description}
+              </p>
             )}
             {subEvent.date && (
               <p className="text-xs sm:text-sm text-cyan-200 mb-1">
-                <strong className="text-cyan-400">Date: </strong> {subEvent.date}
+                <strong className="text-cyan-400">Date: </strong>
+                {subEvent.date}
               </p>
             )}
             {subEvent.venue && (
               <p className="text-xs sm:text-sm text-cyan-200 mb-2">
-                <strong className="text-cyan-400">Venue: </strong> {subEvent.venue}
+                <strong className="text-cyan-400">Venue: </strong>
+                {subEvent.venue}
               </p>
             )}
           </div>
@@ -189,7 +237,7 @@ function SubEventCard({ subEvent }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default MoreEvents;
+export default MoreEvents

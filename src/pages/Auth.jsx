@@ -30,7 +30,6 @@ const Auth = () => {
         try {
             if (isLogin) {
                 // Login flow
-                console.log('Attempting login...');
                 const { data, error } = await signIn({ email, password });
                 
                 if (error) {
@@ -38,12 +37,10 @@ const Auth = () => {
                     throw error;
                 }
                 
-                console.log('Login successful:', data);
                 navigate('/dashboard');
                 
             } else {
                 // Signup flow
-                console.log('Attempting signup...');
                 
                 if (!fullName.trim() || !scholarId.trim()) {
                     throw new Error('Please fill in all fields');
@@ -61,7 +58,6 @@ const Auth = () => {
                     throw result.error;
                 }
 
-                console.log('Signup successful, data:', result.data);
 
                 // Navigate to OTP verification
                 navigate('/otp-verification', { 

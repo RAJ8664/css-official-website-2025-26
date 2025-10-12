@@ -87,8 +87,18 @@
           }
         },
         {
+            "name": "Priyanshu Paul",
+            "photo": "https://res.cloudinary.com/dgechlqls/image/upload/v1757613394/wswgapzmn25rjupyd00o.jpg",
+            "role": "Junior Member",
+            "social": {
+              "instagram": "https://www.instagram.com/priyanshu_paul_tsk?utm_source=qr&igsh=Nmt5ZGtpZmlnYjA2",
+              "facebook": "https://www.facebook.com/priyanshu.paul.965?mibextid=rS40aB7S9Ucbxw6v",
+              "linkedin": "https://www.linkedin.com/in/priyanshu-paul-582839327?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+            }
+          },
+        {
             "name": "Dibakar Sarmah",
-            "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757071755/1000238611-Picsart-AiImageEnhancer_-_DIBAKAR_SARMAH_uf445o.webp",
+            "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612178/1000238611-Picsart-AiImageEnhancer_-_DIBAKAR_SARMAH_age3fp.webp",
             "role": "Dev Wing Junior Member",
             "social": {
               "instagram": "",
@@ -184,6 +194,17 @@
               "linkedin": "https://www.linkedin.com/in/kaustab-karmakar-984437373?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
             }
           },
+          {
+            "name": "Kausthuv Narayan Medhi",
+            "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757531023/IMG20241102232232_-_KAUSTHUV_NARAYAN_MEDHI_e6lqgu.webp",
+            "role": "Junior Member",
+            "social": {
+              "instagram": "https://www.instagram.com/kausthuv_medhi/",
+              "facebook": "https://www.facebook.com/profile.php?id=KausthuvNarayanMedhi",
+              "linkedin": "https://www.linkedin.com/in/kausthuv-narayan-medhi-720a54323"
+            }
+          },
+          
           {
             "name": "Niladri Saikia",
             "year": "2025-26",
@@ -287,7 +308,17 @@
             "facebook": "https://www.facebook.com/share/16m7qZzoat/?mibextid=wwXIfr",
             "linkedin": "https://www.linkedin.com/in/shreya-markam-343416316?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
           }
-        },{
+        },
+        {
+            "name": "Dibakar Sarmah",
+            "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757612178/1000238611-Picsart-AiImageEnhancer_-_DIBAKAR_SARMAH_age3fp.webp",
+            "role": "Dev Wing Junior Member",
+            "social": {
+              "instagram": "",
+              "facebook": "",
+              "linkedin": "https://www.linkedin.com/in/dibakar-sarmah-93b7b3371?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+            }
+          },{
             "name": "Nilabh Sarmah",
             "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757529897/IMG-20250831-WA0028_-_NILABH_SARMAH_smy1sf.webp",
             "role": "ML Head",
@@ -316,6 +347,16 @@
               "instagram": "https://www.instagram.com/dishank_35117/",
               "facebook": "https://www.facebook.com/profile.php?id=61567024787802",
               "linkedin": "https://www.linkedin.com/in/dishank-choudhury-56b565318"
+            }
+          },
+          {
+            "name": "Kausthuv Narayan Medhi",
+            "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757531023/IMG20241102232232_-_KAUSTHUV_NARAYAN_MEDHI_e6lqgu.webp",
+            "role": "Junior Member",
+            "social": {
+              "instagram": "https://www.instagram.com/kausthuv_medhi/",
+              "facebook": "https://www.facebook.com/profile.php?id=KausthuvNarayanMedhi",
+              "linkedin": "https://www.linkedin.com/in/kausthuv-narayan-medhi-720a54323"
             }
           },
           {

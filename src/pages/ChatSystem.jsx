@@ -87,7 +87,6 @@ const ChatSystem = () => {
                 (profile?.email && profile.email.includes('admin')) ||
                 (user?.email && user.email.includes('admin'));
 
-            console.log('👑 Admin status:', adminStatus);
             setIsAdmin(adminStatus);
 
             // Setup admin subscription if user is admin
@@ -138,7 +137,6 @@ const ChatSystem = () => {
                         filter: `room=eq.${room}`
                     },
                     (payload) => {
-                        console.log('📨 New message received via real-time:', payload.new);
                         setMessages(prev => {
                             const exists = prev.some(msg => msg.id === payload.new.id);
                             if (!exists) {
@@ -157,13 +155,11 @@ const ChatSystem = () => {
                         filter: `room=eq.${room}`
                     },
                     (payload) => {
-                        console.log('🗑️ Message deleted via real-time:', payload.old);
                         setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
                     }
                 )
                 .subscribe((status) => {
                     setIsConnected(status === 'SUBSCRIBED');
-                    console.log('🔌 Real-time subscription status:', status);
                 });
 
             subscriptionRef.current = subscription;
@@ -181,7 +177,6 @@ const ChatSystem = () => {
                 supabase.removeChannel(adminSubscriptionRef.current);
             }
 
-            console.log('🛡️ Setting up admin real-time subscription for ALL rooms');
 
             const adminSubscription = supabase
                 .channel('admin-global-chat')
@@ -194,7 +189,6 @@ const ChatSystem = () => {
                         // No filter - listens to ALL rooms and ALL events
                     },
                     (payload) => {
-                        console.log('🛡️ ADMIN: Global event detected:', payload);
                         
                         // Handle different event types
                         if (payload.eventType === 'DELETE') {
@@ -213,11 +207,9 @@ const ChatSystem = () => {
                     }
                 )
                 .subscribe((status) => {
-                    console.log(`🛡️ Admin subscription status: ${status}`);
                 });
 
             adminSubscriptionRef.current = adminSubscription;
-            console.log('✅ Admin global subscription active');
 
         } catch (error) {
             console.error('Error setting up admin subscription:', error);
@@ -291,7 +283,6 @@ const ChatSystem = () => {
         if (!window.confirm('Are you sure you want to delete this message?')) return;
 
         try {
-            console.log('🛡️ Admin deleting message:', messageId);
             
             // Remove from local state immediately for better UX
             setMessages(prev => prev.filter(msg => msg.id !== messageId));
@@ -303,7 +294,6 @@ const ChatSystem = () => {
 
             if (error) throw error;
 
-            console.log('✅ Message deleted from database - should trigger real-time event');
             
         } catch (error) {
             console.error('Error deleting message:', error);
@@ -329,7 +319,6 @@ const ChatSystem = () => {
                 if (error) throw error;
                 
                 setMessages([]);
-                console.log('🗑️ Chat cleared by admin');
             } catch (error) {
                 console.error('Error clearing chat:', error);
                 alert('Failed to clear chat.');
@@ -353,7 +342,6 @@ const ChatSystem = () => {
                 if (error) throw error;
                 
                 setMessages([]);
-                console.log('🗑️ All chats cleared by admin');
             } catch (error) {
                 console.error('Error clearing all chats:', error);
                 alert('Failed to clear all chats.');
@@ -373,7 +361,7 @@ const ChatSystem = () => {
     return (
         <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white">
             {/* Mobile Header - Fixed */}
-            <div className="sticky top-0 z-50 bg-black/90 border-b border-cyan-500/30 backdrop-blur-lg md:hidden">
+            <div className="sticky top-0 z-1 bg-black/90 border-b border-cyan-500/30 backdrop-blur-lg md:hidden">
                 <div className="p-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -396,40 +384,30 @@ const ChatSystem = () => {
                     </div>
                     
                     {/* Room Dropdown for Mobile */}
-                    {/* <div className="mt-3 relative">
-                        <button
-                            onClick={() => setShowRoomDropdown(!showRoomDropdown)}
-                            className="w-full p-3 bg-gray-800/50 border border-cyan-500/30 rounded-lg flex items-center justify-between"
+                    <div className="mt-3 relative">
+                        <select
+                            value={room}
+                            onChange={(e) => setRoom(e.target.value)}
+                            className="w-full p-3 bg-gray-800/50 border border-cyan-500/30 rounded-lg text-white appearance-none cursor-pointer"
+                            style={{
+                                backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                                backgroundRepeat: 'no-repeat',
+                                backgroundPosition: 'right 12px center',
+                                backgroundSize: '16px',
+                                paddingRight: '40px'
+                            }}
                         >
-                            <div className="flex items-center gap-2">
-                                <span>{currentRoom?.icon}</span>
-                                <span className="text-cyan-300">{currentRoom?.name}</span>
-                            </div>
-                            <span className="text-cyan-400">▼</span>
-                        </button>
-                        
-                        {showRoomDropdown && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-gray-900 border border-cyan-500/30 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
-                                {rooms.map(roomItem => (
-                                    <button
-                                        key={roomItem.id}
-                                        onClick={() => {
-                                            setRoom(roomItem.id);
-                                            setShowRoomDropdown(false);
-                                        }}
-                                        className={`w-full p-3 text-left flex items-center gap-3 border-b border-cyan-500/10 last:border-b-0 ${
-                                            room === roomItem.id
-                                                ? 'bg-cyan-600/20 text-cyan-300'
-                                                : 'text-gray-300 hover:bg-gray-800'
-                                        }`}
-                                    >
-                                        <span className="text-lg">{roomItem.icon}</span>
-                                        <span>{roomItem.name}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div> */}
+                            {rooms.map(roomItem => (
+                                <option 
+                                    key={roomItem.id} 
+                                    value={roomItem.id}
+                                    className="bg-gray-800 text-white"
+                                >
+                                    {roomItem.icon} {roomItem.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -485,9 +463,9 @@ const ChatSystem = () => {
                     </div>
                 </div>
 
-                <div className="bg-black/70 border border-cyan-500/30 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg overflow-hidden">
+                <div className=" bg-black/70 border border-cyan-500/30 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg overflow-hidden">
                     {/* Desktop Room Selection */}
-                    <div className="border-b border-cyan-500/20 p-4 bg-gray-900/50">
+                    <div className="hidden md:block border-b border-cyan-500/20 p-4 bg-gray-900/50">
                         <div className="flex flex-wrap gap-2 justify-center">
                             {rooms.map(roomItem => (
                                 <button
