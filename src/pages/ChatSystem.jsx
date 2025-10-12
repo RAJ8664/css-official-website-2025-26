@@ -87,7 +87,6 @@ const ChatSystem = () => {
                 (profile?.email && profile.email.includes('admin')) ||
                 (user?.email && user.email.includes('admin'));
 
-            console.log('👑 Admin status:', adminStatus);
             setIsAdmin(adminStatus);
 
             // Setup admin subscription if user is admin
@@ -138,7 +137,6 @@ const ChatSystem = () => {
                         filter: `room=eq.${room}`
                     },
                     (payload) => {
-                        console.log('📨 New message received via real-time:', payload.new);
                         setMessages(prev => {
                             const exists = prev.some(msg => msg.id === payload.new.id);
                             if (!exists) {
@@ -157,13 +155,11 @@ const ChatSystem = () => {
                         filter: `room=eq.${room}`
                     },
                     (payload) => {
-                        console.log('🗑️ Message deleted via real-time:', payload.old);
                         setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
                     }
                 )
                 .subscribe((status) => {
                     setIsConnected(status === 'SUBSCRIBED');
-                    console.log('🔌 Real-time subscription status:', status);
                 });
 
             subscriptionRef.current = subscription;
@@ -181,7 +177,6 @@ const ChatSystem = () => {
                 supabase.removeChannel(adminSubscriptionRef.current);
             }
 
-            console.log('🛡️ Setting up admin real-time subscription for ALL rooms');
 
             const adminSubscription = supabase
                 .channel('admin-global-chat')
@@ -194,7 +189,6 @@ const ChatSystem = () => {
                         // No filter - listens to ALL rooms and ALL events
                     },
                     (payload) => {
-                        console.log('🛡️ ADMIN: Global event detected:', payload);
                         
                         // Handle different event types
                         if (payload.eventType === 'DELETE') {
@@ -213,11 +207,9 @@ const ChatSystem = () => {
                     }
                 )
                 .subscribe((status) => {
-                    console.log(`🛡️ Admin subscription status: ${status}`);
                 });
 
             adminSubscriptionRef.current = adminSubscription;
-            console.log('✅ Admin global subscription active');
 
         } catch (error) {
             console.error('Error setting up admin subscription:', error);
@@ -291,7 +283,6 @@ const ChatSystem = () => {
         if (!window.confirm('Are you sure you want to delete this message?')) return;
 
         try {
-            console.log('🛡️ Admin deleting message:', messageId);
             
             // Remove from local state immediately for better UX
             setMessages(prev => prev.filter(msg => msg.id !== messageId));
@@ -303,7 +294,6 @@ const ChatSystem = () => {
 
             if (error) throw error;
 
-            console.log('✅ Message deleted from database - should trigger real-time event');
             
         } catch (error) {
             console.error('Error deleting message:', error);
@@ -329,7 +319,6 @@ const ChatSystem = () => {
                 if (error) throw error;
                 
                 setMessages([]);
-                console.log('🗑️ Chat cleared by admin');
             } catch (error) {
                 console.error('Error clearing chat:', error);
                 alert('Failed to clear chat.');
@@ -353,7 +342,6 @@ const ChatSystem = () => {
                 if (error) throw error;
                 
                 setMessages([]);
-                console.log('🗑️ All chats cleared by admin');
             } catch (error) {
                 console.error('Error clearing all chats:', error);
                 alert('Failed to clear all chats.');
