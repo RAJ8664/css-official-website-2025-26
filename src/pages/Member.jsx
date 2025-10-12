@@ -11,7 +11,7 @@ import MemberCard from '../components/MemberCard'
 
 const Members = () => {
   const [flippedCards, setFlippedCards] = useState({})
-
+  
   const handleCardFlip = (cardId) => {
     setFlippedCards((prev) => ({
       ...prev,

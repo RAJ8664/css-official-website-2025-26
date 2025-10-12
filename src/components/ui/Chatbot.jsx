@@ -17,31 +17,73 @@ const Chatbot = () => {
 
   useEffect(scrollToBottom, [messages]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!isOpen) return;
-      if (
-        chatWidgetRef.current &&
-        !chatWidgetRef.current.contains(event.target) &&
-        chatLauncherRef.current &&
-        !chatLauncherRef.current.contains(event.target)
-      ) {
-        setIsOpen(false);
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (!isOpen) return;
+  //     if (
+  //       chatWidgetRef.current &&
+  //       !chatWidgetRef.current.contains(event.target) &&
+  //       chatLauncherRef.current &&
+  //       !chatLauncherRef.current.contains(event.target)
+  //     ) {
+  //       setIsOpen(false);
+  //     }
+  //   };
+
+  //   const handleScroll = () => {
+  //     if (isOpen) setIsOpen(false);
+  //   };
+
+  //   document.addEventListener('mousedown', handleClickOutside);
+  //   window.addEventListener('scroll', handleScroll, true);
+
+  //   return () => {
+  //     document.removeEventListener('mousedown', handleClickOutside);
+  //     window.removeEventListener('scroll', handleScroll, true);
+  //   };
+  // }, [isOpen]);
+
+ useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (!isOpen) return;
+    if (
+      chatWidgetRef.current &&
+      !chatWidgetRef.current.contains(event.target) &&
+      chatLauncherRef.current &&
+      !chatLauncherRef.current.contains(event.target)
+    ) {
+      setIsOpen(false);
+    }
+  };
+
+  let scrollTimer;
+  const handleScroll = () => {
+    if (!isOpen) return;
+    
+    // Clear previous timer
+    clearTimeout(scrollTimer);
+    
+    // Set a new timer - if this executes, it means scrolling has stopped
+    scrollTimer = setTimeout(() => {
+      // Only close if it's a significant scroll (not just keyboard appearing)
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile && isOpen) {
+        // Don't close on mobile scroll to avoid keyboard issues
+        return;
       }
-    };
+      setIsOpen(false);
+    }, 150); // Adjust delay as needed
+  };
 
-    const handleScroll = () => {
-      if (isOpen) setIsOpen(false);
-    };
+  document.addEventListener('mousedown', handleClickOutside);
+  window.addEventListener('scroll', handleScroll, true);
 
-    document.addEventListener('mousedown', handleClickOutside);
-    window.addEventListener('scroll', handleScroll, true);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('scroll', handleScroll, true);
-    };
-  }, [isOpen]);
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+    window.removeEventListener('scroll', handleScroll, true);
+    clearTimeout(scrollTimer);
+  };
+}, [isOpen]);
 
   const toggleChat = () => setIsOpen(!isOpen);
 
