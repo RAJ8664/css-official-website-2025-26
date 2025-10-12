@@ -5,6 +5,16 @@
       "members": {
         "2025-26": [
           {
+            "name": "Amborish Sarmah",
+            "photo": "https://res.cloudinary.com/dp4sknsba/image/upload/v1760262657/amborish_bhaiyaa_oe8p4q.jpg",
+            "role": "General Secretary",
+            "social": {
+              "instagram": "",
+              "facebook": "",
+              "linkedin": "https://www.linkedin.com/in/zix"
+            }
+          },
+          {
             "name": "Swapnil Dansana",
             "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757534745/IMG-20240719-WA0011_-_075_SWAPNIL_DANSANA_ukrr2c.webp",
             "role": "President",
@@ -12,16 +22,6 @@
               "instagram": "https://www.instagram.com/123sdgrim?igsh=MTBrNHVxbmd0bGN1Mw==",
               "facebook": "https://www.facebook.com/share/1RRtunZ81W/",
               "linkedin": "https://www.linkedin.com/in/swapnil-dansana-11baa7250?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
-            }
-          },
-          {
-            "name": "Amborish Sarmah",
-            "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757534907/Ambo_-_007_AMBORISH_SARMAH_svysmr.webp",
-            "role": "General Secretary",
-            "social": {
-              "instagram": "",
-              "facebook": "",
-              "linkedin": "https://www.linkedin.com/in/zix"
             }
           },
           {
@@ -51,6 +51,16 @@
       "name": "Executive Wing",
       "members": {
         "2025-26": [
+           {
+            "name": "Krish Bajoria",
+            "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757075014/55b53b07-e000-4680-91b7-4abc133e5c26_-_KRISH_BAJORIA_bey6id.webp",
+            "role": "Head",
+            "social": {
+              "instagram": "https://www.instagram.com/krish.bajoria05?igsh=YTU2bzhoamtqdm43",
+              "facebook": "",
+              "linkedin": "https://www.linkedin.com/in/krish-bajoria/"
+            }
+          },
           {
             "name": "Soumya Ranjan Dash",
             "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757073352/IMG-20250510-WA0179_-_SOUMYA_RANJAN_DASH_cn8yvz.webp",
@@ -71,16 +81,7 @@
               "linkedin": "https://www.linkedin.com/in/vedant-agarwal-70386327b"
             }
           },
-          {
-            "name": "Krish Bajoria",
-            "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757075014/55b53b07-e000-4680-91b7-4abc133e5c26_-_KRISH_BAJORIA_bey6id.webp",
-            "role": "Head",
-            "social": {
-              "instagram": "https://www.instagram.com/krish.bajoria05?igsh=YTU2bzhoamtqdm43",
-              "facebook": "",
-              "linkedin": "https://www.linkedin.com/in/krish-bajoria/"
-            }
-          },
+         
           {
             "name": "Raman Jain",
             "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757075257/IMG_20250901_142303_-_RAMAN_JAIN_syn2tz.webp",
