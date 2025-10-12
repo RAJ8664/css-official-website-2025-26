@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import eventsContent from "../constants/events";
-import { FaArrowRight, FaExternalLinkAlt, FaLock, FaCheck, FaHandPointer, FaInfoCircle } from "react-icons/fa";
+import { FaArrowRight, FaExternalLinkAlt, FaLock, FaCheck, FaHandPointer, FaInfoCircle, FaTrophy } from "react-icons/fa";
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
 import "../styles/eventsAnimation.css";
@@ -18,6 +18,7 @@ function EventCard({
   requiresAuth = false,
   onRegister,
   isRegistered = false,
+  isCompleted = false, // New prop for completed events
 }) {
   const [hovered, setHovered] = useState(false);
   const [registering, setRegistering] = useState(false);
@@ -50,6 +51,9 @@ function EventCard({
     if (status?.toLowerCase() === 'upcoming') {
       return "Tap for info & register";
     }
+    if (isCompleted) {
+      return "Tap for event details";
+    }
     return "Tap for more info";
   };
 
@@ -66,38 +70,61 @@ function EventCard({
           onClick={handleInteraction}
         >
           {/* Front */}
-          <div className="relative inset-0 backface-hidden bg-gray-700 rounded-xl overflow-hidden border border-cyan-500/20 shadow-2xl shadow-cyan-500/10 hover:border-cyan-400/60 hover:shadow-cyan-400/20 transition-all duration-500 min-h-[280px] sm:min-h-[320px] md:min-h-[370px] lg:min-h-[400px]">
+          <div className={`relative inset-0 backface-hidden bg-gray-700 rounded-xl overflow-hidden border shadow-2xl transition-all duration-500 min-h-[280px] sm:min-h-[320px] md:min-h-[370px] lg:min-h-[400px] ${
+            isCompleted 
+              ? 'border-green-500/20 shadow-green-500/10 hover:border-green-400/60 hover:shadow-green-400/20' 
+              : 'border-cyan-500/20 shadow-cyan-500/10 hover:border-cyan-400/60 hover:shadow-cyan-400/20'
+          }`}>
             {/* Mobile tap indicator - only show on touch devices and when not hovered */}
             {isTouchDevice && !hovered && (
-              <div className="absolute top-2 right-2 z-30 bg-cyan-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1 animate-pulse">
+              <div className={`absolute top-2 right-2 z-30 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1 animate-pulse ${
+                isCompleted ? 'bg-green-600/90' : 'bg-cyan-600/90'
+              }`}>
                 <FaHandPointer className="text-xs" /> 
                 <span className="hidden xs:inline">{getTapMessage()}</span>
                 <span className="xs:hidden">Tap</span>
               </div>
             )}
             
+            {/* Completed event badge */}
+            {isCompleted && (
+              <div className="absolute top-2 left-2 z-20 bg-green-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+                <FaTrophy className="text-xs" /> Completed
+              </div>
+            )}
+            
             {/* Auth required badge */}
-            {requiresAuth && !user && (
+            {requiresAuth && !user && !isCompleted && (
               <div className="absolute top-2 left-2 z-20 bg-red-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
                 <FaLock className="text-xs" /> Login Required
               </div>
             )}
             
             {/* Registered badge */}
-            {isRegistered && (
+            {isRegistered && !isCompleted && (
               <div className="absolute top-2 left-2 z-20 bg-green-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
                 <FaCheck className="text-xs" /> Registered
               </div>
             )}
 
             {/* Rest of front card content */}
-            <div className="relative inset-0 rounded-xl bg-cyan-500/5 opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className={`relative inset-0 rounded-xl opacity-70 group-hover:opacity-100 transition-opacity duration-500 ${
+              isCompleted ? 'bg-green-500/5' : 'bg-cyan-500/5'
+            }`}></div>
             <div className="relative inset-0 bg-tech-grid opacity-10"></div>
 
-            <div className="absolute top-2 left-2 w-2 h-2 border-t-2 border-l-2 border-cyan-500/70"></div>
-            <div className="absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 border-cyan-500/70"></div>
-            <div className="absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 border-cyan-500/70"></div>
-            <div className="absolute bottom-2 right-2 w-2 h-2 border-b-2 border-r-2 border-cyan-500/70"></div>
+            <div className={`absolute top-2 left-2 w-2 h-2 border-t-2 border-l-2 ${
+              isCompleted ? 'border-green-500/70' : 'border-cyan-500/70'
+            }`}></div>
+            <div className={`absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 ${
+              isCompleted ? 'border-green-500/70' : 'border-cyan-500/70'
+            }`}></div>
+            <div className={`absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 ${
+              isCompleted ? 'border-green-500/70' : 'border-cyan-500/70'
+            }`}></div>
+            <div className={`absolute bottom-2 right-2 w-2 h-2 border-b-2 border-r-2 ${
+              isCompleted ? 'border-green-500/70' : 'border-cyan-500/70'
+            }`}></div>
 
             {/* Image Container - Fixed for mobile */}
             <div className="absolute w-full h-full overflow-hidden">
@@ -107,7 +134,6 @@ function EventCard({
                 className="w-full h-full object-cover rounded-lg"
                 style={{ 
                   objectPosition: 'center',
-                  // Ensure image covers properly on all devices
                   minHeight: '100%',
                   minWidth: '100%'
                 }}
@@ -124,7 +150,9 @@ function EventCard({
               <h3 className="text-base sm:text-lg md:text-xl font-bold text-white line-clamp-1">
                 {name}
               </h3>
-              <p className="text-xs text-cyan-300 font-mono mt-1">
+              <p className={`text-xs font-mono mt-1 ${
+                isCompleted ? 'text-green-300' : 'text-cyan-300'
+              }`}>
                 {status}
               </p>
               <p className="text-xs text-gray-300 mt-1 line-clamp-2">
@@ -132,19 +160,37 @@ function EventCard({
               </p>
             </div>
 
-            <div className="absolute inset-0 rounded-xl border border-cyan-400/30 animate-pulse-slow pointer-events-none"></div>
+            <div className={`absolute inset-0 rounded-xl border animate-pulse-slow pointer-events-none ${
+              isCompleted ? 'border-green-400/30' : 'border-cyan-400/30'
+            }`}></div>
           </div>
 
           {/* Back */}
-          <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-xl overflow-hidden border border-cyan-500/50 shadow-2xl shadow-cyan-500/30 min-h-[280px] sm:min-h-[320px] md:min-h-[370px] lg:min-h-[400px]">
-            <div className="absolute inset-0 rounded-xl bg-cyan-500/10 opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className={`absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-xl overflow-hidden border shadow-2xl min-h-[280px] sm:min-h-[320px] md:min-h-[370px] lg:min-h-[400px] ${
+            isCompleted 
+              ? 'border-green-500/50 shadow-green-500/30' 
+              : 'border-cyan-500/50 shadow-cyan-500/30'
+          }`}>
+            <div className={`absolute inset-0 rounded-xl opacity-80 group-hover:opacity-100 transition-opacity duration-500 ${
+              isCompleted ? 'bg-green-500/10' : 'bg-cyan-500/10'
+            }`}></div>
             <div className="absolute inset-0 bg-circuit-pattern opacity-15"></div>
-            <div className="absolute inset-0 rounded-xl border-2 border-cyan-500/30 hover:border-cyan-400/50 transition-all duration-500"></div>
+            <div className={`absolute inset-0 rounded-xl border-2 hover:border-cyan-400/50 transition-all duration-500 ${
+              isCompleted ? 'border-green-500/30 hover:border-green-400/50' : 'border-cyan-500/30'
+            }`}></div>
 
-            <div className="absolute top-2 left-2 w-2 h-2 border-t-2 border-l-2 border-cyan-400/80"></div>
-            <div className="absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 border-cyan-400/80"></div>
-            <div className="absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 border-cyan-400/80"></div>
-            <div className="absolute bottom-2 right-2 w-2 h-2 border-b-2 border-r-2 border-cyan-400/80"></div>
+            <div className={`absolute top-2 left-2 w-2 h-2 border-t-2 border-l-2 ${
+              isCompleted ? 'border-green-400/80' : 'border-cyan-400/80'
+            }`}></div>
+            <div className={`absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 ${
+              isCompleted ? 'border-green-400/80' : 'border-cyan-400/80'
+            }`}></div>
+            <div className={`absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 ${
+              isCompleted ? 'border-green-400/80' : 'border-cyan-400/80'
+            }`}></div>
+            <div className={`absolute bottom-2 right-2 w-2 h-2 border-b-2 border-r-2 ${
+              isCompleted ? 'border-green-400/80' : 'border-cyan-400/80'
+            }`}></div>
 
             {/* Mobile back indicator - only show on touch devices */}
             {isTouchDevice && (
@@ -157,22 +203,38 @@ function EventCard({
 
             <div className="relative h-full flex flex-col justify-between p-3 sm:p-4 md:p-6 z-10">
               <div className="flex-1 overflow-hidden">
-                <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold mb-2 bg-gradient-to-r from-cyan-300 to-cyan-100 bg-clip-text text-transparent line-clamp-2">
+                <h3 className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold mb-2 bg-gradient-to-r bg-clip-text text-transparent line-clamp-2 ${
+                  isCompleted 
+                    ? 'from-green-300 to-green-100' 
+                    : 'from-cyan-300 to-cyan-100'
+                }`}>
                   {name}
                 </h3>
-                <p className="text-xs text-cyan-300 font-mono mb-2 sm:mb-3">
+                <p className={`text-xs font-mono mb-2 sm:mb-3 ${
+                  isCompleted ? 'text-green-300' : 'text-cyan-300'
+                }`}>
                   {status}
                 </p>
                 <p className="text-gray-300 mb-3 text-xs sm:text-sm">
                   {description}
                 </p>
-                <p className="text-xs text-cyan-200 mt-2">
-                  <strong className="text-cyan-400">Organizer: </strong>
+                <p className={`text-xs mt-2 ${
+                  isCompleted ? 'text-green-200' : 'text-cyan-200'
+                }`}>
+                  <strong className={isCompleted ? 'text-green-400' : 'text-cyan-400'}>Organizer: </strong>
                   {organizer}
                 </p>
+                
+                {/* Show completion message for completed events */}
+                {isCompleted && (
+                  <div className="mt-3 p-2 bg-green-900/30 border border-green-500/30 rounded text-xs text-green-200">
+                    <FaTrophy className="inline mr-1" />
+                    This event has been successfully completed. Stay tuned for future events!
+                  </div>
+                )}
               </div>
 
-              {registrationLink ? (
+              {!isCompleted && registrationLink ? (
                 <a
                   href={registrationLink}
                   target="_blank"
@@ -182,7 +244,7 @@ function EventCard({
                 >
                   Register Now <FaExternalLinkAlt className="text-xs" />
                 </a>
-              ) : onRegister ? (
+              ) : !isCompleted && onRegister ? (
                 <button
                   onClick={handleRegisterClick}
                   disabled={isRegistered || registering}
@@ -217,7 +279,9 @@ function EventCard({
               </div>
             </div>
 
-            <div className="absolute inset-0 rounded-xl border border-cyan-400/40 animate-pulse-slow pointer-events-none"></div>
+            <div className={`absolute inset-0 rounded-xl border animate-pulse-slow pointer-events-none ${
+              isCompleted ? 'border-green-400/40' : 'border-cyan-400/40'
+            }`}></div>
           </div>
         </div>
       </div>
@@ -263,7 +327,8 @@ export default function EventsList() {
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const sections = ["Upcoming", "Yearly", "Cultural", "Technical"];
+  // Updated sections to include Completed after Upcoming
+  const sections = ["Upcoming", "Completed", "Yearly", "Cultural", "Technical"];
 
   useEffect(() => {
     fetchDatabaseEvents();
@@ -308,6 +373,7 @@ export default function EventsList() {
       window.removeEventListener('eventDeleted', handleEventDeleted);
     };
   }, [user]);
+
   const fetchDatabaseEvents = async () => {
     try {
       const { data, error } = await supabase
@@ -355,6 +421,10 @@ export default function EventsList() {
     if (section === "Upcoming") {
       return databaseEvents.filter(event => 
         event.status?.toLowerCase() === 'upcoming' && event.is_active === true
+      );
+    } else if (section === "Completed") {
+      return databaseEvents.filter(event => 
+        event.status?.toLowerCase() === 'completed' && event.is_active === true
       );
     } else {
       const dbEvents = databaseEvents.filter(event => 
@@ -463,6 +533,7 @@ export default function EventsList() {
   const isDatabaseEvent = (event) => {
     return event.id && !event.isFromContent; 
   };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center">
@@ -521,14 +592,30 @@ export default function EventsList() {
 
           return (
             <div key={section} className="mb-8 sm:mb-12 md:mb-16 relative z-10">
-              <div className="flex items-center justify-center mb-6 sm:mb-8 md:mb-12 p-2 sm:p-4 md:p-6 bg-black/60 rounded-lg border border-cyan-500/30 relative overflow-hidden">
+              <div className={`flex items-center justify-center mb-6 sm:mb-8 md:mb-12 p-2 sm:p-4 md:p-6 bg-black/60 rounded-lg border relative overflow-hidden ${
+                section === "Completed" 
+                  ? "border-green-500/30" 
+                  : "border-cyan-500/30"
+              }`}>
                 <div className="absolute inset-0 bg-circuit-pattern opacity-10"></div>
                 {/* Cyberpunk border corners */}
-                <div className="absolute top-1 left-1 w-2 h-2 border-t-2 border-l-2 border-cyan-400"></div>
-                <div className="absolute top-1 right-1 w-2 h-2 border-t-2 border-r-2 border-cyan-400"></div>
-                <div className="absolute bottom-1 left-1 w-2 h-2 border-b-2 border-l-2 border-cyan-400"></div>
-                <div className="absolute bottom-1 right-1 w-2 h-2 border-b-2 border-r-2 border-cyan-400"></div>
-                <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold bg-gradient-to-r from-cyan-300 to-cyan-100 bg-clip-text text-transparent text-center">
+                <div className={`absolute top-1 left-1 w-2 h-2 border-t-2 border-l-2 ${
+                  section === "Completed" ? "border-green-400" : "border-cyan-400"
+                }`}></div>
+                <div className={`absolute top-1 right-1 w-2 h-2 border-t-2 border-r-2 ${
+                  section === "Completed" ? "border-green-400" : "border-cyan-400"
+                }`}></div>
+                <div className={`absolute bottom-1 left-1 w-2 h-2 border-b-2 border-l-2 ${
+                  section === "Completed" ? "border-green-400" : "border-cyan-400"
+                }`}></div>
+                <div className={`absolute bottom-1 right-1 w-2 h-2 border-b-2 border-r-2 ${
+                  section === "Completed" ? "border-green-400" : "border-cyan-400"
+                }`}></div>
+                <h2 className={`text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold bg-gradient-to-r bg-clip-text text-transparent text-center ${
+                  section === "Completed"
+                    ? "from-green-300 to-green-100"
+                    : "from-cyan-300 to-cyan-100"
+                }`}>
                   {section.toUpperCase()} EVENTS
                 </h2>
               </div>
@@ -546,9 +633,10 @@ export default function EventsList() {
                     image={event.poster_url || event['poster-url']}
                     registrationLink={event.registrationLink}
                     moreEvents={event.moreEvents}
-                    requiresAuth={isDatabaseEvent(event)} // Only database events require auth
-                    onRegister={isDatabaseEvent(event) ? () => handleEventRegistration(event.slug, event.name) : null}
+                    requiresAuth={isDatabaseEvent(event) && section !== "Completed"} // No auth needed for completed events
+                    onRegister={isDatabaseEvent(event) && section !== "Completed" ? () => handleEventRegistration(event.slug, event.name) : null}
                     isRegistered={isEventRegistered(event.slug)}
+                    isCompleted={section === "Completed"} // Pass completed status to card
                   />
                 ))}
               </div>
