@@ -17,71 +17,23 @@ const Chatbot = () => {
 
   useEffect(scrollToBottom, [messages]);
 
-  // useEffect(() => {
-  //   const handleClickOutside = (event) => {
-  //     if (!isOpen) return;
-  //     if (
-  //       chatWidgetRef.current &&
-  //       !chatWidgetRef.current.contains(event.target) &&
-  //       chatLauncherRef.current &&
-  //       !chatLauncherRef.current.contains(event.target)
-  //     ) {
-  //       setIsOpen(false);
-  //     }
-  //   };
+  const toggleChat = () => setIsOpen(!isOpen);
 
-  //   const handleScroll = () => {
-  //     if (isOpen) setIsOpen(false);
-  //   };
-
-  //   document.addEventListener('mousedown', handleClickOutside);
-  //   window.addEventListener('scroll', handleScroll, true);
-
-  //   return () => {
-  //     document.removeEventListener('mousedown', handleClickOutside);
-  //     window.removeEventListener('scroll', handleScroll, true);
-  //   };
-  // }, [isOpen]);
-
- useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (!isOpen) return;
-    if (
-      chatWidgetRef.current &&
-      !chatWidgetRef.current.contains(event.target) &&
-      chatLauncherRef.current &&
-      !chatLauncherRef.current.contains(event.target)
-    ) {
-      setIsOpen(false);
+  const sendToDialogflow = async (text, isEvent = false) => {
+    try {
+      const response = await fetch('/api/dialogflow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, sessionId: sessionId, isEvent: isEvent }),
+      });
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data.response;
+    } catch (error) {
+      console.error('Dialogflow Error:', error);
+      return 'Sorry, I am having trouble connecting. Please try again later.';
     }
   };
-
-  let scrollTimer;
-  const handleScroll = () => {
-    if (!isOpen) return;
-    
-    clearTimeout(scrollTimer);
-    
-    scrollTimer = setTimeout(() => {
-      const isMobile = window.innerWidth <= 768;
-      if (isMobile && isOpen) {
-        return;
-      }
-      setIsOpen(false);
-    }, 150); 
-  };
-
-  document.addEventListener('mousedown', handleClickOutside);
-  window.addEventListener('scroll', handleScroll, true);
-
-  return () => {
-    document.removeEventListener('mousedown', handleClickOutside);
-    window.removeEventListener('scroll', handleScroll, true);
-    clearTimeout(scrollTimer);
-  };
-}, [isOpen]);
-
-  const toggleChat = () => setIsOpen(!isOpen);
 
   const startConversation = async () => {
     setIsChatStarted(true);
@@ -91,29 +43,15 @@ const Chatbot = () => {
         setMessages([{ text: response, sender: 'bot' }]);
       }
     } catch (error) {
-  console.error(error);
-}
-
-  };
-
-  const sendToDialogflow = async (text, isEvent = false) => {
-    try {
-      const response = await fetch('http://localhost:5000/api/dialogflow', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, sessionId: sessionId, isEvent: isEvent }),
-      });
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      return data.response;
-    } catch {
-      return 'Sorry, I am having trouble connecting. Please try again later.';
+      console.error('Start conversation error:', error);
+      setMessages([{ text: 'Welcome! How can I help you today?', sender: 'bot' }]);
     }
   };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (inputValue.trim() === '' || isTyping) return;
+    
     const userMessage = inputValue.trim();
     setMessages((prev) => [...prev, { text: userMessage, sender: 'user' }]);
     setInputValue('');
@@ -125,7 +63,8 @@ const Chatbot = () => {
         setIsTyping(false);
         setMessages((prev) => [...prev, { text: botResponse, sender: 'bot' }]);
       }, 800);
-    } catch {
+    } catch (error) {
+      console.error('Send message error:', error);
       setIsTyping(false);
       setMessages((prev) => [...prev, { text: 'Sorry, something went wrong. Please try again.', sender: 'bot' }]);
     }
@@ -140,7 +79,9 @@ const Chatbot = () => {
   return (
     <>
       <div className="chat-launcher" onClick={toggleChat} ref={chatLauncherRef}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
       </div>
 
       <div className={`chat-widget ${isOpen ? 'active' : ''}`} ref={chatWidgetRef}>
@@ -149,7 +90,10 @@ const Chatbot = () => {
             <h3 className="header-title">HelpBot</h3>
             {isChatStarted && (
               <button className="icon-btn" onClick={resetChat} title="Start new conversation">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
               </button>
             )}
           </div>
@@ -160,7 +104,13 @@ const Chatbot = () => {
           {!isChatStarted ? (
             <div className="welcome-screen">
               <div className="robot-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8V8H12Z" /><path d="M16 8V4H20V8H16Z" /><path d="M12 12V10H16V12H12Z" /><path d="M18 18H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z" /><path d="M12 16h.01" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 8V4H8V8H12Z" />
+                  <path d="M16 8V4H20V8H16Z" />
+                  <path d="M12 12V10H16V12H12Z" />
+                  <path d="M18 18H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z" />
+                  <path d="M12 16h.01" />
+                </svg>
               </div>
               <h2>Welcome to HelpBot</h2>
               <p>How can we assist you today?</p>
@@ -188,9 +138,19 @@ const Chatbot = () => {
         {isChatStarted && (
           <div className="chat-footer">
             <form onSubmit={handleSendMessage}>
-              <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Type your message..." autoComplete="off" disabled={isTyping} />
+              <input 
+                type="text" 
+                value={inputValue} 
+                onChange={(e) => setInputValue(e.target.value)} 
+                placeholder="Type your message..." 
+                autoComplete="off" 
+                disabled={isTyping} 
+              />
               <button type="submit" className="send-btn" disabled={isTyping}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
               </button>
             </form>
           </div>

@@ -16,43 +16,13 @@
           }
         },
         {
-          "name": "Rupjyoti Patgiri",
-          "role": "Dev Wing Head",
-          "year": "2025-26",
-          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757613198/RUPJYOTI_PATGIRI_2312123_-_RUPJYOTI_PATGIRI_qebn6t.webp",
-          "social": {
-            "instagram": "https://www.instagram.com/rup_jyoti019/",
-            "facebook": "https://www.facebook.com/profile.php?id=61553281235341",
-            "linkedin": "https://www.linkedin.com/in/rupjyoti-patgiri-6ab78628b/"
-          }
-        },{
             "name": "Nilabh Sarmah",
             "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757529897/IMG-20250831-WA0028_-_NILABH_SARMAH_smy1sf.webp",
-            "role": "Head",
+            "role": "ML Head",
             "social": {
               "instagram": "https://www.instagram.com/nilabh.sarmah/",
               "facebook": "https://www.facebook.com/share/1AwnNYhX3Q/",
               "linkedin": "https://www.linkedin.com/in/nilabh-sarmah"
-            }
-          },
-          {
-            "name": "Nabarun Dutta Talukdar",
-            "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757530022/CSSphoto_-_NABARUN_DUTTA_TALUKDAR_wzsv6m.webp",
-            "role": "Head",
-            "social": {
-              "instagram": "https://www.instagram.com/nabarun._?igsh=eDV5ZWFmdnl6NGVx",
-              "facebook": "https://www.facebook.com/share/1CKdnD57Tv/",
-              "linkedin": "https://www.linkedin.com/in/nabarun-talukdar-606295278?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
-            }
-          },
-          {
-            "name": "Vishara Sangule",
-            "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757530184/WhatsApp_Image_2025-09-02_at_01.15.53_2e3d670d_-_VISHARA_SANGULE_pzdpd0.webp",
-            "role": "Head",
-            "social": {
-              "instagram": "https://www.instagram.com/_vishara__/",
-              "facebook": "https://www.facebook.com/profile.php?id=61560040042860",
-              "linkedin": "https://www.linkedin.com/in/vishara-sangule"
             }
           }
       ]
@@ -174,7 +144,18 @@
             "facebook": "https://www.facebook.com/nibir.deka.605645",
             "linkedin": "https://www.linkedin.com/in/nibir-deka-0a8636331/"
           }
-        }
+        },
+         {
+            "name": "Niladri Saikia",
+            "year": "2025-26",
+            "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757530497/20250831_230146_-_NILADRI_SAIKIA_iypljp.webp",
+            "role": "Junior Member",
+            "social": {
+              "instagram": "https://www.instagram.com/niladri_saikia?igsh=MTZ2NmZxdG9lMjl0YQ==",
+              "facebook": "https://www.facebook.com/share/19FLv54Cmh/",
+              "linkedin": "https://www.linkedin.com/in/niladri-saikia-a3aa56332?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+            }
+          }
       ]
     },
     "ml": {
@@ -234,6 +215,16 @@
               "facebook": "https://www.facebook.com/share/19FLv54Cmh/",
               "linkedin": "https://www.linkedin.com/in/niladri-saikia-a3aa56332?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
             }
+          },
+          {
+            "name":"Kausthuv Narayan Medhi ",
+            "photo":"https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757531023/IMG20241102232232_-_KAUSTHUV_NARAYAN_MEDHI_e6lqgu.webp",
+            "role":"Ml Wing Junior Member",
+            "social": {
+              "instagram":"kausthuv_medhi",
+              "facebook":"Kausthuv Narayan Medhi ",
+              "linkedin":"https://www.linkedin.com/in/kausthuv-narayan-medhi-720a54323"   
+             }
           }
       ]
     },
@@ -250,17 +241,6 @@
             "instagram": "https://www.instagram.com/subhajyoti_dey_?igsh=MW8yZ2RxNDA1a2lk",
             "facebook": "https://www.facebook.com/share/19kx2bddba/",
             "linkedin": "https://www.linkedin.com/in/subhajyoti-dey-635922235"
-          }
-        },
-        {
-          "name": "Rupjyoti Patgiri",
-          "role": "Dev Wing Head",
-          "year": "2025-26",
-          "photo": "https://res.cloudinary.com/dfdiplnix/image/upload/v1757613198/RUPJYOTI_PATGIRI_2312123_-_RUPJYOTI_PATGIRI_qebn6t.webp",
-          "social": {
-            "instagram": "https://www.instagram.com/rup_jyoti019/",
-            "facebook": "https://www.facebook.com/profile.php?id=61553281235341",
-            "linkedin": "https://www.linkedin.com/in/rupjyoti-patgiri-6ab78628b/"
           }
         },
         {
@@ -341,33 +321,14 @@
           },{
             "name": "Nilabh Sarmah",
             "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757529897/IMG-20250831-WA0028_-_NILABH_SARMAH_smy1sf.webp",
-            "role": "Head",
+            "role": "ML Head",
             "social": {
               "instagram": "https://www.instagram.com/nilabh.sarmah/",
               "facebook": "https://www.facebook.com/share/1AwnNYhX3Q/",
               "linkedin": "https://www.linkedin.com/in/nilabh-sarmah"
             }
           },
-          {
-            "name": "Nabarun Dutta Talukdar",
-            "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757530022/CSSphoto_-_NABARUN_DUTTA_TALUKDAR_wzsv6m.webp",
-            "role": "Head",
-            "social": {
-              "instagram": "https://www.instagram.com/nabarun._?igsh=eDV5ZWFmdnl6NGVx",
-              "facebook": "https://www.facebook.com/share/1CKdnD57Tv/",
-              "linkedin": "https://www.linkedin.com/in/nabarun-talukdar-606295278?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
-            }
-          },
-          {
-            "name": "Vishara Sangule",
-            "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757530184/WhatsApp_Image_2025-09-02_at_01.15.53_2e3d670d_-_VISHARA_SANGULE_pzdpd0.webp",
-            "role": "Head",
-            "social": {
-              "instagram": "https://www.instagram.com/_vishara__/",
-              "facebook": "https://www.facebook.com/profile.php?id=61560040042860",
-              "linkedin": "https://www.linkedin.com/in/vishara-sangule"
-            }
-          },{
+         {
             "name": "Swapnil Buragohain",
             "photo": "https://res.cloudinary.com/dcdxyfnfo/image/upload/v1757530888/profile_-_SWAPNIL_BURAGOHAIN_daa6sn.webp",
             "role": "Junior Member",
