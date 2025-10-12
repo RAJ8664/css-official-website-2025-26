@@ -55,13 +55,13 @@ const Wings = () => {
 
   // Emojis for each wing
   const wingImages = [
-    '👑', // Executive Wing
-    '💻', // Dev Wing
-    '🧠', // CP Wing
-    '🤖', // ML Wing
-    '📢', // PR Wing
-    '🎨', // Design Wing
-    '📝', // Literature Wing
+    '', // Executive Wing
+    '', // Dev Wing
+    '', // CP Wing
+    '', // ML Wing
+    '', // PR Wing
+    '', // Design Wing
+    '', // Literature Wing
   ]
 
   // Animation variants for timeline markers

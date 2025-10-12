@@ -22,6 +22,7 @@ import Footer from './components/Footer'
 import Materials from './pages/Materials'
 import ChatSystem from './pages/ChatSystem'
 import Leaderboard from './pages/Leaderboard'
+import ScrollToTop from './components/ScrolltoTop'
 
 // ADD: ProtectedRoute component inside this file
 const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
@@ -83,6 +84,7 @@ const App = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <NavbarWrapper />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -144,7 +146,7 @@ const App = () => {
         </Routes>
         <Footer />
       </BrowserRouter>
-    // </AuthProvider>
+    </AuthProvider>
   );
 };
 
