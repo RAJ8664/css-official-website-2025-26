@@ -47,6 +47,15 @@ const PILLARS_TESTIMONIALS = [
   }
 ];
 
+const SPONSORS_DATA = [
+  {
+    name: "Pizza Hut",
+    logo: "https://res.cloudinary.com/dp4sknsba/image/upload/v1760259545/pizza_pos_ua3zyu.jpg",
+    href: "https://res.cloudinary.com/dp4sknsba/image/upload/v1760259545/pizza_pos_ua3zyu.jpg"
+  }
+]
+
+
 // Preload critical images
 const preloadImages = () => {
   if (typeof window === 'undefined') return;
@@ -149,6 +158,7 @@ const LoadingScreen = React.memo(({ loadingProgress }) => (
   </div>
 ));
 
+
 function Home() {
   const [showContent, setShowContent] = useState(false);
   const [input, setInput] = useState("");
@@ -160,7 +170,6 @@ function Home() {
   const svgRef = useRef(null);
   const animationRef = useRef(null);
   const videoRef = useRef(null);
-
   
 
   // Set mounted state
@@ -565,6 +574,8 @@ function Home() {
 
         {showNavbar && <NavbarDemo />}
 
+       
+
         {/* About Section - Reduced padding for mobile */}
         <section id="about" className="about relative min-h-[65vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-4 py-1 md:py-3.5 overflow-hidden">
           <div className="relative z-10 max-w-6xl w-full flex flex-col md:flex-row items-center gap-6 md:gap-10">
@@ -621,6 +632,92 @@ function Home() {
             </div>
           </div>
         </section>
+
+        {/* Sponsors Section */}
+        <section className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-3 py-1 md:py-7 overflow-hidden">
+  {/* Main Content */}
+  <div className="relative z-10 w-full max-w-7xl">
+    {/* Section Header */}
+    <div className="text-center mb-8 md:mb-16 px-2">
+      <div className="flex items-center justify-center mb-4 md:mb-6">
+        <div className="w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full mr-1 md:mr-2 animate-pulse"></div>
+        <div className="w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full mr-1 md:mr-2 animate-pulse" style={{animationDelay: '0.2s'}}></div>
+        <div className="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full mr-1 md:mr-2 animate-pulse" style={{animationDelay: '0.4s'}}></div>
+        <span className="text-cyan-400 font-mono text-xs md:text-sm bg-cyan-900/30 px-3 py-1 rounded-full border border-cyan-500/30">
+          SPONSORS_TERMINAL
+        </span>
+      </div>
+      
+      <h2 className="text-2xl md:text-6xl font-bold text-white mb-3 md:mb-6 font-mono">
+        <span className="text-cyan-400">$~ </span>
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-green-400 animate-gradient bg-300%">
+          Our Valued Sponsor
+        </span>
+      </h2>
+      
+      <p className="text-sm md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed bg-black/30 px-6 py-3 rounded-lg border border-cyan-500/20">
+        We are grateful for the support from our partner who helps us empower the next generation of tech leaders.
+      </p>
+    </div>
+
+    {/* Single Sponsor Display */}
+    <div className="bg-gradient-to-br from-black/60 to-cyan-900/20 rounded-2xl md:rounded-3xl border border-cyan-500/30 backdrop-blur-md shadow-2xl shadow-cyan-500/20 overflow-hidden p-6 md:p-12 relative">
+      {/* Animated background elements */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
+      <div className="absolute -top-10 -right-10 w-20 h-20 bg-cyan-400/10 rounded-full blur-xl"></div>
+      <div className="absolute -bottom-10 -left-10 w-20 h-20 bg-purple-400/10 rounded-full blur-xl"></div>
+      
+      <div className="flex flex-col items-center justify-center relative z-10">
+        {SPONSORS_DATA.length > 0 && (
+          <a
+            href={SPONSORS_DATA[0].href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative flex flex-col items-center justify-center p-8 md:p-12 bg-gradient-to-br from-gray-900/80 to-cyan-900/20 rounded-2xl border border-cyan-500/30 hover:border-cyan-400 transition-all duration-500 transform hover:scale-105 w-full max-w-2xl hover:shadow-2xl hover:shadow-cyan-500/30"
+          >
+            {/* Hover glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/10 to-cyan-500/0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            
+            {/* Sponsor Logo - BIGGER SIZE */}
+            <div className="relative z-10 p-6 bg-white/5 rounded-2xl border border-cyan-500/20 group-hover:border-cyan-400/50 transition-all duration-300 w-full max-w-lg">
+              <img
+                src={SPONSORS_DATA[0].logo}
+                alt={`${SPONSORS_DATA[0].name} logo`}
+                loading="lazy"
+                className="h-32 md:h-48 w-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:brightness-110"
+              />
+            </div>
+            
+            {/* Sponsor Name */}
+            <p className="mt-8 text-2xl md:text-4xl font-mono font-bold text-gray-300 group-hover:text-white transition-colors duration-300 bg-black/30 px-8 py-3 rounded-full border border-cyan-500/20 group-hover:border-cyan-400">
+              {SPONSORS_DATA[0].name}
+            </p>
+            
+            {/* Visit Website Text */}
+            <div className="mt-6 flex items-center text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
+              <span className="text-lg md:text-xl font-mono mr-3">Visit Website</span>
+              <svg className="w-5 h-5 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </div>
+          </a>
+        )}
+      </div>
+    </div>
+
+    {/* CTA Section */}
+    <div className="mt-8 md:mt-16 text-center">
+      <div className="inline-flex flex-col md:flex-row items-center gap-4 md:gap-6 px-6 py-4 rounded-2xl bg-gradient-to-r from-cyan-900/30 to-purple-900/30 border border-cyan-500/30 backdrop-blur-md">
+        <span className="text-cyan-400 font-mono text-sm md:text-base">
+          $~ become-a-sponsor --help
+        </span>
+        <button className="px-6 py-2 bg-cyan-500 hover:bg-cyan-400 text-white font-mono text-sm rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/30">
+          Join as Sponsor
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
 
         {/* Announcement Section */}
         <section className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex flex-col items-center justify-center px-3 py-1 md:py-7 overflow-hidden">

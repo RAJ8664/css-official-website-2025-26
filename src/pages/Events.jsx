@@ -163,7 +163,7 @@ function EventCard({
                 <p className="text-xs text-cyan-300 font-mono mb-2 sm:mb-3">
                   {status}
                 </p>
-                <p className="text-gray-300 mb-3 text-xs sm:text-sm line-clamp-3 md:line-clamp-4">
+                <p className="text-gray-300 mb-3 text-xs sm:text-sm">
                   {description}
                 </p>
                 <p className="text-xs text-cyan-200 mt-2">
@@ -226,7 +226,7 @@ function EventCard({
       {Array.isArray(moreEvents) && moreEvents.length > 0 && slug && (
         <Link
           to={`/events/${slug}`}
-          className="mb-2 mt-2 flex items-center justify-center gap-1 text-cyan-400 hover:text-cyan-300 transition-colors duration-300 text-sm sm:text-base underline"
+          className="mb-2 mt-2 bg-red flex items-center justify-center gap-1 text-cyan-400 hover:text-cyan-300 transition-colors duration-300 text-sm sm:text-base underline"
         >
           View More Events <FaArrowRight className="text-xs" />
         </Link>

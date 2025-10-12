@@ -208,7 +208,7 @@ const eventsContent = {
         venue: "",
         organizer: "Computer Science Society",
         registrationLink: null,
-        "poster-url": "https://res.cloudinary.com/dx8jytou0/image/upload/f_webp/v1757498384/Screenshot_2025-09-10_153113_qfie2r.png",
+        "poster-url": "https://res.cloudinary.com/dp4sknsba/image/upload/v1760263115/farewell_dlwgfr.png",
         
       },
 

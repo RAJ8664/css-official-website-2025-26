@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { FaSignInAlt } from 'react-icons/fa'
+import { MdAccountCircle } from "react-icons/md";
 
 const menuItems = [
   { path: '/', label: 'Home' },
@@ -12,6 +13,7 @@ const menuItems = [
   { path: '/wings', label: 'Wings' },
   { path: '/chat', label: 'Chat' },
   { path: '/materials', label: 'Materials' },
+  { path: '/editorials', label: 'Editorials' }
 ]
 
 export const NavbarDemo = () => {
@@ -229,7 +231,7 @@ export const NavbarDemo = () => {
                     variants={variants}
                     whileHover="authHover"
                   >
-                    <FaSignInAlt className="text-lg text-[#64ffda]" />
+                    <MdAccountCircle  className="text-lg size-5 text-[#64ffda]" />
                     <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-[#64ffda] rounded-full animate-pulse opacity-100"></div>
                   </motion.div>
                 </Link>
