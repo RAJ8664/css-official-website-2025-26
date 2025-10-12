@@ -8,4 +8,4 @@
     { "source": "/api/dialogflow", "destination": "/api/dialogflow" },
     { "source": "/(.*)", "destination": "/" }
   ]
-}git add vercel.json
+}
