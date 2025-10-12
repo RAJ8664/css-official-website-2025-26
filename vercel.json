@@ -1,6 +1,11 @@
 {
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/api/dialogflow", "destination": "/api/dialogflow" },
     { "source": "/(.*)", "destination": "/" }
   ]
-}
+}git add vercel.json
