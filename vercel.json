@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "rewrites": [
     { "source": "/api/dialogflow", "destination": "/api/dialogflow" },
     { "source": "/(.*)", "destination": "/" }
