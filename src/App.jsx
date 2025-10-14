@@ -20,7 +20,7 @@ import AdminRoute from './components/AdminRoute'
 import AdminDashboard from './pages/AdminDashboard'
 import Footer from './components/Footer'
 import Materials from './pages/Materials'
-import ChatSystem from './pages/ChatSystem'
+// import ChatSystem from './pages/ChatSystem'
 import Leaderboard from './pages/Leaderboard'
 import ScrollToTop from './components/ScrolltoTop'
 
@@ -103,7 +103,7 @@ const App = () => {
           } />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/otp-verification" element={<OtpVerification />} />
-          <Route path="/chat" element={<ChatSystem />} /> 
+          {/* <Route path="/chat" element={<ChatSystem />} />  */}
           
           {/* Protected Routes */}
            <Route 
