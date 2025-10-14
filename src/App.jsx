@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Member from './pages/Member'
 import Home from './pages/Home'  
@@ -23,6 +23,8 @@ import Materials from './pages/Materials'
 import ChatSystem from './pages/ChatSystem'
 import Leaderboard from './pages/Leaderboard'
 import ScrollToTop from './components/ScrolltoTop'
+
+import { initGA, logPageView } from './utils/analytics';
 
 // ADD: ProtectedRoute component inside this file
 const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
@@ -72,18 +74,34 @@ const GuestRoute = ({ children }) => {
 
 const NavbarWrapper = () => {
     const location = useLocation();
-        if (location.pathname === '/') {
+    if (location.pathname === '/') {
         return null;
     }
     
     return <NavbarDemo />;
 };
 
+const AnalyticsTracker = () => {
+    const location = useLocation();
+    
+    useEffect(() => {
+        
+        logPageView(location.pathname + location.search);
+    }, [location]);
+    
+    return null;
+};
 
 const App = () => {
+ 
+  useEffect(() => {
+    initGA();
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>
+        <AnalyticsTracker />
         <ScrollToTop />
         <NavbarWrapper />
         <Routes>
@@ -95,7 +113,6 @@ const App = () => {
           <Route path="/events/:slug" element={<MoreEvents />} />
           <Route path="/editorials" element={<EditorialsComingSoon />} />
           <Route path="/materials" element={<Materials />} />
-          <Route path="/editorials" element={<EditorialsComingSoon />} />
           <Route path="/auth" element={
             <GuestRoute>
                 <Auth />
