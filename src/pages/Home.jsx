@@ -51,7 +51,7 @@ const SPONSORS_DATA = [
   {
     name: "Pizza Hut",
     logo: "https://res.cloudinary.com/dp4sknsba/image/upload/v1760259545/pizza_pos_ua3zyu.jpg",
-    href: "https://res.cloudinary.com/dp4sknsba/image/upload/v1760259545/pizza_pos_ua3zyu.jpg"
+    href: "https://www.pizzahut.co.in"
   }
 ]
 
