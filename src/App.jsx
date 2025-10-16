@@ -20,15 +20,16 @@ import AdminRoute from './components/AdminRoute'
 import AdminDashboard from './pages/AdminDashboard'
 import Footer from './components/Footer'
 import Materials from './pages/Materials'
-// import ChatSystem from './pages/ChatSystem'
+import ChatSystem from './pages/ChatSystem'
 import Leaderboard from './pages/Leaderboard'
 import ScrollToTop from './components/ScrolltoTop'
 
 import { initGA, logPageView } from './utils/analytics';
+import CollegeVerification from './pages/CollegeEmailVerification'
 
 // ADD: ProtectedRoute component inside this file
-const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
-    const { user, loading, requiresProfileCompletion } = useAuth();
+const ProtectedRoute = ({ children, requireProfileCompletion = false, requireCollegeVerification = false }) => {
+    const { user, loading, requiresProfileCompletion, requiresCollegeVerification } = useAuth();
     
     if (loading) {
         return (
@@ -47,6 +48,9 @@ const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
 
     if (requireProfileCompletion && requiresProfileCompletion) {
         return <Navigate to="/complete-profile" replace />;
+    }
+    if (requireCollegeVerification && requiresCollegeVerification) {
+        return <Navigate to="/college-verification" replace />;
     }
 
     return children;
@@ -113,6 +117,7 @@ const App = () => {
           <Route path="/events/:slug" element={<MoreEvents />} />
           <Route path="/editorials" element={<EditorialsComingSoon />} />
           <Route path="/materials" element={<Materials />} />
+          <Route path="/college-verification" element={<CollegeVerification />} />
           <Route path="/auth" element={
             <GuestRoute>
                 <Auth />
@@ -120,8 +125,12 @@ const App = () => {
           } />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/otp-verification" element={<OtpVerification />} />
-          {/* <Route path="/chat" element={<ChatSystem />} />  */}
-          
+          <Route path="/chat" element={
+            <ProtectedRoute requireCollegeVerification={true}>
+              <ChatSystem /> 
+            </ProtectedRoute>
+          } />
+
           {/* Protected Routes */}
            <Route 
             path="/complete-profile" 

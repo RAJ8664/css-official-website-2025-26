@@ -1,7 +1,6 @@
 import React from 'react';
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { supabase } from '../supabaseClient';
-
 const AuthContext = createContext({});
 
 export const useAuth = () => useContext(AuthContext);
@@ -11,11 +10,23 @@ const AuthProvider = ({ children }) => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [requiresProfileCompletion, setRequiresProfileCompletion] = useState(false);
-    
+    const [requiresCollegeVerification, setRequiresCollegeVerification] = useState(false);
     
     const initializedRef = useRef(false);
     const processingAuthChangeRef = useRef(false);
+   
 
+    const isCollegeEmail = (email) => {
+        const collegeDomains = [
+            'nits.ac.in', 'cse.nits.ac.in', 'ece.nits.ac.in', 'eee.nits.ac.in', 
+            'me.nits.ac.in', 'ce.nits.ac.in', 'maths.nits.ac.in',
+            'physics.nits.ac.in', 'chemistry.nits.ac.in', 'hss.nits.ac.in', 'mba.nits.ac.in'
+        ];
+        
+        if (!email) return false;
+        const domain = email.toLowerCase().split('@')[1];
+        return collegeDomains.includes(domain);
+    };
     const fetchProfile = async (userId) => {
         try {
             const { data, error } = await supabase
@@ -42,6 +53,15 @@ const AuthProvider = ({ children }) => {
     const checkProfileCompletion = (profileData) => {
         return profileData && profileData.full_name && profileData.scholar_id;
     };
+     const checkCollegeVerification = (profileData) => {
+        if (!profileData) return false;
+        
+        // User is verified if they used college email during signup OR manually verified
+        const signedUpWithCollegeEmail = isCollegeEmail(profileData.email);
+        const hasVerifiedCollegeEmail = profileData.college_email_verified === true;
+        
+        return signedUpWithCollegeEmail || hasVerifiedCollegeEmail;
+    };
 
     const processAuthSession = async (session, source) => {
         // Prevent concurrent processing
@@ -60,10 +80,19 @@ const AuthProvider = ({ children }) => {
                 
                 const profileComplete = checkProfileCompletion(userProfile);
                 setRequiresProfileCompletion(!profileComplete);
+
+                const collegeVerified = checkCollegeVerification(userProfile);
+                setRequiresCollegeVerification(!collegeVerified);
+
+                // Redirect logic based on verification status
+                if (window.location.pathname === '/chat' && !collegeVerified) {
+                    navigate('/college-verification');
+                }
             } else {
                 setUser(null);
                 setProfile(null);
                 setRequiresProfileCompletion(false);
+                setRequiresCollegeVerification(false);
             }
         } catch (error) {
             console.error('❌ Error processing auth session:', error);
@@ -186,11 +215,14 @@ const AuthProvider = ({ children }) => {
         profile,
         loading,
         requiresProfileCompletion,
+        requiresCollegeVerification,
+        isCollegeEmail,
         refreshProfile: async () => {
             if (user) {
                 const userProfile = await fetchProfile(user.id);
                 setProfile(userProfile);
                 setRequiresProfileCompletion(!checkProfileCompletion(userProfile));
+                setRequiresCollegeVerification(!checkCollegeVerification(userProfile));
                 return userProfile;
             }
         }
