@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Member from './pages/Member'
 import Home from './pages/Home'  
-import { NavbarDemo } from './components/Navbar'
+import { NavbarDemo } from './components/NavbarDiwali';
 import Events from './pages/Events'
 import MoreEvents from './pages/MoreEvents'
 import Auth from './pages/Auth';
@@ -25,10 +25,12 @@ import Leaderboard from './pages/Leaderboard'
 import ScrollToTop from './components/ScrolltoTop'
 
 import { initGA, logPageView } from './utils/analytics';
+import DiwaliWidget from './components/DiwaliWidget';
+// import CollegeVerification from './pages/CollegeEmailVerification'
 
 // ADD: ProtectedRoute component inside this file
-const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
-    const { user, loading, requiresProfileCompletion } = useAuth();
+const ProtectedRoute = ({ children, requireProfileCompletion = false, requireCollegeVerification = false }) => {
+    const { user, loading, requiresProfileCompletion, requiresCollegeVerification } = useAuth();
     
     if (loading) {
         return (
@@ -47,6 +49,9 @@ const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
 
     if (requireProfileCompletion && requiresProfileCompletion) {
         return <Navigate to="/complete-profile" replace />;
+    }
+    if (requireCollegeVerification && requiresCollegeVerification) {
+        return <Navigate to="/college-verification" replace />;
     }
 
     return children;
@@ -92,6 +97,15 @@ const AnalyticsTracker = () => {
     return null;
 };
 
+// Add this component to ensure consistent background
+const PageWrapper = ({ children }) => {
+    return (
+        <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)]">
+            {children}
+        </div>
+    );
+};
+
 const App = () => {
  
   useEffect(() => {
@@ -103,65 +117,140 @@ const App = () => {
       <BrowserRouter>
         <AnalyticsTracker />
         <ScrollToTop />
-        <NavbarWrapper />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/members" element={<Member />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/wings" element={<Wings />} />
-          <Route path="/developers" element={<Developers />} />
-          <Route path="/events/:slug" element={<MoreEvents />} />
-          <Route path="/editorials" element={<EditorialsComingSoon />} />
-          <Route path="/materials" element={<Materials />} />
-          <Route path="/auth" element={
-            <GuestRoute>
-                <Auth />
-            </GuestRoute>
-          } />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/otp-verification" element={<OtpVerification />} />
-          {/* <Route path="/chat" element={<ChatSystem />} />  */}
+        
+        {/* Main app container with consistent background */}
+        <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)]">
+          <NavbarWrapper />
           
-          {/* Protected Routes */}
-           <Route 
-            path="/complete-profile" 
-            element={
-              <ProtectedRoute >
-                <CompleteProfile />
-              </ProtectedRoute>
-            } 
-          />
-           <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute requireProfileCompletion={true}>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/leaderboard" 
-            element={
-              <ProtectedRoute requireProfileCompletion={true}>
-                <Leaderboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute requireProfileCompletion={true}>
-                <AdminRoute>
-                  <AdminDashboard />
-                </AdminRoute>
-              </ProtectedRoute>
-            } 
-          /> 
-          
-          {/* Catch all route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        <Footer />
+          {/* Content area - ensures no white gaps */}
+          <div className="relative">
+            <Routes>
+              <Route path="/" element={
+                <PageWrapper>
+                  <Home />
+                </PageWrapper>
+              } />
+              
+              <Route path="/members" element={
+                <PageWrapper>
+                  <Member />
+                </PageWrapper>
+              } />
+              
+              <Route path="/events" element={
+                <PageWrapper>
+                  <Events />
+                </PageWrapper>
+              } />
+              
+              <Route path="/wings" element={
+                <PageWrapper>
+                  <Wings />
+                </PageWrapper>
+              } />
+              
+              <Route path="/developers" element={
+                <PageWrapper>
+                  <Developers />
+                </PageWrapper>
+              } />
+              
+              <Route path="/events/:slug" element={
+                <PageWrapper>
+                  <MoreEvents />
+                </PageWrapper>
+              } />
+              
+              <Route path="/editorials" element={
+                <PageWrapper>
+                  <EditorialsComingSoon />
+                </PageWrapper>
+              } />
+              
+              <Route path="/materials" element={
+                <PageWrapper>
+                  <Materials />
+                </PageWrapper>
+              } />
+              
+              <Route path="/auth" element={
+                <GuestRoute>
+                  <PageWrapper>
+                    <Auth />
+                  </PageWrapper>
+                </GuestRoute>
+              } />
+              
+              <Route path="/auth/callback" element={
+                <PageWrapper>
+                  <AuthCallback />
+                </PageWrapper>
+              } />
+              
+              <Route path="/otp-verification" element={
+                <PageWrapper>
+                  <OtpVerification />
+                </PageWrapper>
+              } />
+
+              {/* Protected Routes */}
+              <Route 
+                path="/complete-profile" 
+                element={
+                  <ProtectedRoute>
+                    <PageWrapper>
+                      <CompleteProfile />
+                    </PageWrapper>
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute requireProfileCompletion={true}>
+                    <PageWrapper>
+                      <Dashboard />
+                    </PageWrapper>
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/leaderboard" 
+                element={
+                  <ProtectedRoute requireProfileCompletion={true}>
+                    <PageWrapper>
+                      <Leaderboard />
+                    </PageWrapper>
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute requireProfileCompletion={true}>
+                    <AdminRoute>
+                      <PageWrapper>
+                        <AdminDashboard />
+                      </PageWrapper>
+                    </AdminRoute>
+                  </ProtectedRoute>
+                } 
+              /> 
+              
+              {/* Catch all route */}
+              <Route path="*" element={
+                <PageWrapper>
+                  <Navigate to="/" replace />
+                </PageWrapper>
+              } />
+            </Routes>
+          </div>
+              <DiwaliWidget />
+          <Footer />
+        </div>
       </BrowserRouter>
     </AuthProvider>
   );
