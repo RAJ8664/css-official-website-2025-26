@@ -5,8 +5,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Carousel from "../components/ui/Carousel";
 import AnimatedTestimonials from "../components/ui/PillarsOfCSS";
 import Chatbot from "../components/ui/Chatbot";
-import { NavbarDemo } from "../components/Navbar";
-
+import { NavbarDemo } from "../components/NavbarDiwali";
+import useAnnouncementObserver from '../hooks/useAnnouncementObserver';
+import DiwaliPopup from '../components/DiwaliPopup';
 // Register GSAP plugins only once
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -166,11 +167,10 @@ function Home() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const [showNavbar, setShowNavbar] = useState(false)
-
   const svgRef = useRef(null);
   const animationRef = useRef(null);
   const videoRef = useRef(null);
-  
+  const { showPopup, setShowPopup } = useAnnouncementObserver();
 
   // Set mounted state
   useEffect(() => {
@@ -324,6 +324,7 @@ function Home() {
             dominantBaseline={textConfig.dominantBaseline}
             fontFamily="Arial Black"
             letterSpacing={textConfig.letterSpacing}
+            z-index="1000"
           >
             CSS
           </text>
@@ -574,7 +575,7 @@ function Home() {
 
         {showNavbar && <NavbarDemo />}
 
-       
+    
 
         {/* About Section - Reduced padding for mobile */}
         <section id="about" className="about relative min-h-[65vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-4 py-1 md:py-3.5 overflow-hidden">
@@ -632,7 +633,7 @@ function Home() {
             </div>
           </div>
         </section>
-
+         
         {/* Sponsors Section */}
         <section className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-3 py-1 md:py-7 overflow-hidden">
   {/* Main Content */}
@@ -720,7 +721,7 @@ function Home() {
 </section>
 
         {/* Announcement Section */}
-        <section className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex flex-col items-center justify-center px-3 py-1 md:py-7 overflow-hidden">
+        <section id="announcement" className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex flex-col items-center justify-center px-3 py-1 md:py-7 overflow-hidden">
           {/* Foreground Terminal Box */}
           <div className="relative z-10 w-full max-w-[1200px] bg-black/70 rounded-xl border border-cyan-500/20 p-3 md:p-9 backdrop-blur-md shadow-lg shadow-cyan-500/10">
             {/* Terminal Header */}
@@ -732,7 +733,7 @@ function Home() {
             </div>
 
             {/* Terminal Title */}
-            <h2 className="text-lg md:text-3xl font-mono font-bold text-green-400 mb-3 md:mb-4">
+            <h2 className="text-lg md:text-3xl font-mono font-bold text-green-400 mb-0 md:mb-4">
               <span className="text-cyan-400">$~ </span> Announcements
             </h2>
 
@@ -746,6 +747,10 @@ function Home() {
             </div>
           </div>
         </section>
+        <DiwaliPopup 
+        isOpen={showPopup} 
+        onClose={() => setShowPopup(false)} 
+      />
 
         {/* Pillars Section */}
         <section className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-3 py-1 md:py-7 overflow-hidden">

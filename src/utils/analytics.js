@@ -10,10 +10,8 @@ export const initGA = () => {
         send_page_view: false
       }
     });
-    console.log('Google Analytics initialized with ID:', TRACKING_ID);
   } else {
     console.warn('Google Analytics not initialized - no tracking ID found');
-    console.log('Available env vars:', import.meta.env);
   }
 };
 
@@ -24,7 +22,6 @@ export const logPageView = (path) => {
       page: path,
       title: document.title
     });
-    console.log('Page view logged:', path);
   }
 };
 
@@ -35,6 +32,5 @@ export const logEvent = (category, action, label = null) => {
       action: action,
       label: label,
     });
-    console.log('Event logged:', { category, action, label });
   }
 };
