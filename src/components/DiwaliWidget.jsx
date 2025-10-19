@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-// import { supabase } from '../supabase';
-import { useAuth } from '/src/context/AuthContext.jsx'; // Import your auth context
+import { useAuth } from '/src/context/AuthContext.jsx';
 import MessageForm from './MessageForm';
 import MessageList from './MessageList';
 import AdminPanel from './AdminPanelDiwali';
@@ -10,7 +9,7 @@ import DiyaIcon from './DiyaIcon';
 const DiwaliWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('send');
-  const { user, profile: authProfile } = useAuth(); // Use your existing auth context
+  const { user, profile: authProfile } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   
   const widgetRef = useRef(null);
@@ -28,7 +27,6 @@ const DiwaliWidget = () => {
       return;
     }
 
-    // Use the same admin detection logic from your Dashboard
     const adminStatus = 
       authProfile?.role === 'admin' || 
       authProfile?.is_admin === true ||
@@ -84,11 +82,20 @@ const DiwaliWidget = () => {
 
   const toggleWidget = () => {
     if (isOpen) {
-      tl.current.reverse();
+      closeWidget();
     } else {
-      tl.current.play();
+      openWidget();
     }
-    setIsOpen(!isOpen);
+  };
+
+  const openWidget = () => {
+    tl.current.play();
+    setIsOpen(true);
+  };
+
+  const closeWidget = () => {
+    tl.current.reverse();
+    setIsOpen(false);
   };
 
   const handleTabChange = (tab) => {
@@ -108,7 +115,7 @@ const DiwaliWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-20 right-6 z-100">
+    <div className="fixed bottom-18 right-6 z-100">
       {/* Floating Widget */}
       <div
         ref={widgetRef}
@@ -118,7 +125,7 @@ const DiwaliWidget = () => {
         <DiyaIcon />
         
         {/* Glow effect */}
-        <div className="absolute inset-0 rounded-full bg-yellow-400 opacity-50 group-hover:opacity-75 blur-md animate-pulse"></div>
+        {/* <div className="absolute inset-0 rounded-full bg-yellow-400 opacity-50 group-hover:opacity-75 blur-md animate-pulse"></div> */}
         
         {/* Sparkles */}
         {/* <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-300 rounded-full animate-ping"></div> */}
@@ -138,9 +145,24 @@ const DiwaliWidget = () => {
         className="absolute bottom-20 right-0 w-80 bg-gradient-to-br from-purple-900/95 via-orange-900/95 to-pink-900/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-orange-400/30 hidden opacity-0 scale-95 origin-bottom-right"
         style={{ display: 'none' }}
       >
-        {/* Header */}
-        <div className="p-4 border-b border-orange-500/30">
-          <h2 className="text-xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400 font-poppins">
+        {/* Header with Close Button */}
+        <div className="p-4 border-b border-orange-500/30 relative">
+          {/* Close Button */}
+          <button
+            onClick={closeWidget}
+            className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center text-orange-300 hover:text-orange-100 hover:bg-orange-500/30 rounded-full transition-all duration-200 group"
+          >
+            <svg 
+              className="w-4 h-4 group-hover:scale-110 transition-transform" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          <h2 className="text-xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400 font-poppins pr-6">
             🪔 Diwali Wishes
           </h2>
           <p className="text-center text-orange-200/80 text-sm mt-1 font-inter">
