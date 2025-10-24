@@ -14,12 +14,12 @@ import {
 } from 'react-icons/fa'
 import { Tilt } from 'react-tilt'
 import { motion } from 'framer-motion'
-import teamData from '../jsonData/developers.json' // Fetch data from JSON
+import teamData from '../jsonData/developers.json' 
 import '../styles/developers.css'
 import { NavbarDemo } from '../components/Navbar'
 import TerminalLoader from '../components/Loader'
 
-// Default options for Tilt component with no scale
+
 const defaultTiltOptions = {
   reverse: true,
   max: 35,
@@ -165,14 +165,14 @@ const Carousel = ({ children, className }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   
-  // Dynamic itemsPerView based on screen size
+  
   useEffect(() => {
     const updateItemsPerView = () => {
       if (window.innerWidth < 640)
-        setItemsPerView(1) // Mobile
+        setItemsPerView(1) 
       else if (window.innerWidth < 1024)
-        setItemsPerView(2) // Tablet
-      else setItemsPerView(4) // Desktop
+        setItemsPerView(2) 
+      else setItemsPerView(4) 
     }
     updateItemsPerView()
     window.addEventListener('resize', updateItemsPerView)
@@ -187,7 +187,7 @@ const Carousel = ({ children, className }) => {
     setCurrentIndex((prev) => (prev === 0 ? totalSlides - 1 : prev - 1))
   }
 
-  // Swipe handlers
+  
   const handlers = useSwipeable({
     onSwipedLeft: next,
     onSwipedRight: prev,
@@ -196,7 +196,7 @@ const Carousel = ({ children, className }) => {
     trackMouse: false,
   })
 
-  // Calculate visible items
+  
   const startIndex = currentIndex * itemsPerView
   const visibleItems = members.slice(startIndex, startIndex + itemsPerView)
 
@@ -204,7 +204,7 @@ const Carousel = ({ children, className }) => {
     return <p className="text-center text-cyan-300">No members found</p>
 
   useEffect(() => {
-    // Wait for all images to load
+    
     const images = document.querySelectorAll('img');
     let loadedImages = 0;
     const totalImages = images.length;
@@ -226,11 +226,11 @@ const Carousel = ({ children, className }) => {
         imageLoaded();
       } else {
         img.addEventListener('load', imageLoaded);
-        img.addEventListener('error', imageLoaded); // Also count errors as loaded
+        img.addEventListener('error', imageLoaded); 
       }
     });
 
-    // Fallback - hide loader after 3 seconds max
+    
     const fallbackTimer = setTimeout(() => {
       setIsLoading(false);
     }, 3000);
@@ -302,19 +302,19 @@ const Developers = () => {
     return localStorage.getItem('selectedCategory') || 'all'
   })
   
-  // Save selected category to localStorage and reset carousel index
+  
   useEffect(() => {
     localStorage.setItem('selectedCategory', selectedCategory)
   }, [selectedCategory])
 
-  // Return members from the contributors category when 'all' is selected
+  
   const getCurrentMembers = () => {
     return selectedCategory === 'all'
       ? teamData.categories.contributors?.members || []
       : teamData.categories[selectedCategory]?.members || []
   }
 
-  // Category config with icons and member counts
+  
   const categories = {
     all: {
       name: 'All Contributors',

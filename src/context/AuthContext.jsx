@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { supabase } from '../supabaseClient';
@@ -14,7 +15,6 @@ const AuthProvider = ({ children }) => {
     
     const initializedRef = useRef(false);
     const processingAuthChangeRef = useRef(false);
-   
 
     const isCollegeEmail = (email) => {
         const collegeDomains = [
@@ -27,6 +27,7 @@ const AuthProvider = ({ children }) => {
         const domain = email.toLowerCase().split('@')[1];
         return collegeDomains.includes(domain);
     };
+
     const fetchProfile = async (userId) => {
         try {
             const { data, error } = await supabase
@@ -53,18 +54,19 @@ const AuthProvider = ({ children }) => {
     const checkProfileCompletion = (profileData) => {
         return profileData && profileData.full_name && profileData.scholar_id;
     };
-     const checkCollegeVerification = (profileData) => {
+
+    const checkCollegeVerification = (profileData) => {
         if (!profileData) return false;
         
-        // User is verified if they used college email during signup OR manually verified
-        const signedUpWithCollegeEmail = isCollegeEmail(profileData.email);
-        const hasVerifiedCollegeEmail = profileData.college_email_verified === true;
         
-        return signedUpWithCollegeEmail || hasVerifiedCollegeEmail;
+        const hasCollegeEmail = isCollegeEmail(profileData.email);
+        const isVerified = profileData.college_email_verified === true;
+        
+        return hasCollegeEmail || isVerified;
     };
 
     const processAuthSession = async (session, source) => {
-        // Prevent concurrent processing
+        
         if (processingAuthChangeRef.current) {
             return;
         }
@@ -84,9 +86,12 @@ const AuthProvider = ({ children }) => {
                 const collegeVerified = checkCollegeVerification(userProfile);
                 setRequiresCollegeVerification(!collegeVerified);
 
-                // Redirect logic based on verification status
+                
                 if (window.location.pathname === '/chat' && !collegeVerified) {
-                    navigate('/college-verification');
+                    const skippedMigration = localStorage.getItem('skippedCollegeMigration');
+                    if (!skippedMigration) {
+                        window.location.href = '/email-migration';
+                    }
                 }
             } else {
                 setUser(null);
@@ -134,7 +139,7 @@ const AuthProvider = ({ children }) => {
             }
         };
 
-        // Set up auth state change listener with debouncing
+        
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (!mounted) return;
 
@@ -149,10 +154,10 @@ const AuthProvider = ({ children }) => {
                         setUser(session.user);
                     }
                 }
-            }, 10); // Small delay to prevent duplicate processing
+            }, 10); 
         });
 
-        // Start the initialization
+        
         initializeAuth();
 
         return () => {
@@ -169,20 +174,26 @@ const AuthProvider = ({ children }) => {
     };
 
     const signUp = async (email, password, fullName, scholarId) => {
+        
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
-            options: { data: { full_name: fullName, scholar_id: scholarId } }
+            options: { 
+                data: { full_name: fullName, scholar_id: scholarId },
+                emailRedirectTo: `${window.location.origin}/auth/callback`
+            }
         });
 
         if (error) throw error;
 
-        // Create profile
+        
         if (data.user) {
             await supabase.from('profiles').upsert({
                 user_id: data.user.id,
                 full_name: fullName,
                 scholar_id: scholarId,
+                email: email,
+                college_email_verified: isCollegeEmail(email), 
                 updated_at: new Date().toISOString(),
             });
         }
@@ -196,19 +207,88 @@ const AuthProvider = ({ children }) => {
         return data;
     };
 
+    
+   
+const migrateToCollegeEmail = async (collegeEmail) => {
+    try {
+        if (!isCollegeEmail(collegeEmail)) {
+            throw new Error('Please use a valid college email address');
+        }
+
+        
+        const { data: updateData, error: updateError } = await supabase.auth.updateUser(
+            { email: collegeEmail },
+            { emailRedirectTo: `${window.location.origin}/auth/callback` }
+        );
+
+        if (updateError) {
+            if (updateError.message.includes('rate limit')) {
+                throw new Error('Email rate limit exceeded. Please try again in 1 hour.');
+            }
+            throw updateError;
+        }
+
+        
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .update({
+                pending_college_email: collegeEmail,
+                college_email_verified: false,
+                updated_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id);
+
+        if (profileError) throw profileError;
+
+        return { error: null };
+    } catch (error) {
+        return { error };
+    }
+};
+
+    const checkIfNeedsMigration = (userEmail) => {
+        return user && !isCollegeEmail(userEmail);
+    };
+
+    const refreshProfile = async () => {
+        if (user) {
+            const userProfile = await fetchProfile(user.id);
+            setProfile(userProfile);
+            setRequiresProfileCompletion(!checkProfileCompletion(userProfile));
+            setRequiresCollegeVerification(!checkCollegeVerification(userProfile));
+            return userProfile;
+        }
+    };
+
+    
+    const signInWithGoogleForMigration = () => {
+        return supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/migration-callback`,
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                },
+            }
+        });
+    };
+
+    
+    const signInWithGoogle = () => {
+        return supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`
+            }
+        });
+    };
+
     const value = {
         signUp,
         signIn,
-        signInWithGoogle: () => supabase.auth.signInWithOAuth({ 
-            provider: 'google',
-            options: { redirectTo: `${window.location.origin}/auth/callback` }
-        }),
-
-//         signInWithGoogle: () => {
-//             // This now simply points the user to our secure, server-side endpoint.
-//             // The serverless function will handle the rest.
-//             window.location.href = '/api/auth/signin';
-//         },
+        signInWithGoogle, 
+        signInWithGoogleForMigration, 
         signOut: () => supabase.auth.signOut(),
         verifyOtp,
         user,
@@ -217,15 +297,9 @@ const AuthProvider = ({ children }) => {
         requiresProfileCompletion,
         requiresCollegeVerification,
         isCollegeEmail,
-        refreshProfile: async () => {
-            if (user) {
-                const userProfile = await fetchProfile(user.id);
-                setProfile(userProfile);
-                setRequiresProfileCompletion(!checkProfileCompletion(userProfile));
-                setRequiresCollegeVerification(!checkCollegeVerification(userProfile));
-                return userProfile;
-            }
-        }
+        refreshProfile,
+        migrateToCollegeEmail,
+        checkIfNeedsMigration
     };
 
     return (
