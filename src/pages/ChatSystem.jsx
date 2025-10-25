@@ -24,6 +24,7 @@ const ChatSystem = () => {
     const userHasScrolledRef = useRef(false);
     const previousMessagesLengthRef = useRef(0);
     const isScrollingRef = useRef(false);
+    const scrollTimeoutRef = useRef(null);
 
     // Available chat rooms
     useEffect(() => {
@@ -46,13 +47,14 @@ const ChatSystem = () => {
         const container = messagesContainerRef.current;
         if (!container) return true;
         
-        const threshold = 150; // pixels from bottom
+        const threshold = 100;
         const position = container.scrollTop + container.clientHeight;
         const height = container.scrollHeight;
         
         return height - position <= threshold;
     }, []);
 
+    // Scroll to bottom function
     const scrollToBottom = useCallback((behavior = "smooth") => {
         if (isScrollingRef.current) return;
         
@@ -61,15 +63,21 @@ const ChatSystem = () => {
 
         isScrollingRef.current = true;
         
-        // Scroll the container itself, not the entire page
         container.scrollTo({
             top: container.scrollHeight,
             behavior: behavior
         });
 
-        setTimeout(() => {
+        if (scrollTimeoutRef.current) {
+            clearTimeout(scrollTimeoutRef.current);
+        }
+
+        scrollTimeoutRef.current = setTimeout(() => {
             isScrollingRef.current = false;
-        }, 100);
+            if (behavior === 'smooth') {
+                userHasScrolledRef.current = false;
+            }
+        }, 150);
     }, []);
 
     // Handle scroll events to detect user interaction
@@ -88,11 +96,16 @@ const ChatSystem = () => {
         const container = messagesContainerRef.current;
         if (container) {
             container.addEventListener('scroll', handleScroll, { passive: true });
-            return () => container.removeEventListener('scroll', handleScroll);
+            return () => {
+                container.removeEventListener('scroll', handleScroll);
+                if (scrollTimeoutRef.current) {
+                    clearTimeout(scrollTimeoutRef.current);
+                }
+            };
         }
     }, [handleScroll]);
 
-    // Improved scroll behavior for new messages
+    // Scroll behavior for new messages
     useEffect(() => {
         const container = messagesContainerRef.current;
         if (!container) return;
@@ -106,7 +119,7 @@ const ChatSystem = () => {
             setTimeout(() => scrollToBottom('auto'), 100);
         } else if (newMessageAdded && isUserAtBottom) {
             // Only auto-scroll if user is at bottom and new message arrives
-            setTimeout(() => scrollToBottom('smooth'), 50);
+            setTimeout(() => scrollToBottom('smooth'), 100);
         }
 
         previousMessagesLengthRef.current = messages.length;
@@ -121,7 +134,9 @@ const ChatSystem = () => {
         // Scroll to top when changing rooms
         if (messagesContainerRef.current) {
             setTimeout(() => {
-                messagesContainerRef.current.scrollTop = 0;
+                if (messagesContainerRef.current) {
+                    messagesContainerRef.current.scrollTop = 0;
+                }
             }, 50);
         }
         
@@ -136,12 +151,11 @@ const ChatSystem = () => {
         };
 
         const handleBlur = () => {
-            // Check if we're near bottom after blur
             setTimeout(() => {
                 if (isNearBottom()) {
                     userHasScrolledRef.current = false;
                 }
-            }, 100);
+            }, 200);
         };
 
         const messageInput = document.querySelector('input[type="text"]');
@@ -184,6 +198,9 @@ const ChatSystem = () => {
             if (adminSubscriptionRef.current) {
                 supabase.removeChannel(adminSubscriptionRef.current);
             }
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+            }
         };
     }, [user, profile]);
 
@@ -206,7 +223,6 @@ const ChatSystem = () => {
                 return;
             }
 
-            // Check multiple possible admin fields
             const adminStatus = 
                 profile?.role === 'admin' || 
                 profile?.is_admin === true ||
@@ -216,7 +232,6 @@ const ChatSystem = () => {
 
             setIsAdmin(adminStatus);
 
-            // Setup admin subscription if user is admin
             if (adminStatus) {
                 setupAdminRealtimeSubscription();
             }
@@ -228,106 +243,45 @@ const ChatSystem = () => {
     };
 
     const loadMessages = async () => {
-    try {
-        setLoading(true);
-        const { data, error } = await supabase
-            .from('chat_messages')
-            .select('*')
-            .eq('room', room)
-            .order('created_at', { ascending: true })
-            .limit(100);
+        try {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('chat_messages')
+                .select('*')
+                .eq('room', room)
+                .order('created_at', { ascending: true })
+                .limit(100);
 
-        if (error) {
-            console.error('Error loading messages:', error);
-            return;
+            if (error) {
+                console.error('Error loading messages:', error);
+                return;
+            }
+
+            setMessages(data || []);
+        } catch (error) {
+            console.error('Error in loadMessages:', error);
+        } finally {
+            setLoading(false);
         }
-
-        setMessages(data || []);
-    } catch (error) {
-        console.error('Error in loadMessages:', error);
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
     const setupRealtimeSubscription = async () => {
-    try {
-        // Clean up existing subscription
-        if (subscriptionRef.current) {
-            supabase.removeChannel(subscriptionRef.current);
-        }
+        try {
+            if (subscriptionRef.current) {
+                supabase.removeChannel(subscriptionRef.current);
+            }
 
-        const subscription = supabase
-            .channel(`public:chat_messages:room=eq.${room}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: 'INSERT',
-                    schema: 'public',
-                    table: 'chat_messages',
-                    filter: `room=eq.${room}`
-                },
-                (payload) => {
-                    setMessages(prev => {
-                        const exists = prev.some(msg => msg.id === payload.new.id);
-                        if (!exists) {
-                            return [...prev, payload.new];
-                        }
-                        return prev;
-                    });
-                }
-            )
-            .on(
-                'postgres_changes',
-                {
-                    event: 'DELETE',
-                    schema: 'public',
-                    table: 'chat_messages',
-                    filter: `room=eq.${room}`
-                },
-                (payload) => {
-                    setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
-                }
-            )
-            .subscribe((status) => {
-                console.log('Subscription status:', status);
-                setIsConnected(status === 'SUBSCRIBED');
-                if (status === 'CHANNEL_ERROR') {
-                    console.error('Channel error - reconnecting...');
-                    setTimeout(() => setupRealtimeSubscription(), 2000);
-                }
-            });
-
-        subscriptionRef.current = subscription;
-
-    } catch (error) {
-        console.error('Error setting up real-time subscription:', error);
-        // Retry after 3 seconds
-        setTimeout(() => setupRealtimeSubscription(), 3000);
-    }
-};
-
-   const setupAdminRealtimeSubscription = async () => {
-    if (!isAdmin) return;
-
-    try {
-        if (adminSubscriptionRef.current) {
-            supabase.removeChannel(adminSubscriptionRef.current);
-        }
-
-        const adminSubscription = supabase
-            .channel('admin-chat-monitor')
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'chat_messages'
-                },
-                (payload) => {
-                    if (payload.eventType === 'DELETE') {
-                        setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
-                    } else if (payload.eventType === 'INSERT' && payload.new.room === room) {
+            const subscription = supabase
+                .channel(`public:chat_messages:room=eq.${room}`)
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'chat_messages',
+                        filter: `room=eq.${room}`
+                    },
+                    (payload) => {
                         setMessages(prev => {
                             const exists = prev.some(msg => msg.id === payload.new.id);
                             if (!exists) {
@@ -336,18 +290,77 @@ const ChatSystem = () => {
                             return prev;
                         });
                     }
-                }
-            )
-            .subscribe((status) => {
-                console.log('Admin subscription status:', status);
-            });
+                )
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'DELETE',
+                        schema: 'public',
+                        table: 'chat_messages',
+                        filter: `room=eq.${room}`
+                    },
+                    (payload) => {
+                        setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
+                    }
+                )
+                .subscribe((status) => {
+                    console.log('Subscription status:', status);
+                    setIsConnected(status === 'SUBSCRIBED');
+                    if (status === 'CHANNEL_ERROR') {
+                        setTimeout(() => setupRealtimeSubscription(), 2000);
+                    }
+                });
 
-        adminSubscriptionRef.current = adminSubscription;
+            subscriptionRef.current = subscription;
 
-    } catch (error) {
-        console.error('Error setting up admin subscription:', error);
-    }
-};
+        } catch (error) {
+            console.error('Error setting up real-time subscription:', error);
+            setTimeout(() => setupRealtimeSubscription(), 3000);
+        }
+    };
+
+    const setupAdminRealtimeSubscription = async () => {
+        if (!isAdmin) return;
+
+        try {
+            if (adminSubscriptionRef.current) {
+                supabase.removeChannel(adminSubscriptionRef.current);
+            }
+
+            const adminSubscription = supabase
+                .channel('admin-chat-monitor')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'chat_messages'
+                    },
+                    (payload) => {
+                        if (payload.eventType === 'DELETE') {
+                            setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
+                        } else if (payload.eventType === 'INSERT' && payload.new.room === room) {
+                            setMessages(prev => {
+                                const exists = prev.some(msg => msg.id === payload.new.id);
+                                if (!exists) {
+                                    return [...prev, payload.new];
+                                }
+                                return prev;
+                            });
+                        }
+                    }
+                )
+                .subscribe((status) => {
+                    console.log('Admin subscription status:', status);
+                });
+
+            adminSubscriptionRef.current = adminSubscription;
+
+        } catch (error) {
+            console.error('Error setting up admin subscription:', error);
+        }
+    };
+
     const sendMessage = async (e) => {
         e.preventDefault();
         
@@ -371,7 +384,6 @@ const ChatSystem = () => {
             setMessages(prev => [...prev, tempMessage]);
             setNewMessage('');
 
-            // When user sends a message, always scroll to bottom
             userHasScrolledRef.current = false;
             setTimeout(() => scrollToBottom('smooth'), 100);
 
@@ -523,7 +535,7 @@ const ChatSystem = () => {
     return (
         <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white">
             {/* Mobile Header - Fixed */}
-            <div className="sticky top-0 z-1 bg-black/90 border-b border-cyan-500/30 backdrop-blur-lg md:hidden">
+            <div className="sticky top-0 z-10 bg-black/90 border-b border-cyan-500/30 backdrop-blur-lg md:hidden">
                 <div className="p-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -625,7 +637,7 @@ const ChatSystem = () => {
                     </div>
                 </div>
 
-                <div className="bg-black/70 border border-cyan-500/30 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg overflow-hidden">
+                <div className="bg-black/70 border border-cyan-500/30 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg overflow-hidden h-[calc(100vh-140px)] md:h-[600px]">
                     {/* Desktop Room Selection */}
                     <div className="hidden md:block border-b border-cyan-500/20 p-4 bg-gray-900/50">
                         <div className="flex flex-wrap gap-2 justify-center">
@@ -646,11 +658,11 @@ const ChatSystem = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row h-[calc(100vh-140px)] md:h-[600px]">
-                        {/* Chat Messages */}
-                        <div className="flex-1 flex flex-col">
-                            {/* Messages Header */}
-                            <div className="border-b border-cyan-500/20 p-3 md:p-4 bg-gray-900/30 flex justify-between items-center">
+                    <div className="flex flex-col md:flex-row h-full">
+                        {/* Chat Container - Fixed structure */}
+                        <div className="flex-1 flex flex-col h-full">
+                            {/* Messages Header - FIXED */}
+                            <div className="border-b border-cyan-500/20 p-3 md:p-4 bg-gray-900/30 flex justify-between items-center shrink-0">
                                 <h3 className="text-sm md:text-lg font-bold text-cyan-300 flex items-center gap-2">
                                     <span className="hidden md:inline">{currentRoom?.icon}</span>
                                     <span>{currentRoom?.name}</span>
@@ -665,18 +677,22 @@ const ChatSystem = () => {
                                 </div>
                             </div>
 
-                            {/* Messages Container with scroll tracking */}
+                            {/* Messages Container - SCROLLABLE AREA */}
                             <div 
                                 ref={messagesContainerRef}
                                 className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-900/10"
                                 style={{ 
-                                    overflowAnchor: 'none' // Prevent browser auto-scroll
+                                    WebkitOverflowScrolling: 'touch',
+                                    overflowAnchor: 'none',
+                                    minHeight: 0 // Important for flexbox scrolling
                                 }}
                             >
                                 {messages.length === 0 ? (
-                                    <div className="text-center text-gray-400 py-8">
-                                        <div className="text-4xl mb-2">💬</div>
-                                        <p className="text-sm md:text-base">No messages yet. Start the conversation!</p>
+                                    <div className="text-center text-gray-400 py-8 h-full flex items-center justify-center">
+                                        <div>
+                                            <div className="text-4xl mb-2">💬</div>
+                                            <p className="text-sm md:text-base">No messages yet. Start the conversation!</p>
+                                        </div>
                                     </div>
                                 ) : (
                                     messages.map((msg) => (
@@ -734,8 +750,8 @@ const ChatSystem = () => {
                                 <div ref={messagesEndRef} style={{ height: '1px' }} />
                             </div>
 
-                            {/* Message Input */}
-                            <div className="border-t border-cyan-500/20 p-3 md:p-4 bg-gray-900/30">
+                            {/* Message Input - FIXED */}
+                            <div className="border-t border-cyan-500/20 p-3 md:p-4 bg-gray-900/30 shrink-0">
                                 <form onSubmit={sendMessage} className="flex gap-2">
                                     <input
                                         type="text"
@@ -834,7 +850,6 @@ const ChatSystem = () => {
                 </div>
             </div>
 
-          
             {showSidebar && (
                 <div 
                     className="fixed inset-0 z-30 bg-black/50 md:hidden"
