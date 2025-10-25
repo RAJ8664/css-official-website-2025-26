@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '/src/supabaseClient.js';
 import { useAuth } from '/src/context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
@@ -14,10 +14,16 @@ const ChatSystem = () => {
     const [showSidebar, setShowSidebar] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const messagesEndRef = useRef(null);
+    const messagesContainerRef = useRef(null);
     const subscriptionRef = useRef(null);
     const adminSubscriptionRef = useRef(null);
     const { user, profile, requiresCollegeVerification } = useAuth();
     const navigate = useNavigate();
+
+    // Track if user has manually scrolled up
+    const userHasScrolledRef = useRef(false);
+    const previousMessagesLengthRef = useRef(0);
+    const isScrollingRef = useRef(false);
 
     // Available chat rooms
     useEffect(() => {
@@ -26,6 +32,7 @@ const ChatSystem = () => {
             return;
         }
     },[user, requiresCollegeVerification, navigate]);
+    
     const rooms = [
         { id: 'general', name: 'General Chat', icon: '💬' },
         { id: 'events', name: 'Events Discussion', icon: '🎪' },
@@ -34,13 +41,120 @@ const ChatSystem = () => {
         { id: 'random', name: 'Random', icon: '🎲' }
     ];
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
+    // Check if user is near the bottom of the chat
+    const isNearBottom = useCallback(() => {
+        const container = messagesContainerRef.current;
+        if (!container) return true;
+        
+        const threshold = 150; // pixels from bottom
+        const position = container.scrollTop + container.clientHeight;
+        const height = container.scrollHeight;
+        
+        return height - position <= threshold;
+    }, []);
 
+    const scrollToBottom = useCallback((behavior = "smooth") => {
+        if (isScrollingRef.current) return;
+        
+        const container = messagesContainerRef.current;
+        if (!container) return;
+
+        isScrollingRef.current = true;
+        
+        // Scroll the container itself, not the entire page
+        container.scrollTo({
+            top: container.scrollHeight,
+            behavior: behavior
+        });
+
+        setTimeout(() => {
+            isScrollingRef.current = false;
+        }, 100);
+    }, []);
+
+    // Handle scroll events to detect user interaction
+    const handleScroll = useCallback(() => {
+        if (isScrollingRef.current) return;
+        
+        if (!isNearBottom()) {
+            userHasScrolledRef.current = true;
+        } else {
+            userHasScrolledRef.current = false;
+        }
+    }, [isNearBottom]);
+
+    // Setup scroll listener
     useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
+        const container = messagesContainerRef.current;
+        if (container) {
+            container.addEventListener('scroll', handleScroll, { passive: true });
+            return () => container.removeEventListener('scroll', handleScroll);
+        }
+    }, [handleScroll]);
+
+    // Improved scroll behavior for new messages
+    useEffect(() => {
+        const container = messagesContainerRef.current;
+        if (!container) return;
+
+        const isFirstLoad = previousMessagesLengthRef.current === 0;
+        const newMessageAdded = messages.length > previousMessagesLengthRef.current;
+        const isUserAtBottom = !userHasScrolledRef.current;
+
+        if (isFirstLoad) {
+            // Always scroll to bottom on initial load
+            setTimeout(() => scrollToBottom('auto'), 100);
+        } else if (newMessageAdded && isUserAtBottom) {
+            // Only auto-scroll if user is at bottom and new message arrives
+            setTimeout(() => scrollToBottom('smooth'), 50);
+        }
+
+        previousMessagesLengthRef.current = messages.length;
+    }, [messages, scrollToBottom]);
+
+    // Reset scroll state when changing rooms
+    useEffect(() => {
+        userHasScrolledRef.current = false;
+        previousMessagesLengthRef.current = 0;
+        isScrollingRef.current = false;
+        
+        // Scroll to top when changing rooms
+        if (messagesContainerRef.current) {
+            setTimeout(() => {
+                messagesContainerRef.current.scrollTop = 0;
+            }, 50);
+        }
+        
+        loadMessages();
+        setupRealtimeSubscription();
+    }, [room]);
+
+    // Prevent auto-scroll when input is focused
+    useEffect(() => {
+        const handleFocus = () => {
+            userHasScrolledRef.current = true;
+        };
+
+        const handleBlur = () => {
+            // Check if we're near bottom after blur
+            setTimeout(() => {
+                if (isNearBottom()) {
+                    userHasScrolledRef.current = false;
+                }
+            }, 100);
+        };
+
+        const messageInput = document.querySelector('input[type="text"]');
+        if (messageInput) {
+            messageInput.addEventListener('focus', handleFocus);
+            messageInput.addEventListener('blur', handleBlur);
+            
+            return () => {
+                messageInput.removeEventListener('focus', handleFocus);
+                messageInput.removeEventListener('blur', handleBlur);
+            };
+        }
+    }, [isNearBottom]);
 
     useEffect(()=>{
         if(user && profile){
@@ -62,7 +176,8 @@ const ChatSystem = () => {
         checkAdminStatus();
         loadMessages();
         setupRealtimeSubscription();
-         return () => {
+        
+        return () => {
             if (subscriptionRef.current) {
                 supabase.removeChannel(subscriptionRef.current);
             }
@@ -71,12 +186,6 @@ const ChatSystem = () => {
             }
         };
     }, [user, profile]);
-   
-
-    useEffect(() => {
-        loadMessages();
-        setupRealtimeSubscription();
-    }, [room]);
 
     const checkAdminStatus = async () => {
         if (!user) {
@@ -119,42 +228,106 @@ const ChatSystem = () => {
     };
 
     const loadMessages = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('chat_messages')
-                .select('*')
-                .eq('room', room)
-                .order('created_at', { ascending: true })
-                .limit(100);
+    try {
+        setLoading(true);
+        const { data, error } = await supabase
+            .from('chat_messages')
+            .select('*')
+            .eq('room', room)
+            .order('created_at', { ascending: true })
+            .limit(100);
 
-            if (error) {
-                console.error('Error loading messages:', error);
-                return;
-            }
-
-            setMessages(data || []);
-        } catch (error) {
-            console.error('Error in loadMessages:', error);
+        if (error) {
+            console.error('Error loading messages:', error);
+            return;
         }
-    };
+
+        setMessages(data || []);
+    } catch (error) {
+        console.error('Error in loadMessages:', error);
+    } finally {
+        setLoading(false);
+    }
+};
 
     const setupRealtimeSubscription = async () => {
-        try {
-            if (subscriptionRef.current) {
-                supabase.removeChannel(subscriptionRef.current);
-            }
+    try {
+        // Clean up existing subscription
+        if (subscriptionRef.current) {
+            supabase.removeChannel(subscriptionRef.current);
+        }
 
-            const subscription = supabase
-                .channel(`room-${room}`)
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'INSERT',
-                        schema: 'public',
-                        table: 'chat_messages',
-                        filter: `room=eq.${room}`
-                    },
-                    (payload) => {
+        const subscription = supabase
+            .channel(`public:chat_messages:room=eq.${room}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'chat_messages',
+                    filter: `room=eq.${room}`
+                },
+                (payload) => {
+                    setMessages(prev => {
+                        const exists = prev.some(msg => msg.id === payload.new.id);
+                        if (!exists) {
+                            return [...prev, payload.new];
+                        }
+                        return prev;
+                    });
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'DELETE',
+                    schema: 'public',
+                    table: 'chat_messages',
+                    filter: `room=eq.${room}`
+                },
+                (payload) => {
+                    setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
+                }
+            )
+            .subscribe((status) => {
+                console.log('Subscription status:', status);
+                setIsConnected(status === 'SUBSCRIBED');
+                if (status === 'CHANNEL_ERROR') {
+                    console.error('Channel error - reconnecting...');
+                    setTimeout(() => setupRealtimeSubscription(), 2000);
+                }
+            });
+
+        subscriptionRef.current = subscription;
+
+    } catch (error) {
+        console.error('Error setting up real-time subscription:', error);
+        // Retry after 3 seconds
+        setTimeout(() => setupRealtimeSubscription(), 3000);
+    }
+};
+
+   const setupAdminRealtimeSubscription = async () => {
+    if (!isAdmin) return;
+
+    try {
+        if (adminSubscriptionRef.current) {
+            supabase.removeChannel(adminSubscriptionRef.current);
+        }
+
+        const adminSubscription = supabase
+            .channel('admin-chat-monitor')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'chat_messages'
+                },
+                (payload) => {
+                    if (payload.eventType === 'DELETE') {
+                        setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
+                    } else if (payload.eventType === 'INSERT' && payload.new.room === room) {
                         setMessages(prev => {
                             const exists = prev.some(msg => msg.id === payload.new.id);
                             if (!exists) {
@@ -163,77 +336,18 @@ const ChatSystem = () => {
                             return prev;
                         });
                     }
-                )
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'DELETE',
-                        schema: 'public',
-                        table: 'chat_messages',
-                        filter: `room=eq.${room}`
-                    },
-                    (payload) => {
-                        setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
-                    }
-                )
-                .subscribe((status) => {
-                    setIsConnected(status === 'SUBSCRIBED');
-                });
+                }
+            )
+            .subscribe((status) => {
+                console.log('Admin subscription status:', status);
+            });
 
-            subscriptionRef.current = subscription;
+        adminSubscriptionRef.current = adminSubscription;
 
-        } catch (error) {
-            console.error('Error setting up real-time subscription:', error);
-        }
-    };
-
-    const setupAdminRealtimeSubscription = async () => {
-        if (!isAdmin) return;
-
-        try {
-            if (adminSubscriptionRef.current) {
-                supabase.removeChannel(adminSubscriptionRef.current);
-            }
-
-
-            const adminSubscription = supabase
-                .channel('admin-global-chat')
-                .on(
-                    'postgres_changes',
-                    {
-                        event: '*',
-                        schema: 'public',
-                        table: 'chat_messages'
-                        // No filter - listens to ALL rooms and ALL events
-                    },
-                    (payload) => {
-                        
-                        // Handle different event types
-                        if (payload.eventType === 'DELETE') {
-                            // Remove message from current view if it exists
-                            setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
-                        } else if (payload.eventType === 'INSERT' && payload.new.room === room) {
-                            // Add message if it's for the current room
-                            setMessages(prev => {
-                                const exists = prev.some(msg => msg.id === payload.new.id);
-                                if (!exists) {
-                                    return [...prev, payload.new];
-                                }
-                                return prev;
-                            });
-                        }
-                    }
-                )
-                .subscribe((status) => {
-                });
-
-            adminSubscriptionRef.current = adminSubscription;
-
-        } catch (error) {
-            console.error('Error setting up admin subscription:', error);
-        }
-    };
-
+    } catch (error) {
+        console.error('Error setting up admin subscription:', error);
+    }
+};
     const sendMessage = async (e) => {
         e.preventDefault();
         
@@ -256,7 +370,10 @@ const ChatSystem = () => {
 
             setMessages(prev => [...prev, tempMessage]);
             setNewMessage('');
-            scrollToBottom();
+
+            // When user sends a message, always scroll to bottom
+            userHasScrolledRef.current = false;
+            setTimeout(() => scrollToBottom('smooth'), 100);
 
             const { data, error } = await supabase
                 .from('chat_messages')
@@ -302,8 +419,6 @@ const ChatSystem = () => {
         if (!window.confirm('Are you sure you want to delete this message?')) return;
 
         try {
-            
-            // Remove from local state immediately for better UX
             setMessages(prev => prev.filter(msg => msg.id !== messageId));
             
             const { error } = await supabase
@@ -313,11 +428,9 @@ const ChatSystem = () => {
 
             if (error) throw error;
 
-            
         } catch (error) {
             console.error('Error deleting message:', error);
             alert('Failed to delete message.');
-            // Reload messages if deletion failed
             loadMessages();
         }
     };
@@ -356,7 +469,7 @@ const ChatSystem = () => {
                 const { error } = await supabase
                     .from('chat_messages')
                     .delete()
-                    .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all messages
+                    .neq('id', '00000000-0000-0000-0000-000000000000');
 
                 if (error) throw error;
                 
@@ -393,8 +506,10 @@ const ChatSystem = () => {
         };
         return departmentMap[domain] || domain;
     };
+
     const currentRoom = rooms.find(r => r.id === room);
-     if (user && requiresCollegeVerification) {
+    
+    if (user && requiresCollegeVerification) {
         return (
             <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] flex items-center justify-center">
                 <div className="text-white text-center">
@@ -404,6 +519,7 @@ const ChatSystem = () => {
             </div>
         );
     }
+
     return (
         <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white">
             {/* Mobile Header - Fixed */}
@@ -470,7 +586,7 @@ const ChatSystem = () => {
                         </p>
                     </div>
                     
-                    {/* Admin Controls - Only show for admins and only on desktop */}
+                    {/* Admin Controls */}
                     {isAdmin && (
                         <div className="flex flex-col gap-2 bg-red-900/20 border border-red-500/30 rounded-lg p-4">
                             <h3 className="text-red-300 font-bold text-sm mb-2">🛡️ Admin Controls</h3>
@@ -509,7 +625,7 @@ const ChatSystem = () => {
                     </div>
                 </div>
 
-                <div className=" bg-black/70 border border-cyan-500/30 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg overflow-hidden">
+                <div className="bg-black/70 border border-cyan-500/30 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg overflow-hidden">
                     {/* Desktop Room Selection */}
                     <div className="hidden md:block border-b border-cyan-500/20 p-4 bg-gray-900/50">
                         <div className="flex flex-wrap gap-2 justify-center">
@@ -549,8 +665,14 @@ const ChatSystem = () => {
                                 </div>
                             </div>
 
-                            {/* Messages Container */}
-                            <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-900/10">
+                            {/* Messages Container with scroll tracking */}
+                            <div 
+                                ref={messagesContainerRef}
+                                className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-900/10"
+                                style={{ 
+                                    overflowAnchor: 'none' // Prevent browser auto-scroll
+                                }}
+                            >
                                 {messages.length === 0 ? (
                                     <div className="text-center text-gray-400 py-8">
                                         <div className="text-4xl mb-2">💬</div>
@@ -566,7 +688,7 @@ const ChatSystem = () => {
                                                     : 'bg-gray-800/20 border-gray-600/30 md:mr-8'
                                             } ${msg.isSending ? 'opacity-70 animate-pulse' : ''}`}
                                         >
-                                            {/* Admin Delete Button - Shows for ALL messages when admin */}
+                                            {/* Admin Delete Button */}
                                             {isAdmin && !msg.isSending && (
                                                 <button
                                                     onClick={() => deleteMessage(msg.id)}
@@ -609,7 +731,7 @@ const ChatSystem = () => {
                                         </div>
                                     ))
                                 )}
-                                <div ref={messagesEndRef} />
+                                <div ref={messagesEndRef} style={{ height: '1px' }} />
                             </div>
 
                             {/* Message Input */}
@@ -623,6 +745,7 @@ const ChatSystem = () => {
                                         className="flex-1 px-3 py-2 md:px-4 md:py-3 bg-gray-800 border border-cyan-500/30 rounded-lg focus:outline-none focus:border-cyan-400 text-white placeholder-gray-400 text-sm md:text-base"
                                         maxLength={500}
                                         disabled={loading}
+                                        onFocus={() => userHasScrolledRef.current = true}
                                     />
                                     <button
                                         type="submit"
@@ -711,7 +834,7 @@ const ChatSystem = () => {
                 </div>
             </div>
 
-            {/* Close sidebar when clicking outside on mobile */}
+          
             {showSidebar && (
                 <div 
                     className="fixed inset-0 z-30 bg-black/50 md:hidden"

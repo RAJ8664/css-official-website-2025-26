@@ -1,7 +1,8 @@
+// pages/EventsList.jsx - COMPLETE UPDATED VERSION
 import React, { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import eventsContent from "../constants/events";
-import { FaArrowRight, FaExternalLinkAlt, FaLock, FaCheck, FaHandPointer, FaInfoCircle, FaTrophy } from "react-icons/fa";
+import { FaArrowRight, FaExternalLinkAlt, FaLock, FaCheck, FaHandPointer, FaInfoCircle, FaTrophy, FaGraduationCap } from "react-icons/fa";
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
 import "../styles/eventsAnimation.css";
@@ -18,7 +19,9 @@ function EventCard({
   requiresAuth = false,
   onRegister,
   isRegistered = false,
-  isCompleted = false, // New prop for completed events
+  isCompleted = false,
+  isDirectRegistration = true,
+  isCSEOnly = false
 }) {
   const [hovered, setHovered] = useState(false);
   const [registering, setRegistering] = useState(false);
@@ -46,7 +49,6 @@ function EventCard({
     }
   };
 
-  // Get appropriate tap message based on status
   const getTapMessage = () => {
     if (status?.toLowerCase() === 'upcoming') {
       return "Tap for info & register";
@@ -75,7 +77,7 @@ function EventCard({
               ? 'border-green-500/20 shadow-green-500/10 hover:border-green-400/60 hover:shadow-green-400/20' 
               : 'border-cyan-500/20 shadow-cyan-500/10 hover:border-cyan-400/60 hover:shadow-cyan-400/20'
           }`}>
-            {/* Mobile tap indicator - only show on touch devices and when not hovered */}
+            {/* Mobile tap indicator */}
             {isTouchDevice && !hovered && (
               <div className={`absolute top-2 right-2 z-30 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1 animate-pulse ${
                 isCompleted ? 'bg-green-600/90' : 'bg-cyan-600/90'
@@ -86,26 +88,43 @@ function EventCard({
               </div>
             )}
             
-            {/* Completed event badge */}
-            {isCompleted && (
-              <div className="absolute top-2 left-2 z-20 bg-green-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
-                <FaTrophy className="text-xs" /> Completed
-              </div>
-            )}
-            
-            {/* Auth required badge */}
-            {requiresAuth && !user && !isCompleted && (
-              <div className="absolute top-2 left-2 z-20 bg-red-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
-                <FaLock className="text-xs" /> Login Required
-              </div>
-            )}
-            
-            {/* Registered badge */}
-            {isRegistered && !isCompleted && (
-              <div className="absolute top-2 left-2 z-20 bg-green-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
-                <FaCheck className="text-xs" /> Registered
-              </div>
-            )}
+            {/* Event Badges */}
+            <div className="absolute top-2 left-2 z-20 flex flex-col gap-1">
+              {/* Completed event badge */}
+              {isCompleted && (
+                <div className="bg-green-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+                  <FaTrophy className="text-xs" /> Completed
+                </div>
+              )}
+              
+              {/* CSE Only badge */}
+              {isCSEOnly && !isCompleted && (
+                <div className="bg-purple-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+                  <FaGraduationCap className="text-xs" /> CSE Only
+                </div>
+              )}
+              
+              {/* Multi-Event badge */}
+              {!isDirectRegistration && !isCompleted && (
+                <div className="bg-indigo-600/90 text-white px-2 py-1 rounded text-xs font-bold">
+                  Multi-Event
+                </div>
+              )}
+              
+              {/* Auth required badge */}
+              {requiresAuth && !user && !isCompleted && (
+                <div className="bg-red-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+                  <FaLock className="text-xs" /> Login Required
+                </div>
+              )}
+              
+              {/* Registered badge */}
+              {isRegistered && !isCompleted && (
+                <div className="bg-green-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+                  <FaCheck className="text-xs" /> Registered
+                </div>
+              )}
+            </div>
 
             {/* Rest of front card content */}
             <div className={`relative inset-0 rounded-xl opacity-70 group-hover:opacity-100 transition-opacity duration-500 ${
@@ -113,20 +132,20 @@ function EventCard({
             }`}></div>
             <div className="relative inset-0 bg-tech-grid opacity-10"></div>
 
-            <div className={`absolute top-2 left-2 w-2 h-2 border-t-2 border-l-2 ${
+            <div className={`absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 ${
               isCompleted ? 'border-green-500/70' : 'border-cyan-500/70'
             }`}></div>
-            <div className={`absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 ${
+            <div className={`absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 ${
               isCompleted ? 'border-green-500/70' : 'border-cyan-500/70'
             }`}></div>
-            <div className={`absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 ${
+            <div className={`absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 ${
               isCompleted ? 'border-green-500/70' : 'border-cyan-500/70'
             }`}></div>
-            <div className={`absolute bottom-2 right-2 w-2 h-2 border-b-2 border-r-2 ${
+            <div className={`absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 ${
               isCompleted ? 'border-green-500/70' : 'border-cyan-500/70'
             }`}></div>
 
-            {/* Image Container - Fixed for mobile */}
+            {/* Image Container */}
             <div className="absolute w-full h-full overflow-hidden">
               <img
                 src={image || "https://via.placeholder.com/400x300"}
@@ -141,7 +160,6 @@ function EventCard({
                   e.target.src = "https://via.placeholder.com/400x300/1a202c/cyan?text=Event+Image";
                 }}
               />
-              {/* Fallback overlay for better text readability */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
             </div>
 
@@ -192,7 +210,7 @@ function EventCard({
               isCompleted ? 'border-green-400/80' : 'border-cyan-400/80'
             }`}></div>
 
-            {/* Mobile back indicator - only show on touch devices */}
+            {/* Mobile back indicator */}
             {isTouchDevice && (
               <div className="absolute top-2 right-2 z-30 bg-purple-600/90 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
                 <FaInfoCircle className="text-xs" /> 
@@ -210,6 +228,21 @@ function EventCard({
                 }`}>
                   {name}
                 </h3>
+                
+                {/* Event Badges on Back */}
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {isCSEOnly && (
+                    <span className="px-2 py-1 bg-purple-600/20 text-purple-400 rounded text-xs flex items-center gap-1">
+                      <FaGraduationCap size={10} /> CSE Only
+                    </span>
+                  )}
+                  {!isDirectRegistration && (
+                    <span className="px-2 py-1 bg-indigo-600/20 text-indigo-400 rounded text-xs">
+                      Multi-Event
+                    </span>
+                  )}
+                </div>
+                
                 <p className={`text-xs font-mono mb-2 sm:mb-3 ${
                   isCompleted ? 'text-green-300' : 'text-cyan-300'
                 }`}>
@@ -232,8 +265,25 @@ function EventCard({
                     This event has been successfully completed. Stay tuned for future events!
                   </div>
                 )}
+
+                {/* Show CSE-only message */}
+                {isCSEOnly && !isCompleted && (
+                  <div className="mt-3 p-2 bg-purple-900/30 border border-purple-500/30 rounded text-xs text-purple-200">
+                    <FaGraduationCap className="inline mr-1" />
+                    This event is exclusively for CSE students (@cse.nits.ac.in emails only)
+                  </div>
+                )}
+
+                {/* Show multi-event message */}
+                {!isDirectRegistration && !isCompleted && (
+                  <div className="mt-3 p-2 bg-indigo-900/30 border border-indigo-500/30 rounded text-xs text-indigo-200">
+                    <FaInfoCircle className="inline mr-1" />
+                    This event contains multiple sub-events. Click below to view and register.
+                  </div>
+                )}
               </div>
 
+              {/* Registration Buttons */}
               {!isCompleted && registrationLink ? (
                 <a
                   href={registrationLink}
@@ -244,7 +294,8 @@ function EventCard({
                 >
                   Register Now <FaExternalLinkAlt className="text-xs" />
                 </a>
-              ) : !isCompleted && onRegister ? (
+              ) : !isCompleted && onRegister && isDirectRegistration ? (
+                // Direct Registration Button
                 <button
                   onClick={handleRegisterClick}
                   disabled={isRegistered || registering}
@@ -267,9 +318,17 @@ function EventCard({
                       Registered
                     </>
                   ) : (
-                    'Register for Event'
+                    'Register Now'
                   )}
                 </button>
+              ) : !isCompleted && !isDirectRegistration ? (
+                // Multi-event Registration Button - Redirect to event page
+                <Link
+                  to={`/events/${slug}`}
+                  className="mt-3 mb-2 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-700 to-purple-900 rounded-lg text-white hover:from-purple-600 hover:to-purple-800 transition-all duration-300 border border-purple-500/50 hover:border-purple-400/70 text-xs sm:text-sm"
+                >
+                  View Events <FaArrowRight className="text-xs" />
+                </Link>
               ) : null}
 
               <div className="absolute top-2 left-2 flex space-x-1 z-20">
@@ -327,7 +386,6 @@ export default function EventsList() {
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Updated sections to include Completed after Upcoming
   const sections = ["Upcoming", "Completed", "Yearly", "Cultural", "Technical"];
 
   useEffect(() => {
@@ -349,10 +407,10 @@ export default function EventsList() {
     };
   }, [user, refreshTrigger]);
 
-   useEffect(() => {
+  useEffect(() => {
     const handleEventDeleted = (event) => {
       const { eventId, eventSlug } = event.detail;
-            setDatabaseEvents(prevEvents => {
+      setDatabaseEvents(prevEvents => {
         const newEvents = prevEvents.filter(e => e.id !== eventId && e.slug !== eventSlug);
         return newEvents;
       });
@@ -454,15 +512,26 @@ export default function EventsList() {
     }
 
     try {
-      
+      // Fetch event details including is_cse_only
       const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .select('whatsapp_group_link, name, max_participants, current_participants, is_active')
+        .select('whatsapp_group_link, name, max_participants, current_participants, is_active, is_cse_only')
         .eq('slug', eventSlug)
         .single();
 
       if (eventError) throw eventError;
       if (!eventData) throw new Error('Event not found');
+
+      // ✅ CHECK IF EVENT IS CSE-ONLY AND USER IS NOT CSE STUDENT
+      if (eventData.is_cse_only) {
+        const userEmail = user.email;
+        const isCSEStudent = userEmail.toLowerCase().endsWith('@cse.nits.ac.in');
+        
+        if (!isCSEStudent) {
+          alert('🚫 This event is exclusively for CSE students only.\n\nYour email: ' + userEmail + '\nRequired domain: @cse.nits.ac.in');
+          return false;
+        }
+      }
 
       if (!eventData.is_active) {
         alert('This event is currently not active for registration.');
@@ -498,7 +567,6 @@ export default function EventsList() {
         throw error;
       }
 
-      
       const { error: updateError } = await supabase
         .from('events')
         .update({ current_participants: (eventData.current_participants || 0) + 1 })
@@ -531,7 +599,7 @@ export default function EventsList() {
   };
 
   const isDatabaseEvent = (event) => {
-    return event.id && !event.isFromContent; 
+    return event.id && !event.isFromContent;
   };
 
   if (loading) {
@@ -633,10 +701,18 @@ export default function EventsList() {
                     image={event.poster_url || event['poster-url']}
                     registrationLink={event.registrationLink}
                     moreEvents={event.moreEvents}
-                    requiresAuth={isDatabaseEvent(event) && section !== "Completed"} // No auth needed for completed events
-                    onRegister={isDatabaseEvent(event) && section !== "Completed" ? () => handleEventRegistration(event.slug, event.name) : null}
+                    requiresAuth={isDatabaseEvent(event) && section !== "Completed"}
+                    onRegister={
+                      isDatabaseEvent(event) && 
+                      section !== "Completed" && 
+                      event.is_direct_registration
+                        ? () => handleEventRegistration(event.slug, event.name) 
+                        : null
+                    }
                     isRegistered={isEventRegistered(event.slug)}
-                    isCompleted={section === "Completed"} // Pass completed status to card
+                    isCompleted={section === "Completed"}
+                    isDirectRegistration={event.is_direct_registration}
+                    isCSEOnly={event.is_cse_only}
                   />
                 ))}
               </div>

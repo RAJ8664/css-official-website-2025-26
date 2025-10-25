@@ -20,17 +20,25 @@ import AdminRoute from './components/AdminRoute'
 import AdminDashboard from './pages/AdminDashboard'
 import Footer from './components/Footer'
 import Materials from './pages/Materials'
-// import ChatSystem from './pages/ChatSystem'
+
 import Leaderboard from './pages/Leaderboard'
 import ScrollToTop from './components/ScrolltoTop'
 
 import { initGA, logPageView } from './utils/analytics';
 import DiwaliWidget from './components/DiwaliWidget';
-// import CollegeVerification from './pages/CollegeEmailVerification'
+import ChatSystem from './pages/ChatSystem';
+import EmailMigration from './pages/EmailMigration';
+import MigrationCallback from './pages/MigrationCallBack';
+import FreshersEvents from './pages/FreshersEvents';
 
-// ADD: ProtectedRoute component inside this file
-const ProtectedRoute = ({ children, requireProfileCompletion = false, requireCollegeVerification = false }) => {
-    const { user, loading, requiresProfileCompletion, requiresCollegeVerification } = useAuth();
+
+
+const ProtectedRoute = ({ 
+  children, 
+  requireProfileCompletion = false, 
+  requireCollegeVerification = false 
+}) => {
+    const { user, loading, requiresProfileCompletion, requiresCollegeVerification, isCollegeEmail } = useAuth();
     
     if (loading) {
         return (
@@ -50,8 +58,36 @@ const ProtectedRoute = ({ children, requireProfileCompletion = false, requireCol
     if (requireProfileCompletion && requiresProfileCompletion) {
         return <Navigate to="/complete-profile" replace />;
     }
+
+    
     if (requireCollegeVerification && requiresCollegeVerification) {
-        return <Navigate to="/college-verification" replace />;
+        const skippedMigration = localStorage.getItem('skippedCollegeMigration');
+        const isCollegeUser = isCollegeEmail(user.email);
+        
+        
+        if (!isCollegeUser && !skippedMigration) {
+            return <Navigate to="/email-migration" replace />;
+        }
+        
+        
+        if (!isCollegeUser && skippedMigration) {
+            return (
+                <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center">
+                    <div className="text-center max-w-md p-6">
+                        <h1 className="text-2xl text-red-400 mb-4">Access Restricted</h1>
+                        <p className="text-gray-300 mb-4">
+                            This feature requires college email verification.
+                        </p>
+                        <button
+                            onClick={() => window.location.href = '/email-migration'}
+                            className="bg-cyan-600 hover:bg-cyan-700 text-white py-2 px-6 rounded-lg"
+                        >
+                            Verify College Email
+                        </button>
+                    </div>
+                </div>
+            );
+        }
     }
 
     return children;
@@ -97,7 +133,7 @@ const AnalyticsTracker = () => {
     return null;
 };
 
-// Add this component to ensure consistent background
+
 const PageWrapper = ({ children }) => {
     return (
         <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)]">
@@ -118,11 +154,9 @@ const App = () => {
         <AnalyticsTracker />
         <ScrollToTop />
         
-        {/* Main app container with consistent background */}
         <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)]">
           <NavbarWrapper />
           
-          {/* Content area - ensures no white gaps */}
           <div className="relative">
             <Routes>
               <Route path="/" element={
@@ -155,11 +189,22 @@ const App = () => {
                 </PageWrapper>
               } />
               
-              <Route path="/events/:slug" element={
+              {/* <Route path="/events/:slug" element={
                 <PageWrapper>
                   <MoreEvents />
                 </PageWrapper>
-              } />
+              } /> */}
+
+              <Route 
+                path="/events/:eventSlug" 
+  element={
+    <ProtectedRoute requireProfileCompletion={true}  >
+      <PageWrapper>
+        <FreshersEvents />
+      </PageWrapper>
+    </ProtectedRoute>
+               } 
+              />
               
               <Route path="/editorials" element={
                 <PageWrapper>
@@ -193,7 +238,6 @@ const App = () => {
                 </PageWrapper>
               } />
 
-              {/* Protected Routes */}
               <Route 
                 path="/complete-profile" 
                 element={
@@ -240,12 +284,43 @@ const App = () => {
                 } 
               /> 
               
-              {/* Catch all route */}
               <Route path="*" element={
                 <PageWrapper>
                   <Navigate to="/" replace />
                 </PageWrapper>
               } />
+              <Route 
+                  path="/chat" 
+                  element={
+                    <ProtectedRoute 
+                      requireProfileCompletion={true} 
+                      requireCollegeVerification={true}
+                    >
+                      <PageWrapper>
+                        <ChatSystem />
+                      </PageWrapper>
+                    </ProtectedRoute>
+                  } 
+                />
+
+              <Route 
+                path="/email-migration" 
+                element={
+                  <ProtectedRoute>
+                    <PageWrapper>
+                      <EmailMigration />
+                    </PageWrapper>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/auth/migration-callback" 
+                element={
+                  <PageWrapper>
+                    <MigrationCallback />
+                  </PageWrapper>
+                } 
+              />
             </Routes>
           </div>
               <DiwaliWidget />
