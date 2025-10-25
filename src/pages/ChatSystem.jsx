@@ -80,7 +80,6 @@ const ChatSystem = () => {
         }, 150);
     }, []);
 
-    // Handle scroll events to detect user interaction
     const handleScroll = useCallback(() => {
         if (isScrollingRef.current) return;
         
@@ -91,7 +90,6 @@ const ChatSystem = () => {
         }
     }, [isNearBottom]);
 
-    // Setup scroll listener
     useEffect(() => {
         const container = messagesContainerRef.current;
         if (container) {
@@ -105,7 +103,6 @@ const ChatSystem = () => {
         }
     }, [handleScroll]);
 
-    // Scroll behavior for new messages
     useEffect(() => {
         const container = messagesContainerRef.current;
         if (!container) return;
@@ -115,23 +112,19 @@ const ChatSystem = () => {
         const isUserAtBottom = !userHasScrolledRef.current;
 
         if (isFirstLoad) {
-            // Always scroll to bottom on initial load
             setTimeout(() => scrollToBottom('auto'), 100);
         } else if (newMessageAdded && isUserAtBottom) {
-            // Only auto-scroll if user is at bottom and new message arrives
             setTimeout(() => scrollToBottom('smooth'), 100);
         }
 
         previousMessagesLengthRef.current = messages.length;
     }, [messages, scrollToBottom]);
 
-    // Reset scroll state when changing rooms
     useEffect(() => {
         userHasScrolledRef.current = false;
         previousMessagesLengthRef.current = 0;
         isScrollingRef.current = false;
         
-        // Scroll to top when changing rooms
         if (messagesContainerRef.current) {
             setTimeout(() => {
                 if (messagesContainerRef.current) {
@@ -144,7 +137,6 @@ const ChatSystem = () => {
         setupRealtimeSubscription();
     }, [room]);
 
-    // Prevent auto-scroll when input is focused
     useEffect(() => {
         const handleFocus = () => {
             userHasScrolledRef.current = true;
@@ -534,7 +526,7 @@ const ChatSystem = () => {
 
     return (
         <div className="min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white">
-            {/* Mobile Header - Fixed */}
+            {/* Mobile Header  */}
             <div className="sticky top-0 z-10 bg-black/90 border-b border-cyan-500/30 backdrop-blur-lg md:hidden">
                 <div className="p-4">
                     <div className="flex items-center justify-between">
@@ -637,7 +629,8 @@ const ChatSystem = () => {
                     </div>
                 </div>
 
-                <div className="bg-black/70 border border-cyan-500/30 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg overflow-hidden h-[calc(100vh-140px)] md:h-[600px]">
+                {/* MAIN CHAT CONTAINER */}
+                <div className="bg-black/70 border border-cyan-500/30 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.4)] backdrop-blur-lg overflow-hidden">
                     {/* Desktop Room Selection */}
                     <div className="hidden md:block border-b border-cyan-500/20 p-4 bg-gray-900/50">
                         <div className="flex flex-wrap gap-2 justify-center">
@@ -658,11 +651,11 @@ const ChatSystem = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row h-full">
-                        {/* Chat Container - Fixed structure */}
-                        <div className="flex-1 flex flex-col h-full">
-                            {/* Messages Header - FIXED */}
-                            <div className="border-b border-cyan-500/20 p-3 md:p-4 bg-gray-900/30 flex justify-between items-center shrink-0">
+                    <div className="flex flex-col md:flex-row">
+                        {/* Chat Container */}
+                        <div className="flex-1 flex flex-col">
+                            {/* Messages Header */}
+                            <div className="border-b border-cyan-500/20 p-3 md:p-4 bg-gray-900/30 flex justify-between items-center">
                                 <h3 className="text-sm md:text-lg font-bold text-cyan-300 flex items-center gap-2">
                                     <span className="hidden md:inline">{currentRoom?.icon}</span>
                                     <span>{currentRoom?.name}</span>
@@ -677,14 +670,15 @@ const ChatSystem = () => {
                                 </div>
                             </div>
 
-                            {/* Messages Container - SCROLLABLE AREA */}
+                            {/* Messages Container*/}
                             <div 
                                 ref={messagesContainerRef}
                                 className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 bg-gray-900/10"
                                 style={{ 
+                                    height: '60vh', 
+                                    maxHeight: '60vh',
                                     WebkitOverflowScrolling: 'touch',
-                                    overflowAnchor: 'none',
-                                    minHeight: 0 // Important for flexbox scrolling
+                                    overflowAnchor: 'none'
                                 }}
                             >
                                 {messages.length === 0 ? (
@@ -750,8 +744,8 @@ const ChatSystem = () => {
                                 <div ref={messagesEndRef} style={{ height: '1px' }} />
                             </div>
 
-                            {/* Message Input - FIXED */}
-                            <div className="border-t border-cyan-500/20 p-3 md:p-4 bg-gray-900/30 shrink-0">
+                            {/* Message Input */}
+                            <div className="border-t border-cyan-500/20 p-3 md:p-4 bg-gray-900/30">
                                 <form onSubmit={sendMessage} className="flex gap-2">
                                     <input
                                         type="text"
@@ -783,7 +777,7 @@ const ChatSystem = () => {
                             </div>
                         </div>
 
-                        {/* Sidebar - Mobile Overlay */}
+                        {/* Sidebar */}
                         {(showSidebar || window.innerWidth >= 768) && (
                             <div className={`fixed inset-0 z-40 md:relative md:z-auto bg-black/95 md:bg-gray-900/50 ${
                                 showSidebar ? 'block' : 'hidden md:block'
