@@ -30,6 +30,7 @@ import ChatSystem from './pages/ChatSystem';
 import EmailMigration from './pages/EmailMigration';
 import MigrationCallback from './pages/MigrationCallBack';
 import FreshersEvents from './pages/FreshersEvents';
+import EventsRegistration from './pages/Esperanza';
 
 
 
@@ -206,9 +207,9 @@ const App = () => {
                } 
               />
               
-              <Route path="/editorials" element={
+              <Route path="/esperanza" element={
                 <PageWrapper>
-                  <EditorialsComingSoon />
+                  <EventsRegistration/>
                 </PageWrapper>
               } />
               
