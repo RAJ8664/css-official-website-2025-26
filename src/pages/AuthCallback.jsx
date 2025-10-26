@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -21,12 +20,9 @@ const AuthCallback = () => {
 
                 if (session?.user) {
                     const userEmail = session.user.email;
-                    console.log('Auth callback - User email:', userEmail);
                     
                     
                     if (isCollegeEmail(userEmail)) {
-                        console.log('College email detected, ensuring verification status...');
-                        
                         
                         const { error: updateError } = await supabase
                             .from('profiles')
@@ -40,15 +36,13 @@ const AuthCallback = () => {
                         if (updateError) {
                             console.error('Error updating college verification:', updateError);
                         } else {
-                            console.log('College email verification ensured');
-                        }
+                            console.log('College email verification status updated.');}
                     }
 
-                    
                     await refreshProfile();
                     
                     
-                    let redirectTo = '/dashboard';
+                    let redirectTo = '/dashboard'; 
                     
                     
                     const storedRedirect = localStorage.getItem('postVerificationRedirect');
@@ -65,7 +59,19 @@ const AuthCallback = () => {
                         redirectTo = '/chat'; 
                     }
 
-                    console.log('Redirecting to:', redirectTo);
+                    
+                    const previousPath = document.referrer;
+                    if (previousPath && previousPath.includes('/ezperanza')) {
+                        redirectTo = '/ezperanza';
+                    }
+
+                    
+                    const intendedDestination = sessionStorage.getItem('auth_redirect');
+                    if (intendedDestination) {
+                        redirectTo = intendedDestination;
+                        sessionStorage.removeItem('auth_redirect');
+                    }
+
                     navigate(redirectTo, { replace: true });
 
                 } else {
