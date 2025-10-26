@@ -380,6 +380,7 @@ const CulturalForm = ({ onRegistrationSuccess, isAlreadyRegistered, showToast })
     const [contactNumber, setContactNumber] = useState('');
     const [scholarId, setScholarId] = useState('');
     const [performanceType, setPerformanceType] = useState('solo');
+    const [otherPerformanceType, setOtherPerformanceType] = useState('');
     const [groupMembers, setGroupMembers] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -389,9 +390,22 @@ const CulturalForm = ({ onRegistrationSuccess, isAlreadyRegistered, showToast })
         if (authProfile?.scholar_id) setScholarId(authProfile.scholar_id);
     }, [authProfile]);
 
+    // Reset other performance type when performance type changes
+    useEffect(() => {
+        if (performanceType !== 'other') {
+            setOtherPerformanceType('');
+        }
+    }, [performanceType]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isAlreadyRegistered) return;
+        
+        // Validate other performance type if selected
+        if (performanceType === 'other' && !otherPerformanceType.trim()) {
+            showToast('Please specify your performance type', 'error');
+            return;
+        }
         
         setLoading(true);
         
@@ -401,7 +415,11 @@ const CulturalForm = ({ onRegistrationSuccess, isAlreadyRegistered, showToast })
                 email: user?.email || '',
                 contact_number: contactNumber,
                 scholar_id: scholarId,
-                performance_type: performanceType,
+                performance_type: performanceType === 'other' ? otherPerformanceType : performanceType,
+                original_performance_type: performanceType, // Keep the original selection
+                ...(performanceType === 'other' && {
+                    other_performance_type: otherPerformanceType
+                }),
                 ...(performanceType === 'group' && {
                     group_members: groupMembers
                 })
@@ -501,9 +519,21 @@ const CulturalForm = ({ onRegistrationSuccess, isAlreadyRegistered, showToast })
                     <option value="group">Group Performance</option>
                     <option value="dance">Dance</option>
                     <option value="song">Song</option>
-                    <option value="other">Other</option>
+                    <option value="other">Other (Please specify)</option>
                 </select>
             </div>
+
+            {/* Other Performance Type Input - Only show when "Other" is selected */}
+            {performanceType === 'other' && (
+                <FormInput
+                    id="otherPerformanceType"
+                    label="Specify Your Performance Type"
+                    value={otherPerformanceType}
+                    onChange={(e) => setOtherPerformanceType(e.target.value)}
+                    placeholder="e.g., Drama, Poetry, Instrumental, etc."
+                    required
+                />
+            )}
 
             {performanceType === 'group' && (
                 <FormTextarea
@@ -541,17 +571,17 @@ const EventsRegistration = () => {
         rampwalk: {
             name: 'Rampwalk',
             slug: 'rampwalk',
-            whatsapp_group_link: 'https://chat.whatsapp.com/your-rampwalk-group-link'
+            whatsapp_group_link: 'https://chat.whatsapp.com/F3YCuEjZb0oHnJirIPc3S3?mode=wwt'
         },
         rizzShow: {
             name: 'Rizz Show',
             slug: 'rizz-show', 
-            whatsapp_group_link: 'https://chat.whatsapp.com/your-rizzshow-group-link'
+            whatsapp_group_link: 'https://chat.whatsapp.com/BUTPCVs5pg5IKDr35bz7Ll?mode=wwt'
         },
         cultural: {
             name: 'Cultural Event',
             slug: 'cultural',
-            whatsapp_group_link: 'https://chat.whatsapp.com/your-cultural-group-link'
+            whatsapp_group_link: 'https://chat.whatsapp.com/HYjp4oJt66FKEjcbs0j6sV?mode=wwt'
         }
     };
 
@@ -675,6 +705,8 @@ const EventsRegistration = () => {
             
             // Cultural specific
             performance_type: 'Performance Type',
+            original_performance_type: 'Original Selection',
+            other_performance_type: 'Other Performance Type',
             group_members: 'Group Members'
         };
 
