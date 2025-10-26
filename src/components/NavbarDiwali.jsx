@@ -13,7 +13,7 @@ const menuItems = [
   { path: '/wings', label: 'Wings' },
   { path: '/chat', label: 'Chat' },
   { path: '/materials', label: 'Materials' },
-  { path: '/editorials', label: 'Editorials' }
+  { path: '/esperanza', label: 'Esperanza' }
 ]
 
 // Color themes for the lights
