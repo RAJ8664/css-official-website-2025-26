@@ -5,9 +5,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Carousel from "../components/ui/Carousel";
 import AnimatedTestimonials from "../components/ui/PillarsOfCSS";
 import Chatbot from "../components/ui/Chatbot";
-import { NavbarDemo } from "../components/NavbarDiwali";
+import { NavbarDemo } from "../components/Navbar";
 import useAnnouncementObserver from '../hooks/useAnnouncementObserver';
 import DiwaliPopup from '../components/DiwaliPopup';
+import SponsorPopup from '../components/SponsorPopup';
 // Register GSAP plugins only once
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -177,7 +178,8 @@ function Home() {
   const animationRef = useRef(null);
   const videoRef = useRef(null);
   const { showPopup, setShowPopup } = useAnnouncementObserver();
-
+  const [showSponsorPopup, setShowSponsorPopup] = useState(false); 
+  const [sponsorPopupShown, setSponsorPopupShown] = useState(false);
   // Set mounted state
   useEffect(() => {
     setIsMounted(true);
@@ -203,6 +205,22 @@ function Home() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+    useEffect(() => {
+  const handleScroll = () => {
+    const sponsorsSection = document.getElementById('sponsors');
+    if (sponsorsSection && !sponsorPopupShown) { // Check sponsorPopupShown instead
+      const rect = sponsorsSection.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom >= 0) {
+        setShowSponsorPopup(true);
+      }
+    }
+  };
+
+  window.addEventListener('scroll', handleScroll);
+  handleScroll();
+  
+  return () => window.removeEventListener('scroll', handleScroll);
+}, [sponsorPopupShown]);
   // Memoize event handlers
   const handleKeyDown = useCallback((e) => {
     if (e.key === "Enter") {
@@ -643,7 +661,7 @@ function Home() {
         {/* Sponsors Section */}
   
         {/* Sponsors Section */}
-        <section className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-4 py-8 md:py-12 overflow-hidden">
+        <section id="sponsors"  className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-4 py-8 md:py-12 overflow-hidden">
           {/* Main Content */}
           <div className="relative z-10 w-full max-w-7xl mx-auto">
             {/* Section Header */}
@@ -764,10 +782,13 @@ function Home() {
             </div>
           </div>
         </section>
-        <DiwaliPopup 
-        isOpen={showPopup} 
-        onClose={() => setShowPopup(false)} 
-      />
+        <SponsorPopup 
+          isOpen={showSponsorPopup}
+          onClose={() => {
+            setShowSponsorPopup(false);
+            setSponsorPopupShown(true); // Mark as shown when closed
+          }}
+        />
 
         {/* Pillars Section */}
         <section className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-3 py-1 md:py-7 overflow-hidden">

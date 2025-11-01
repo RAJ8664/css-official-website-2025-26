@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom'
 import Member from './pages/Member'
 import Home from './pages/Home'
-import { NavbarDemo } from './components/NavbarDiwali'
+import { NavbarDemo } from './components/Navbar'
 import Events from './pages/Events'
 import MoreEvents from './pages/MoreEvents'
 import Auth from './pages/Auth'
@@ -360,7 +360,7 @@ const App = () => {
               />
             </Routes>
           </div>
-          <DiwaliWidget />
+          {/* <DiwaliWidget /> */}
           <Footer />
         </div>
       </BrowserRouter>
