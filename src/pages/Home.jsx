@@ -50,12 +50,18 @@ const PILLARS_TESTIMONIALS = [
 
 const SPONSORS_DATA = [
   {
-    name: "Pizza Hut",
-    logo: "https://res.cloudinary.com/dp4sknsba/image/upload/v1760259545/pizza_pos_ua3zyu.jpg",
-    href: "https://www.pizzahut.co.in"
-  }
+    name: "Momo Magic Cafe",
+    logo: "https://res.cloudinary.com/dp4sknsba/image/upload/v1761978633/download_iwxpso.png", // Replace with actual logo URL
+    href: "https://momomagiccafe.in/", // Replace with actual website
+    type: "Official Food Partner"
+  },
+  {
+    name: "Campa Cola",
+    logo: "https://res.cloudinary.com/dp4sknsba/image/upload/v1761978610/WhatsApp_Image_2025-10-31_at_17.10.58_722ac4a3_ar2y9k.jpg", // Replace with actual logo URL
+    href: "https://campabeverages.com/", // Replace with actual website
+    type: "Official Beverage Partner"
+  }
 ]
-
 
 // Preload critical images
 const preloadImages = () => {
@@ -635,90 +641,101 @@ function Home() {
         </section>
          
         {/* Sponsors Section */}
-        <section className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-3 py-1 md:py-7 overflow-hidden">
-  {/* Main Content */}
-  <div className="relative z-10 w-full max-w-7xl">
-    {/* Section Header */}
-    <div className="text-center mb-8 md:mb-16 px-2">
-      <div className="flex items-center justify-center mb-4 md:mb-6">
-        <div className="w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full mr-1 md:mr-2 animate-pulse"></div>
-        <div className="w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full mr-1 md:mr-2 animate-pulse" style={{animationDelay: '0.2s'}}></div>
-        <div className="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full mr-1 md:mr-2 animate-pulse" style={{animationDelay: '0.4s'}}></div>
-        <span className="text-cyan-400 font-mono text-xs md:text-sm bg-cyan-900/30 px-3 py-1 rounded-full border border-cyan-500/30">
-          SPONSORS_TERMINAL
-        </span>
-      </div>
-      
-      <h2 className="text-2xl md:text-6xl font-bold text-white mb-3 md:mb-6 font-mono">
-        <span className="text-cyan-400">$~ </span>
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-green-400 animate-gradient bg-300%">
-          Our Valued Sponsor
-        </span>
-      </h2>
-      
-      <p className="text-sm md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed bg-black/30 px-6 py-3 rounded-lg border border-cyan-500/20">
-        We are grateful for the support from our partner who helps us empower the next generation of tech leaders.
-      </p>
-    </div>
-
-    {/* Single Sponsor Display */}
-    <div className="bg-gradient-to-br from-black/60 to-cyan-900/20 rounded-2xl md:rounded-3xl border border-cyan-500/30 backdrop-blur-md shadow-2xl shadow-cyan-500/20 overflow-hidden p-6 md:p-12 relative">
-      {/* Animated background elements */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
-      <div className="absolute -top-10 -right-10 w-20 h-20 bg-cyan-400/10 rounded-full blur-xl"></div>
-      <div className="absolute -bottom-10 -left-10 w-20 h-20 bg-purple-400/10 rounded-full blur-xl"></div>
-      
-      <div className="flex flex-col items-center justify-center relative z-10">
-        {SPONSORS_DATA.length > 0 && (
-          <a
-            href={SPONSORS_DATA[0].href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative flex flex-col items-center justify-center p-8 md:p-12 bg-gradient-to-br from-gray-900/80 to-cyan-900/20 rounded-2xl border border-cyan-500/30 hover:border-cyan-400 transition-all duration-500 transform hover:scale-105 w-full max-w-2xl hover:shadow-2xl hover:shadow-cyan-500/30"
-          >
-            {/* Hover glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/10 to-cyan-500/0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            
-            {/* Sponsor Logo - BIGGER SIZE */}
-            <div className="relative z-10 p-6 bg-white/5 rounded-2xl border border-cyan-500/20 group-hover:border-cyan-400/50 transition-all duration-300 w-full max-w-lg">
-              <img
-                src={SPONSORS_DATA[0].logo}
-                alt={`${SPONSORS_DATA[0].name} logo`}
-                loading="lazy"
-                className="h-32 md:h-48 w-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:brightness-110"
-              />
+  
+        {/* Sponsors Section */}
+        <section className="relative min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-4 py-8 md:py-12 overflow-hidden">
+          {/* Main Content */}
+          <div className="relative z-10 w-full max-w-7xl mx-auto">
+            {/* Section Header */}
+            <div className="text-center mb-8 md:mb-16 px-2">
+              <div className="flex items-center justify-center mb-4 md:mb-6">
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full mr-1 md:mr-2 animate-pulse"></div>
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full mr-1 md:mr-2 animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full mr-1 md:mr-2 animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                <span className="text-cyan-400 font-mono text-xs md:text-sm bg-cyan-900/30 px-2 md:px-3 py-1 rounded-full border border-cyan-500/30">
+                  SPONSORS_TERMINAL
+                </span>
+              </div>
+              
+              <h2 className="text-3xl md:text-6xl font-bold text-white mb-4 md:mb-6 font-mono">
+                <span className="text-cyan-400">$~ </span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-green-400">
+                  Our Valued Partners
+                </span>
+              </h2>
+              
+              <p className="text-base md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed bg-black/30 px-4 py-3 md:px-6 md:py-3 rounded-lg border border-cyan-500/20">
+                We are grateful for the support from our partners who help us empower the next generation of tech leaders.
+              </p>
             </div>
-            
-            {/* Sponsor Name */}
-            <p className="mt-8 text-2xl md:text-4xl font-mono font-bold text-gray-300 group-hover:text-white transition-colors duration-300 bg-black/30 px-8 py-3 rounded-full border border-cyan-500/20 group-hover:border-cyan-400">
-              {SPONSORS_DATA[0].name}
-            </p>
-            
-            {/* Visit Website Text */}
-            <div className="mt-6 flex items-center text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
-              <span className="text-lg md:text-xl font-mono mr-3">Visit Website</span>
-              <svg className="w-5 h-5 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </div>
-          </a>
-        )}
-      </div>
-    </div>
 
-    {/* CTA Section */}
-    <div className="mt-8 md:mt-16 text-center">
-      <div className="inline-flex flex-col md:flex-row items-center gap-4 md:gap-6 px-6 py-4 rounded-2xl bg-gradient-to-r from-cyan-900/30 to-purple-900/30 border border-cyan-500/30 backdrop-blur-md">
-        <span className="text-cyan-400 font-mono text-sm md:text-base">
-          $~ become-a-sponsor --help
-        </span>
-        <button className="px-6 py-2 bg-cyan-500 hover:bg-cyan-400 text-white font-mono text-sm rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/30">
-          Join as Sponsor
-        </button>
-      </div>
-    </div>
-  </div>
-</section>
+            {/* Sponsors Grid - Stack on mobile, side-by-side on desktop */}
+            <div className="bg-gradient-to-br from-black/60 to-cyan-900/20 rounded-xl md:rounded-3xl border border-cyan-500/30 backdrop-blur-md shadow-xl md:shadow-2xl shadow-cyan-500/10 overflow-hidden p-4 md:p-8 lg:p-12 relative">
+              {/* Animated background elements */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
+              <div className="absolute -top-6 -right-6 w-16 h-16 md:-top-10 md:-right-10 md:w-20 md:h-20 bg-cyan-400/10 rounded-full blur-xl"></div>
+              <div className="absolute -bottom-6 -left-6 w-16 h-16 md:-bottom-10 md:-left-10 md:w-20 md:h-20 bg-purple-400/10 rounded-full blur-xl"></div>
+              
+              {/* Vertical layout for mobile, horizontal for desktop */}
+              <div className="flex flex-col md:grid md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 relative z-10">
+                {SPONSORS_DATA.map((sponsor, index) => (
+                  <a
+                    key={sponsor.name}
+                    href={sponsor.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative flex flex-col items-center justify-center p-4 md:p-6 lg:p-8 bg-gradient-to-br from-gray-900/80 to-cyan-900/20 rounded-xl md:rounded-2xl border border-cyan-500/30 hover:border-cyan-400 transition-all duration-300 transform hover:scale-[1.02] md:hover:scale-105 hover:shadow-lg md:hover:shadow-2xl hover:shadow-cyan-500/20"
+                  >
+                    {/* Hover glow effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-cyan-500/0 rounded-xl md:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    {/* Sponsor Type Badge - Smaller on mobile */}
+                    <div className="absolute -top-2 md:-top-3 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-cyan-500 text-white text-xs md:text-sm font-mono px-2 md:px-3 py-1 rounded-full border border-cyan-400/50 whitespace-nowrap">
+                        {sponsor.type}
+                      </span>
+                    </div>
+                    
+                    {/* Sponsor Logo - Responsive sizing */}
+                    <div className="relative z-10 p-3 md:p-4 lg:p-6 bg-white/5 rounded-xl md:rounded-2xl border border-cyan-500/20 group-hover:border-cyan-400/50 transition-all duration-300 w-full max-w-[280px] md:max-w-xs">
+                      <img
+                        src={sponsor.logo}
+                        alt={`${sponsor.name} logo`}
+                        loading="lazy"
+                        className="h-20 md:h-24 lg:h-32 w-full object-contain brightness-110"
+                      />
+                    </div>
+                    
+                    {/* Sponsor Name - Responsive text */}
+                    <p className="mt-4 md:mt-6 text-lg md:text-xl lg:text-2xl font-mono font-bold text-white text-center bg-black/30 px-4 py-2 md:px-6 md:py-2 rounded-full border border-cyan-500/20 group-hover:border-cyan-400 transition-colors duration-300">
+                      {sponsor.name}
+                    </p>
+                    
+                    {/* Visit Website Text - Smaller on mobile */}
+                    <div className="mt-3 md:mt-4 flex items-center text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
+                      <span className="text-xs md:text-sm lg:text-base font-mono mr-1 md:mr-2">Visit Website</span>
+                      <svg className="w-3 h-3 md:w-4 md:h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA Section - Responsive layout */}
+            <div className="mt-8 md:mt-12 lg:mt-16 text-center">
+              <div className="inline-flex flex-col md:flex-row items-center gap-3 md:gap-4 lg:gap-6 px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl bg-gradient-to-r from-cyan-900/30 to-purple-900/30 border border-cyan-500/30 backdrop-blur-md">
+                <span className="text-cyan-400 font-mono text-xs md:text-sm lg:text-base">
+                  $~ become-a-sponsor --help
+                </span>
+                <button className="px-4 py-2 md:px-6 md:py-2 bg-cyan-500 hover:bg-cyan-400 text-white font-mono text-xs md:text-sm rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/30">
+                  Join as Sponsor
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Announcement Section */}
         <section id="announcement" className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex flex-col items-center justify-center px-3 py-1 md:py-7 overflow-hidden">
