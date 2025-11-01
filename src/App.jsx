@@ -19,7 +19,6 @@ import AuthProvider from './context/AuthContext'
 import AuthCallback from './pages/AuthCallback'
 import Wings from './pages/Wings'
 import Developers from './pages/Developers'
-import EditorialsComingSoon from './pages/Editorials'
 
 import { useAuth } from './context/AuthContext'
 import AdminRoute from './components/AdminRoute'
