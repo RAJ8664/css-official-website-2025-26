@@ -178,8 +178,9 @@ function Home() {
   const animationRef = useRef(null);
   const videoRef = useRef(null);
   const { showPopup, setShowPopup } = useAnnouncementObserver();
-  const [showSponsorPopup, setShowSponsorPopup] = useState(false); 
-  const [sponsorPopupShown, setSponsorPopupShown] = useState(false);
+  const [showSponsorPopup, setShowSponsorPopup] = useState(false);
+const [showSecondSponsorPopup, setShowSecondSponsorPopup] = useState(false);
+const [sponsorPopupShown, setSponsorPopupShown] = useState(false);
   // Set mounted state
   useEffect(() => {
     setIsMounted(true);
@@ -205,10 +206,10 @@ function Home() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-    useEffect(() => {
+  useEffect(() => {
   const handleScroll = () => {
     const sponsorsSection = document.getElementById('sponsors');
-    if (sponsorsSection && !sponsorPopupShown) { // Check sponsorPopupShown instead
+    if (sponsorsSection && !sponsorPopupShown) {
       const rect = sponsorsSection.getBoundingClientRect();
       if (rect.top < window.innerHeight && rect.bottom >= 0) {
         setShowSponsorPopup(true);
@@ -783,12 +784,33 @@ function Home() {
           </div>
         </section>
         <SponsorPopup 
-          isOpen={showSponsorPopup}
-          onClose={() => {
-            setShowSponsorPopup(false);
-            setSponsorPopupShown(true); // Mark as shown when closed
-          }}
-        />
+  isOpen={showSponsorPopup}
+  onClose={() => {
+    setShowSponsorPopup(false);
+    setSponsorPopupShown(true);
+    // Show second popup after a short delay
+    setTimeout(() => {
+      setShowSecondSponsorPopup(true);
+    }, 500); // 500ms delay between popups
+  }}
+  sponsorData={{
+    name: "Campa Cola",
+    posterUrl: "https://res.cloudinary.com/dp4sknsba/image/upload/v1761985648/Freshers_Beverage_1_icue0p.jpg",
+    websiteUrl: "https://campabeverages.com/",
+    type: "Official Beverage Partner"
+  }}
+/>
+
+<SponsorPopup 
+  isOpen={showSecondSponsorPopup}
+  onClose={() => setShowSecondSponsorPopup(false)}
+  sponsorData={{
+    name: "Momo Magic Cafe",
+    posterUrl: "https://res.cloudinary.com/dp4sknsba/image/upload/v1761996566/Freshers_Food_Final_znhgie.jpg",
+    websiteUrl: "https://momomagiccafe.in/",
+    type: "Official Food Partner"
+  }}
+/>
 
         {/* Pillars Section */}
         <section className="relative min-h-[90vh] md:min-h-screen bg-[linear-gradient(to_right,#000000_55%,#021547_100%)] text-white flex items-center justify-center px-3 py-1 md:py-7 overflow-hidden">
